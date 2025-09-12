@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Menu, ChevronDown, Settings2, X, Moon, Sun, Clock } from "lucide-react";
 
 type Theme = "dark" | "light" | "system";
@@ -84,6 +84,68 @@ export default function TopNavigation({
 }: TopNavigationProps) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isAccountSelectorOpen, setIsAccountSelectorOpen] = useState(false);
+  
+  // Typing animation for search placeholder
+  const placeholderQuestions = [
+    "What's the YTD performance vs S&P 500?",
+    "Show me the top 10 holdings by weight",
+    "What's the portfolio's beta and volatility?", 
+    "How is the portfolio allocated by sector?",
+    "What are the biggest risk exposures?",
+    "Which positions had the best performance?",
+    "What's driving current performance attribution?",
+    "Show me recent portfolio activity summary"
+  ];
+  
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(true);
+  
+  // Typewriter animation effect for search placeholder
+  useEffect(() => {
+    if (searchValue || isSearchFocused) {
+      setDisplayedText("");
+      return;
+    }
+    
+    const currentQuestion = placeholderQuestions[currentPlaceholder];
+    let timeoutId: NodeJS.Timeout;
+    
+    if (isTyping) {
+      // Typing animation
+      if (displayedText.length < currentQuestion.length) {
+        timeoutId = setTimeout(() => {
+          setDisplayedText(currentQuestion.slice(0, displayedText.length + 1));
+        }, 50 + Math.random() * 100); // Variable speed for natural feel
+      } else {
+        // Pause before erasing
+        timeoutId = setTimeout(() => {
+          setIsTyping(false);
+        }, 2000);
+      }
+    } else {
+      // Erasing animation
+      if (displayedText.length > 0) {
+        timeoutId = setTimeout(() => {
+          setDisplayedText(displayedText.slice(0, -1));
+        }, 30);
+      } else {
+        // Move to next question
+        setCurrentPlaceholder((prev) => (prev + 1) % placeholderQuestions.length);
+        setIsTyping(true);
+      }
+    }
+    
+    return () => clearTimeout(timeoutId);
+  }, [displayedText, isTyping, currentPlaceholder, searchValue, isSearchFocused]);
+  
+  // Reset animation when search becomes inactive
+  useEffect(() => {
+    if (!searchValue && !isSearchFocused) {
+      setDisplayedText("");
+      setIsTyping(true);
+    }
+  }, [searchValue, isSearchFocused]);
   
   // Local state for pending changes (to prevent API calls on every selection)
   const [pendingSelectionMode, setPendingSelectionMode] = useState(selectionMode);
@@ -186,9 +248,9 @@ export default function TopNavigation({
 
   return (
     <nav className="bg-card border-b border-card-border px-2 sm:px-4 py-1.5">
-      <div className="flex items-center justify-between w-full h-10">
+      <div className="grid grid-cols-3 items-center w-full h-10">
         {/* Left: Logo */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 justify-start">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -207,15 +269,15 @@ export default function TopNavigation({
         </div>
 
         {/* Center: Search */}
-        <div className="flex-1 max-w-2xl mx-2 sm:mx-4">
-          <div className="relative">
-            <Search className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 transition-colors duration-200 ${
+        <div className="flex justify-center">
+          <div className="relative w-full max-w-md">
+            <Search className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 transition-colors duration-200 z-10 ${
               isSearchFocused ? 'text-primary' : 'text-muted-foreground'
             }`} />
             <Input
               type="search"
-              placeholder="Search portfolio..."
-              className={`h-8 pl-8 pr-3 text-sm rounded-md transition-all duration-200 ${
+              placeholder=""
+              className={`h-8 pl-8 pr-3 text-sm rounded-md transition-all duration-200 w-full ${
                 isSearchFocused ? 'bg-background border ring-2 ring-primary/20 border-primary/30' : 'bg-muted/30 border-transparent hover:bg-muted/50 hover:border-border'
               }`}
               value={searchValue}
@@ -225,11 +287,19 @@ export default function TopNavigation({
               onBlur={handleSearchBlur}
               data-testid="input-search"
             />
+            {!searchValue && !isSearchFocused && (
+              <div className="absolute inset-0 pl-8 pr-3 h-8 flex items-center pointer-events-none">
+                <span className="text-sm text-muted-foreground/70 font-normal">
+                  {displayedText}
+                  <span className="animate-pulse ml-1 opacity-70">|</span>
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right: Timeframe, Theme Toggle, and Account Selection */}
-        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 justify-end">
           {/* Timeframe selector - compact */}
           <div className="hidden sm:flex items-center gap-1">
             <Select value={timeframe} onValueChange={onTimeframeChange}>

@@ -482,7 +482,7 @@ function FinSightDashboard() {
                           <input
                             type="text"
                             placeholder=""
-                            className="w-full h-16 pl-12 pr-4 text-lg rounded-2xl border-2 border-border bg-background/50 backdrop-blur-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
+                            className="w-full h-16 pl-12 pr-4 text-lg rounded-2xl border-2 border-border bg-background/50 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
                             value={searchValue}
                             onChange={(e) => setSearchValue(e.target.value)}
                             onFocus={() => setIsSearchFocused(true)}
