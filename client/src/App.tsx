@@ -19,6 +19,70 @@ function FinSightDashboard() {
   const { theme, setTheme } = useTheme();
   const [searchValue, setSearchValue] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  
+  // Rotating placeholder questions for Financial Advisors
+  const placeholderQuestions = [
+    "What's the YTD performance vs S&P 500?",
+    "Show me the top 10 holdings by weight",
+    "What's the portfolio's beta and volatility?", 
+    "How is the portfolio allocated by sector?",
+    "What are the biggest risk exposures?",
+    "Which positions had the best performance?",
+    "How much dividend income was generated?",
+    "What's the expense ratio breakdown?",
+    "Show me ESG scores for major holdings",
+    "Compare returns to the benchmark"
+  ];
+  
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(true);
+  
+  // Typewriter animation effect
+  useEffect(() => {
+    if (searchValue || isSearchFocused) {
+      setDisplayedText("");
+      return;
+    }
+    
+    const currentQuestion = placeholderQuestions[currentPlaceholder];
+    let timeoutId: NodeJS.Timeout;
+    
+    if (isTyping) {
+      // Typing animation
+      if (displayedText.length < currentQuestion.length) {
+        timeoutId = setTimeout(() => {
+          setDisplayedText(currentQuestion.slice(0, displayedText.length + 1));
+        }, 50 + Math.random() * 100); // Variable speed for natural feel
+      } else {
+        // Pause before erasing
+        timeoutId = setTimeout(() => {
+          setIsTyping(false);
+        }, 2000);
+      }
+    } else {
+      // Erasing animation
+      if (displayedText.length > 0) {
+        timeoutId = setTimeout(() => {
+          setDisplayedText(displayedText.slice(0, -1));
+        }, 30);
+      } else {
+        // Move to next question
+        setCurrentPlaceholder((prev) => (prev + 1) % placeholderQuestions.length);
+        setIsTyping(true);
+      }
+    }
+    
+    return () => clearTimeout(timeoutId);
+  }, [displayedText, isTyping, currentPlaceholder, searchValue, isSearchFocused]);
+  
+  // Reset animation when search becomes inactive
+  useEffect(() => {
+    if (!searchValue && !isSearchFocused) {
+      setDisplayedText("");
+      setIsTyping(true);
+    }
+  }, [searchValue, isSearchFocused]);
   const [selectionMode, setSelectionMode] = useState<'accounts' | 'group'>('accounts');
   const [selectedAccountIds, setSelectedAccountIds] = useState(new Set(['ACC001', 'ACC002']));
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
@@ -367,19 +431,29 @@ function FinSightDashboard() {
                     <div className="max-w-2xl mx-auto mb-6">
                       <div className="relative">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <input
-                          type="text"
-                          placeholder="What's the YTD performance vs S&P 500?"
-                          className="w-full h-16 pl-12 pr-4 text-lg rounded-2xl border-2 border-border bg-background/50 backdrop-blur-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200 placeholder:text-muted-foreground/70"
-                          value={searchValue}
-                          onChange={(e) => setSearchValue(e.target.value)}
-                          onFocus={() => setIsSearchFocused(true)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && searchValue.trim()) {
-                              handleSearchSubmit(searchValue);
-                            }
-                          }}
-                        />
+                        <div className="relative w-full">
+                          <input
+                            type="text"
+                            placeholder=""
+                            className="w-full h-16 pl-12 pr-4 text-lg rounded-2xl border-2 border-border bg-background/50 backdrop-blur-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
+                            value={searchValue}
+                            onChange={(e) => setSearchValue(e.target.value)}
+                            onFocus={() => setIsSearchFocused(true)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && searchValue.trim()) {
+                                handleSearchSubmit(searchValue);
+                              }
+                            }}
+                          />
+                          {!searchValue && !isSearchFocused && (
+                            <div className="absolute inset-0 pl-12 pr-4 h-16 flex items-center pointer-events-none">
+                              <span className="text-lg text-muted-foreground/70 font-normal">
+                                {displayedText}
+                                <span className="animate-pulse ml-1 opacity-70">|</span>
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <p className="text-sm text-muted-foreground mt-3">
                         Currently analyzing <span className="font-medium">{selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}</span> • <span className="font-medium">{timeframe.toUpperCase()}</span> timeframe

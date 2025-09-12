@@ -23,7 +23,10 @@ FinSight is a professional financial advisory platform designed to provide portf
 - ✅ **COMPLETED**: Unified search experience - header input and overlay now work as one cohesive command palette
 - ✅ Added professional focus management and seamless state synchronization
 - ✅ Created mobile-optimized Dialog interface for touch devices
-- ⏳ **Next**: Add fuzzy search with highlighting and further visual refinements
+- ✅ **COMPLETED**: Prominent search interface in empty state with rotating placeholder animations
+- ✅ Optimized overlay space utilization with compact layouts and better information density
+- 🚧 **In Progress**: Adding rotating typewriter animation for search placeholders to inspire FA questions
+- ⏳ **Next**: Add fuzzy search with highlighting and search transition animations
 
 **Key Architectural Decisions**:
 - Adopted shadcn/ui Command component for unified search interface
@@ -72,9 +75,11 @@ Preferred communication style: Simple, everyday language.
 
 ### Key Features
 - **Unified Command Palette**: Bloomberg Terminal-inspired search interface replacing traditional header search
-- **Search-Centric Interface**: Perplexity-style discovery with category-based organization
+- **Prominent Search Experience**: Large, central search input in empty state with rotating placeholder animations
+- **Search-Centric Interface**: Perplexity-style discovery with category-based organization and compact overlay layouts
+- **Rotating Question Inspiration**: Typewriter-style animation cycling through 10 example FA questions to inspire users
 - **Answer Cards**: Structured financial data presentation with KPIs, charts, and tables
-- **Context Management**: Persistent account and timeframe selection
+- **Context Management**: Persistent account and timeframe selection with contextual search hints
 - **History System**: Query history with context snapshots
 - **Professional Design**: Compact, space-optimized layouts with institutional-grade aesthetics
 - **Accessibility**: Full keyboard navigation with ARIA support for professional workflows

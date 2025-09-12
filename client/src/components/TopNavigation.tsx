@@ -209,8 +209,8 @@ export default function TopNavigation({
             <Input
               type="search"
               placeholder="Search portfolio..."
-              className={`h-8 pl-8 pr-3 text-sm rounded-md bg-background border transition-all duration-200 ${
-                isSearchFocused ? 'ring-2 ring-primary/20 border-primary/30' : 'border-border'
+              className={`h-8 pl-8 pr-3 text-sm rounded-md transition-all duration-200 ${
+                isSearchFocused ? 'bg-background border ring-2 ring-primary/20 border-primary/30' : 'bg-muted/30 border-transparent hover:bg-muted/50 hover:border-border'
               }`}
               value={searchValue}
               onChange={handleSearchChange}

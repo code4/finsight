@@ -168,7 +168,20 @@ export default function SearchOverlay({
           e.preventDefault();
         }}
       >
-        <Command className="rounded-lg border bg-popover shadow-lg" shouldFilter={false}>
+        <Command 
+          className="rounded-lg border bg-popover shadow-lg" 
+          shouldFilter={false}
+          onKeyDown={(e) => {
+            // Ensure proper keyboard navigation
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+              // Let Command handle the navigation
+              return;
+            }
+            if (e.key === 'Escape') {
+              onClose?.();
+            }
+          }}
+        >
           {/* Unified search input with context */}
           <div className="border-b">
             <CommandInput 
@@ -344,7 +357,20 @@ export default function SearchOverlay({
       {/* Mobile Full-Screen Dialog */}
       <Dialog open={isOpen && typeof window !== 'undefined' && window.innerWidth < 768} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-full h-full p-0">
-          <Command className="h-full" shouldFilter={false}>
+          <Command 
+            className="h-full" 
+            shouldFilter={false}
+            onKeyDown={(e) => {
+              // Ensure proper keyboard navigation
+              if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                // Let Command handle the navigation
+                return;
+              }
+              if (e.key === 'Escape') {
+                onClose?.();
+              }
+            }}
+          >
             <div className="border-b px-3">
               <CommandInput 
                 placeholder="Search questions, categories..."
