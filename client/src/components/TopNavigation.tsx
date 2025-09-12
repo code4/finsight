@@ -36,6 +36,7 @@ interface TopNavigationProps {
   onSearchChange?: (value: string) => void;
   searchValue?: string;
   onMenuClick?: () => void;
+  hideSearch?: boolean;
   // Account selector props
   allAccounts: Account[];
   accountGroups: AccountGroup[];
@@ -68,6 +69,7 @@ export default function TopNavigation({
   onSearchChange, 
   searchValue = "",
   onMenuClick,
+  hideSearch = false,
   allAccounts,
   accountGroups,
   selectedAccounts,
@@ -229,21 +231,30 @@ export default function TopNavigation({
   const handleSearchFocus = () => {
     setIsSearchFocused(true);
     onSearchFocus?.();
+    // Blur the header input so focus can transfer to overlay
+    setTimeout(() => {
+      if (document.activeElement && document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }, 50);
     console.log('Search focused');
   };
 
   const handleSearchClick = () => {
     // Ensure overlay opens even if input is already focused
     onSearchFocus?.();
+    // Blur the header input so focus can transfer to overlay
+    setTimeout(() => {
+      if (document.activeElement && document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }, 50);
     console.log('Search clicked');
   };
 
   const handleSearchBlur = () => {
-    setIsSearchFocused(false);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearchChange?.(e.target.value);
+    // Don't blur immediately - let the overlay handle this
+    // setIsSearchFocused(false);
   };
 
   return (
@@ -270,32 +281,33 @@ export default function TopNavigation({
 
         {/* Center: Search */}
         <div className="flex justify-center">
-          <div className="relative w-full max-w-md">
-            <Search className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 transition-colors duration-200 z-10 ${
-              isSearchFocused ? 'text-primary' : 'text-muted-foreground'
-            }`} />
-            <Input
-              type="search"
-              placeholder=""
-              className={`h-8 pl-8 pr-3 text-sm rounded-md transition-all duration-200 w-full ${
-                isSearchFocused ? 'bg-background border ring-2 ring-primary/20 border-primary/30' : 'bg-muted/30 border-transparent hover:bg-muted/50 hover:border-border'
-              }`}
-              value={searchValue}
-              onChange={handleSearchChange}
-              onFocus={handleSearchFocus}
-              onClick={handleSearchClick}
-              onBlur={handleSearchBlur}
-              data-testid="input-search"
-            />
-            {!searchValue && !isSearchFocused && (
-              <div className="absolute inset-0 pl-8 pr-3 h-8 flex items-center pointer-events-none">
-                <span className="text-sm text-muted-foreground/70 font-normal">
-                  {displayedText}
-                  <span className="animate-pulse ml-1 opacity-70">|</span>
-                </span>
-              </div>
-            )}
-          </div>
+          {!hideSearch && (
+            <div className="relative w-full max-w-md animate-in fade-in-0 duration-500">
+              <Search className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 transition-colors duration-200 z-10 ${
+                isSearchFocused ? 'text-primary' : 'text-muted-foreground'
+              }`} />
+              <Input
+                type="search"
+                placeholder=""
+                className={`h-8 pl-8 pr-3 text-sm rounded-md transition-all duration-200 w-full cursor-pointer ${
+                  isSearchFocused ? 'bg-background border ring-2 ring-primary/20 border-primary/30' : 'bg-muted/30 border-transparent hover:bg-muted/50 hover:border-border'
+                }`}
+                value=""
+                readOnly
+                onFocus={handleSearchFocus}
+                onClick={handleSearchClick}
+                data-testid="input-search"
+              />
+              {!searchValue && !isSearchFocused && (
+                <div className="absolute inset-0 pl-8 pr-3 h-8 flex items-center pointer-events-none">
+                  <span className="text-sm text-muted-foreground/70 font-normal">
+                    {displayedText}
+                    <span className="animate-pulse ml-1 opacity-70">|</span>
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right: Timeframe, Theme Toggle, and Account Selection */}

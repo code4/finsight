@@ -7,12 +7,21 @@ interface AnswerCardSkeletonProps {
   loadingStage?: string;
   loadingProgress?: number;
   estimatedTime?: number;
+  selectedAccounts?: Array<{
+    id: string;
+    name: string;
+    alias?: string;
+    accountNumber: string;
+  }>;
+  timeframe?: string;
 }
 
 export default function AnswerCardSkeleton({ 
   loadingStage = "Analyzing portfolio data...",
   loadingProgress = 0,
-  estimatedTime = 0
+  estimatedTime = 0,
+  selectedAccounts = [],
+  timeframe = "YTD"
 }: AnswerCardSkeletonProps) {
   return (
     <Card className="mb-6 animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
@@ -22,12 +31,24 @@ export default function AnswerCardSkeleton({
             {/* Question skeleton */}
             <Skeleton className="h-6 w-4/5 mb-3" />
             
-            {/* Badges skeleton */}
+            {/* Context badges showing actual account/timeframe info */}
             <div className="flex items-center gap-2 flex-wrap">
-              <Skeleton className="h-5 w-28" />
-              <Skeleton className="h-5 w-20" />
-              <Skeleton className="h-5 w-16" />
-              <Skeleton className="h-5 w-24" />
+              <div className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
+                {timeframe.toUpperCase()}
+              </div>
+              <div className="px-2 py-1 bg-muted/50 text-muted-foreground rounded-md text-xs">
+                {selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}
+              </div>
+              {selectedAccounts.slice(0, 2).map((account, index) => (
+                <div key={account.id} className="px-2 py-1 bg-muted/30 text-muted-foreground rounded-md text-xs truncate max-w-32">
+                  {account.alias || account.name}
+                </div>
+              ))}
+              {selectedAccounts.length > 2 && (
+                <div className="px-2 py-1 bg-muted/30 text-muted-foreground rounded-md text-xs">
+                  +{selectedAccounts.length - 2} more
+                </div>
+              )}
             </div>
           </div>
           
@@ -65,37 +86,40 @@ export default function AnswerCardSkeleton({
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0">
+      <CardContent className="space-y-6">
         {/* Content paragraph skeleton */}
-        <div className="mb-6 space-y-2">
+        <div className="space-y-2">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
         </div>
         
-        {/* KPIs skeleton */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {/* KPIs skeleton - match real dimensions */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="p-3 bg-card rounded-lg border space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-6 w-16" />
-              <Skeleton className="h-3 w-12" />
+            <div key={i} className="bg-muted/50 rounded-lg p-4 text-center space-y-1">
+              <Skeleton className="h-8 lg:h-10 w-16 mx-auto" /> {/* KPI value */}
+              <Skeleton className="h-3 w-full" /> {/* KPI label */}
+              <Skeleton className="h-3 w-8 mx-auto" /> {/* KPI change */}
             </div>
           ))}
         </div>
         
-        {/* Chart skeleton */}
-        <div className="mb-6">
-          <Skeleton className="h-64 w-full rounded-lg" />
+        {/* Chart skeleton - match real chart container */}
+        <div>
+          <Skeleton className="h-4 w-32 mb-3" /> {/* Chart title */}
+          <div className="rounded-lg border border-border/50 p-4 bg-muted/30">
+            <Skeleton className="h-64 w-full rounded" />
+          </div>
         </div>
         
-        {/* Follow-up questions skeleton */}
-        <div className="space-y-3">
-          <Skeleton className="h-4 w-32" />
+        {/* Follow-up questions skeleton - match FollowUpChips exactly */}
+        <div>
+          <Skeleton className="h-4 w-32 mb-3" /> {/* Title: "Follow-up Questions" */}
           <div className="flex flex-wrap gap-2">
-            <Skeleton className="h-8 w-40 rounded-full" />
-            <Skeleton className="h-8 w-32 rounded-full" />
-            <Skeleton className="h-8 w-36 rounded-full" />
+            <Skeleton className="h-8 w-40 rounded-md" />
+            <Skeleton className="h-8 w-32 rounded-md" />
+            <Skeleton className="h-8 w-36 rounded-md" />
           </div>
         </div>
       </CardContent>

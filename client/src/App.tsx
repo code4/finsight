@@ -100,6 +100,7 @@ function FinSightDashboard() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingStage, setLoadingStage] = useState<string>("");
   const [estimatedTime, setEstimatedTime] = useState<number>(0);
+  const [isSearchTransitioning, setIsSearchTransitioning] = useState(false);
   const newAnswerRef = useRef<HTMLDivElement>(null);
 
   // Mock data - todo: replace with real data
@@ -190,25 +191,28 @@ function FinSightDashboard() {
     console.log('Group selection changed:', groupId);
   };
 
-  // Smooth scroll to new answer when created
+  // Smooth scroll to new answer when created - but skip if skeleton already scrolled
   useEffect(() => {
     if (newAnswerId && newAnswerRef.current) {
-      // Small delay to ensure the answer is rendered
-      setTimeout(() => {
-        // Scroll the new answer into view
-        newAnswerRef.current?.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start',
-          inline: 'nearest'
-        });
-        
-        // Clear the highlight after a delay
+      // Only scroll if this is not the first answer (skeleton handles first answer scroll)
+      if (answers.length > 1) {
+        // Small delay to ensure the answer is rendered
         setTimeout(() => {
-          setNewAnswerId(null);
-        }, 2000);
-      }, 100);
+          // Scroll the new answer into view
+          newAnswerRef.current?.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest'
+          });
+        }, 100);
+      }
+      
+      // Clear the highlight after a delay
+      setTimeout(() => {
+        setNewAnswerId(null);
+      }, 2000);
     }
-  }, [newAnswerId]);
+  }, [newAnswerId, answers.length]);
 
   // todo: remove mock functionality
   const handleSearchSubmit = async (question: string) => {
@@ -217,25 +221,42 @@ function FinSightDashboard() {
     setIsGeneratingAnswer(true);
     setLoadingProgress(0);
     
-    // Scroll to where the loading skeleton will appear after overlay closes
-    setTimeout(() => {
-      const loadingSkeleton = document.querySelector('[data-loading-skeleton]');
-      if (loadingSkeleton) {
-        loadingSkeleton.scrollIntoView({ 
+    // Start search transition animation if this is the first question
+    if (answers.length === 0) {
+      setIsSearchTransitioning(true);
+    }
+    
+    // Scroll to where the loading skeleton will appear after overlay closes and animation starts
+    const scrollToSkeleton = () => {
+      // Target skeleton specifically during loading phase
+      const scrollTarget = document.querySelector('[data-loading-skeleton-first]') || 
+                          document.querySelector('[data-loading-skeleton]');
+      if (scrollTarget) {
+        scrollTarget.scrollIntoView({ 
           behavior: 'smooth',
           block: 'start',
           inline: 'nearest'
         });
+        return true;
       }
-    }, 150);
+      return false;
+    };
+
+    // Try to scroll after DOM updates
+    setTimeout(() => {
+      if (!scrollToSkeleton()) {
+        // If first attempt fails, try again with a longer delay
+        setTimeout(scrollToSkeleton, 100);
+      }
+    }, answers.length === 0 ? 200 : 150);
     
-    // Define loading stages with estimated times
+    // Define loading stages with estimated times (longer for better UX)
     const loadingStages = [
-      { message: "Analyzing portfolio data...", duration: 400, progress: 20 },
-      { message: "Calculating performance metrics...", duration: 500, progress: 45 },
-      { message: "Comparing with benchmarks...", duration: 300, progress: 70 },
-      { message: "Generating insights...", duration: 400, progress: 90 },
-      { message: "Finalizing analysis...", duration: 200, progress: 100 }
+      { message: "Analyzing portfolio data...", duration: 800, progress: 20 },
+      { message: "Calculating performance metrics...", duration: 900, progress: 45 },
+      { message: "Comparing with benchmarks...", duration: 700, progress: 70 },
+      { message: "Generating insights...", duration: 800, progress: 90 },
+      { message: "Finalizing analysis...", duration: 400, progress: 100 }
     ];
     
     // Set estimated total time
@@ -347,6 +368,14 @@ function FinSightDashboard() {
     setLoadingProgress(0);
     setLoadingStage("");
     setEstimatedTime(0);
+    
+    // Complete search transition animation after a short delay
+    if (isSearchTransitioning) {
+      setTimeout(() => {
+        setIsSearchTransitioning(false);
+      }, 500);
+    }
+    
     console.log('New question submitted:', question);
   };
 
@@ -407,6 +436,15 @@ function FinSightDashboard() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
+      {/* Overlay backdrop - click to close */}
+      {isSearchFocused && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-[60]"
+          onClick={handleCloseSearch}
+          data-testid="search-overlay-backdrop"
+        />
+      )}
+      
       {/* Top Navigation */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/40 flex-shrink-0">
         <TopNavigation
@@ -426,10 +464,13 @@ function FinSightDashboard() {
           onTimeframeChange={setTimeframe}
           theme={theme}
           onThemeChange={setTheme}
+          hideSearch={(answers.length === 0 && !isSearchTransitioning) || isSearchFocused}
         />
-        
-        {/* Search Overlay */}
-        <div className="relative max-w-4xl mx-auto px-4">
+      </div>
+      
+      {/* Search Overlay - positioned outside header to be above backdrop */}
+      <div className="fixed top-0 left-0 right-0 z-[70] pointer-events-none">
+        <div className="relative max-w-4xl mx-auto px-4 pointer-events-auto">
           <SearchOverlay 
             isOpen={isSearchFocused}
             searchValue={searchValue}
@@ -439,61 +480,66 @@ function FinSightDashboard() {
             onClose={handleCloseSearch}
           />
         </div>
-        
-        {/* Overlay backdrop - click to close */}
-        {isSearchFocused && (
-          <div 
-            className="fixed inset-0 bg-black/20 z-40"
-            onClick={handleCloseSearch}
-            data-testid="search-overlay-backdrop"
-          />
-        )}
       </div>
 
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
+      <main className={`flex-1 ${isSearchFocused ? 'overflow-hidden' : 'overflow-hidden'}`}>
         <div className="h-full flex flex-col">
           {/* Main Content Area - Full width utilization */}
-          <div className="flex-1 min-w-0 px-2 sm:px-4 py-4 sm:py-6 overflow-y-auto">
+          <div className={`flex-1 min-w-0 px-2 sm:px-4 py-4 sm:py-6 ${isSearchFocused ? 'overflow-hidden' : 'overflow-y-auto'}`}>
             <div className="max-w-none mx-auto">
-              {answers.length === 0 ? (
-                <div className="max-w-4xl mx-auto py-8 lg:py-12">
-                  {/* Prominent Search Hero Section */}
-                  <div className="text-center mb-16">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-2xl mb-8">
-                      <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Show skeleton immediately when first answer is loading */}
+              {isGeneratingAnswer && answers.length === 0 && (
+                <div 
+                  data-loading-skeleton-first 
+                  className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500"
+                >
+                  <AnswerCardSkeleton 
+                    loadingStage={loadingStage}
+                    loadingProgress={loadingProgress}
+                    estimatedTime={estimatedTime}
+                    selectedAccounts={selectedAccounts}
+                    timeframe={timeframe}
+                  />
+                </div>
+              )}
+              
+              {answers.length === 0 && !isGeneratingAnswer ? (
+                <div className="max-w-4xl mx-auto py-4 lg:py-6">
+                  {/* Compact Search Hero Section */}
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-6">
+                      <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                     </div>
                     
-                    <h1 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h1 className="text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                       Ask about your portfolio
                     </h1>
-                    <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+                    <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
                       Get instant analytics and insights by asking questions about your selected accounts
                     </p>
                     
                     {/* Prominent Search Input */}
-                    <div className="max-w-2xl mx-auto mb-6">
+                    <div className={`max-w-2xl mx-auto mb-4 transition-all duration-1000 ease-out ${
+                      isSearchTransitioning ? 'transform -translate-y-[calc(100vh-8rem)] scale-50 opacity-0' : ''
+                    }`}>
                       <div className="relative">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <div className="relative w-full">
                           <input
                             type="text"
                             placeholder=""
-                            className="w-full h-16 pl-12 pr-4 text-lg rounded-2xl border-2 border-border bg-background/50 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-                            value={searchValue}
-                            onChange={(e) => setSearchValue(e.target.value)}
+                            className="w-full h-14 pl-12 pr-4 text-lg rounded-xl border-2 border-primary/30 bg-background/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-200 shadow-sm focus:shadow-md cursor-pointer"
+                            value=""
+                            readOnly
                             onFocus={() => setIsSearchFocused(true)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && searchValue.trim()) {
-                                handleSearchSubmit(searchValue);
-                              }
-                            }}
+                            onClick={() => setIsSearchFocused(true)}
                           />
                           {!searchValue && !isSearchFocused && (
-                            <div className="absolute inset-0 pl-12 pr-4 h-16 flex items-center pointer-events-none">
+                            <div className="absolute inset-0 pl-12 pr-4 h-14 flex items-center pointer-events-none">
                               <span className="text-lg text-muted-foreground/70 font-normal">
                                 {displayedText}
                                 <span className="animate-pulse ml-1 opacity-70">|</span>
@@ -502,13 +548,13 @@ function FinSightDashboard() {
                           )}
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-3">
+                      <p className="text-sm text-muted-foreground mt-2">
                         Currently analyzing <span className="font-medium">{selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}</span> • <span className="font-medium">{timeframe.toUpperCase()}</span> timeframe
                       </p>
                     </div>
                     
                     {/* Quick Action Chips */}
-                    <div className="flex flex-wrap justify-center gap-2 mb-8">
+                    <div className="flex flex-wrap justify-center gap-2 mb-6">
                       {['YTD Performance', 'Risk Analysis', 'Top Holdings', 'Sector Allocation'].map((chip) => (
                         <button
                           key={chip}
@@ -529,8 +575,8 @@ function FinSightDashboard() {
                     </div>
                   </div>
 
-                  {/* Compact Sample Questions */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                  {/* Sample Questions - Expanded */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                     <div className="bg-card border rounded-lg p-6">
                       <div className="flex items-center mb-4">
                         <div className="flex items-center justify-center w-10 h-10 bg-chart-1/10 rounded-lg mr-3">
@@ -540,6 +586,7 @@ function FinSightDashboard() {
                         </div>
                         <h3 className="text-lg font-semibold">Performance Analysis</h3>
                       </div>
+                      
                       <div className="space-y-2">
                         <Button 
                           variant="ghost" 
@@ -574,6 +621,7 @@ function FinSightDashboard() {
                         </div>
                         <h3 className="text-lg font-semibold">Portfolio Composition</h3>
                       </div>
+                      
                       <div className="space-y-2">
                         <Button 
                           variant="ghost" 
@@ -607,6 +655,7 @@ function FinSightDashboard() {
                         </div>
                         <h3 className="text-lg font-semibold">Trading Activity</h3>
                       </div>
+                      
                       <div className="space-y-2">
                         <Button 
                           variant="ghost" 
@@ -640,6 +689,7 @@ function FinSightDashboard() {
                         </div>
                         <h3 className="text-lg font-semibold">Attribution Analysis</h3>
                       </div>
+                      
                       <div className="space-y-2">
                         <Button 
                           variant="ghost" 
@@ -659,6 +709,74 @@ function FinSightDashboard() {
                           <div>
                             <div className="font-medium">Sector Performance</div>
                             <div className="text-xs text-muted-foreground">Analyze sector-specific returns</div>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="bg-card border rounded-lg p-6">
+                      <div className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-10 h-10 bg-chart-5/10 rounded-lg mr-3">
+                          <svg className="w-5 h-5 text-chart-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold">Income & Dividends</h3>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("How much dividend income was generated this year?")}
+                        >
+                          <div>
+                            <div className="font-medium">Dividend Income YTD</div>
+                            <div className="text-xs text-muted-foreground">Track dividend payments and yield</div>
+                          </div>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("What are the highest dividend-yielding positions?")}
+                        >
+                          <div>
+                            <div className="font-medium">Top Dividend Stocks</div>
+                            <div className="text-xs text-muted-foreground">Identify best income generators</div>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="bg-card border rounded-lg p-6">
+                      <div className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-10 h-10 bg-emerald-500/10 rounded-lg mr-3">
+                          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold">ESG & Sustainability</h3>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("Show me ESG scores for major holdings")}
+                        >
+                          <div>
+                            <div className="font-medium">ESG Ratings Analysis</div>
+                            <div className="text-xs text-muted-foreground">Review sustainability metrics</div>
+                          </div>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("What's the portfolio's carbon footprint?")}
+                        >
+                          <div>
+                            <div className="font-medium">Carbon Impact Assessment</div>
+                            <div className="text-xs text-muted-foreground">Measure environmental footprint</div>
                           </div>
                         </Button>
                       </div>
@@ -716,18 +834,20 @@ function FinSightDashboard() {
               ) : (
                 <div className="space-y-6">
 
-                  {/* Show skeleton while generating new answer */}
-                  {isGeneratingAnswer && (
-                    <div data-loading-skeleton>
+                  {/* Show skeleton while generating subsequent answers */}
+                  {isGeneratingAnswer && answers.length > 0 && (
+                    <div data-loading-skeleton className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
                       <AnswerCardSkeleton 
                         loadingStage={loadingStage}
                         loadingProgress={loadingProgress}
                         estimatedTime={estimatedTime}
+                        selectedAccounts={selectedAccounts}
+                        timeframe={timeframe}
                       />
                     </div>
                   )}
                   
-                  {answers.map((answer) => (
+                  {answers.map((answer, index) => (
                     <div
                       key={answer.id}
                       ref={answer.id === newAnswerId ? newAnswerRef : null}
