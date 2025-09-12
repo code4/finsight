@@ -1,7 +1,19 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
+import { Loader2, Clock } from "lucide-react";
 
-export default function AnswerCardSkeleton() {
+interface AnswerCardSkeletonProps {
+  loadingStage?: string;
+  loadingProgress?: number;
+  estimatedTime?: number;
+}
+
+export default function AnswerCardSkeleton({ 
+  loadingStage = "Analyzing portfolio data...",
+  loadingProgress = 0,
+  estimatedTime = 0
+}: AnswerCardSkeletonProps) {
   return (
     <Card className="mb-6 animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
       <CardHeader className="pb-4">
@@ -23,6 +35,32 @@ export default function AnswerCardSkeleton() {
           <div className="flex gap-1">
             <Skeleton className="h-8 w-8 rounded-md" />
             <Skeleton className="h-8 w-8 rounded-md" />
+          </div>
+        </div>
+
+        {/* Loading Progress Section */}
+        <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                {loadingStage}
+              </span>
+            </div>
+            {estimatedTime > 0 && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                <span>~{estimatedTime}s remaining</span>
+              </div>
+            )}
+          </div>
+          
+          <div className="space-y-2">
+            <Progress value={loadingProgress} className="h-2" />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{loadingProgress}% complete</span>
+              <span>Processing {loadingProgress < 50 ? 'data' : 'analysis'}</span>
+            </div>
           </div>
         </div>
       </CardHeader>

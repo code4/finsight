@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Smooth scrolling for the entire document */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 2rem;
+}
+
+/* Enhanced smooth scrolling for containers */
+.overflow-y-auto, 
+.overflow-auto {
+  scroll-behavior: smooth;
+  scroll-padding-top: 1rem;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  html, * {
+    scroll-behavior: auto;
+  }
+}
+
 /* LIGHT MODE */
 :root {
   --button-outline: rgba(0,0,0, .10);

@@ -97,6 +97,9 @@ function FinSightDashboard() {
   }>>([]);
   const [newAnswerId, setNewAnswerId] = useState<string | null>(null);
   const [isGeneratingAnswer, setIsGeneratingAnswer] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingStage, setLoadingStage] = useState<string>("");
+  const [estimatedTime, setEstimatedTime] = useState<number>(0);
   const newAnswerRef = useRef<HTMLDivElement>(null);
 
   // Mock data - todo: replace with real data
@@ -150,6 +153,8 @@ function FinSightDashboard() {
     return [];
   }, [selectionMode, selectedAccountIds, selectedGroupId]);
 
+
+
   // Selection handlers
   const handleSelectionModeChange = (mode: 'accounts' | 'group') => {
     if (mode === selectionMode) return;
@@ -190,13 +195,14 @@ function FinSightDashboard() {
     if (newAnswerId && newAnswerRef.current) {
       // Small delay to ensure the answer is rendered
       setTimeout(() => {
+        // Scroll the new answer into view
         newAnswerRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
+          behavior: 'smooth',
           block: 'start',
           inline: 'nearest'
         });
         
-        // Clear the highlight after scrolling
+        // Clear the highlight after a delay
         setTimeout(() => {
           setNewAnswerId(null);
         }, 2000);
@@ -209,9 +215,41 @@ function FinSightDashboard() {
     setSearchValue("");
     setIsSearchFocused(false);
     setIsGeneratingAnswer(true);
-
-    // Simulate loading delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    setLoadingProgress(0);
+    
+    // Scroll to where the loading skeleton will appear after overlay closes
+    setTimeout(() => {
+      const loadingSkeleton = document.querySelector('[data-loading-skeleton]');
+      if (loadingSkeleton) {
+        loadingSkeleton.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      }
+    }, 150);
+    
+    // Define loading stages with estimated times
+    const loadingStages = [
+      { message: "Analyzing portfolio data...", duration: 400, progress: 20 },
+      { message: "Calculating performance metrics...", duration: 500, progress: 45 },
+      { message: "Comparing with benchmarks...", duration: 300, progress: 70 },
+      { message: "Generating insights...", duration: 400, progress: 90 },
+      { message: "Finalizing analysis...", duration: 200, progress: 100 }
+    ];
+    
+    // Set estimated total time
+    const totalTime = loadingStages.reduce((sum, stage) => sum + stage.duration, 0);
+    setEstimatedTime(Math.ceil(totalTime / 1000));
+    
+    // Execute loading stages progressively
+    for (let i = 0; i < loadingStages.length; i++) {
+      const stage = loadingStages[i];
+      setLoadingStage(stage.message);
+      setLoadingProgress(stage.progress);
+      
+      await new Promise(resolve => setTimeout(resolve, stage.duration));
+    }
 
     // Check if the question matches existing predefined questions (improved matching logic)
     const allPredefinedQuestions = [
@@ -268,10 +306,13 @@ function FinSightDashboard() {
       const newAnswer = {
         id: answerId,
         question,
-        asOfDate: new Date().toLocaleDateString('en-US', { 
+        asOfDate: new Date().toLocaleString('en-US', { 
           month: 'short', 
           day: 'numeric', 
-          year: 'numeric' 
+          year: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
         }),
         accounts: selectedAccounts.map(acc => `${acc.alias || acc.name} (${acc.accountNumber})`),
         timeframe: timeframe.toUpperCase(),
@@ -283,10 +324,13 @@ function FinSightDashboard() {
       const fallbackAnswer = {
         id: answerId,
         question,
-        asOfDate: new Date().toLocaleDateString('en-US', { 
+        asOfDate: new Date().toLocaleString('en-US', { 
           month: 'short', 
           day: 'numeric', 
-          year: 'numeric' 
+          year: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
         }),
         accounts: selectedAccounts.map(acc => `${acc.alias || acc.name} (${acc.accountNumber})`),
         timeframe: timeframe.toUpperCase(),
@@ -300,6 +344,9 @@ function FinSightDashboard() {
     
     setNewAnswerId(answerId);
     setIsGeneratingAnswer(false);
+    setLoadingProgress(0);
+    setLoadingStage("");
+    setEstimatedTime(0);
     console.log('New question submitted:', question);
   };
 
@@ -668,13 +715,24 @@ function FinSightDashboard() {
                 </div>
               ) : (
                 <div className="space-y-6">
+
                   {/* Show skeleton while generating new answer */}
-                  {isGeneratingAnswer && <AnswerCardSkeleton />}
+                  {isGeneratingAnswer && (
+                    <div data-loading-skeleton>
+                      <AnswerCardSkeleton 
+                        loadingStage={loadingStage}
+                        loadingProgress={loadingProgress}
+                        estimatedTime={estimatedTime}
+                      />
+                    </div>
+                  )}
                   
                   {answers.map((answer) => (
                     <div
                       key={answer.id}
                       ref={answer.id === newAnswerId ? newAnswerRef : null}
+                      data-answer-card
+                      data-answer-id={answer.id}
                       className={`transition-all duration-1000 ${
                         answer.id === newAnswerId 
                           ? 'ring-2 ring-primary/30 shadow-lg rounded-lg' 

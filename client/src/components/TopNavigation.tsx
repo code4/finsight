@@ -170,6 +170,12 @@ export default function TopNavigation({
     console.log('Search focused');
   };
 
+  const handleSearchClick = () => {
+    // Ensure overlay opens even if input is already focused
+    onSearchFocus?.();
+    console.log('Search clicked');
+  };
+
   const handleSearchBlur = () => {
     setIsSearchFocused(false);
   };
@@ -215,6 +221,7 @@ export default function TopNavigation({
               value={searchValue}
               onChange={handleSearchChange}
               onFocus={handleSearchFocus}
+              onClick={handleSearchClick}
               onBlur={handleSearchBlur}
               data-testid="input-search"
             />
@@ -239,12 +246,6 @@ export default function TopNavigation({
             </Select>
           </div>
 
-          {/* Account scope chip */}
-          <div className="flex items-center gap-1 px-2 py-1 bg-muted/50 rounded text-xs text-muted-foreground">
-            <span className="hidden sm:inline">{selectedAccounts.length}</span>
-            <span className="hidden sm:inline">acct{selectedAccounts.length !== 1 ? 's' : ''}</span>
-            <span className="sm:hidden">{selectedAccounts.length}</span>
-          </div>
 
           <Button
             variant="ghost"
