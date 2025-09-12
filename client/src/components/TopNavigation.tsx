@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Menu, ChevronDown, Settings2, X, Moon, Sun } from "lucide-react";
+import { Search, Menu, ChevronDown, Settings2, X, Moon, Sun, Clock } from "lucide-react";
 
 type Theme = "dark" | "light" | "system";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Account and group types
 interface Account {
@@ -45,10 +46,22 @@ interface TopNavigationProps {
   onSelectionModeChange: (mode: 'accounts' | 'group') => void;
   onAccountSelection: (accountIds: Set<string>) => void;
   onGroupSelection: (groupId: string) => void;
+  // Timeframe props
+  timeframe: string;
+  onTimeframeChange: (timeframe: string) => void;
   // Theme props
   theme?: Theme;
   onThemeChange?: (theme: Theme) => void;
 }
+
+// Timeframe options
+const timeframes = [
+  { value: "1d", label: "1D" },
+  { value: "1w", label: "1W" },
+  { value: "1m", label: "1M" },
+  { value: "ytd", label: "YTD" },
+  { value: "1y", label: "1Y" }
+];
 
 export default function TopNavigation({ 
   onSearchFocus, 
@@ -64,6 +77,8 @@ export default function TopNavigation({
   onSelectionModeChange,
   onAccountSelection,
   onGroupSelection,
+  timeframe,
+  onTimeframeChange,
   theme,
   onThemeChange
 }: TopNavigationProps) {
@@ -164,8 +179,8 @@ export default function TopNavigation({
   };
 
   return (
-    <nav className="bg-card border-b border-card-border px-2 sm:px-4 py-2">
-      <div className="flex items-center justify-between w-full">
+    <nav className="bg-card border-b border-card-border px-2 sm:px-4 py-1.5">
+      <div className="flex items-center justify-between w-full h-10">
         {/* Left: Logo */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           <Button 
@@ -178,26 +193,24 @@ export default function TopNavigation({
             <Menu className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-md flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xs sm:text-sm">FS</span>
+            <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xs">FS</span>
             </div>
-            <span className="font-semibold text-base sm:text-lg text-foreground">FinSight</span>
+            <span className="font-semibold text-sm text-foreground hidden md:block">FinSight</span>
           </div>
         </div>
 
         {/* Center: Search */}
-        <div className="flex-1 max-w-4xl mx-2 sm:mx-4 lg:mx-8">
-          <div className={`relative transition-all duration-300 ease-out ${
-            isSearchFocused ? 'scale-105' : 'scale-100'
-          }`}>
-            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors duration-200 ${
+        <div className="flex-1 max-w-2xl mx-2 sm:mx-4">
+          <div className="relative">
+            <Search className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 transition-colors duration-200 ${
               isSearchFocused ? 'text-primary' : 'text-muted-foreground'
             }`} />
             <Input
               type="search"
-              placeholder="Ask about portfolios, performance, risk..."
-              className={`pl-10 pr-4 py-2 rounded-full bg-background border transition-all duration-300 ease-out ${
-                isSearchFocused ? 'ring-2 ring-primary/20 shadow-lg border-primary/30' : 'border-border shadow-sm'
+              placeholder="Search portfolio..."
+              className={`h-8 pl-8 pr-3 text-sm rounded-md bg-background border transition-all duration-200 ${
+                isSearchFocused ? 'ring-2 ring-primary/20 border-primary/30' : 'border-border'
               }`}
               value={searchValue}
               onChange={handleSearchChange}
@@ -208,15 +221,39 @@ export default function TopNavigation({
           </div>
         </div>
 
-        {/* Right: Theme Toggle and Account Selection */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        {/* Right: Timeframe, Theme Toggle, and Account Selection */}
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          {/* Timeframe selector - compact */}
+          <div className="hidden sm:flex items-center gap-1">
+            <Select value={timeframe} onValueChange={onTimeframeChange}>
+              <SelectTrigger className="h-8 w-16 text-xs border-none bg-muted/50 hover:bg-muted">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {timeframes.map((tf) => (
+                  <SelectItem key={tf.value} value={tf.value} className="text-xs">
+                    {tf.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Account scope chip */}
+          <div className="flex items-center gap-1 px-2 py-1 bg-muted/50 rounded text-xs text-muted-foreground">
+            <span className="hidden sm:inline">{selectedAccounts.length}</span>
+            <span className="hidden sm:inline">acct{selectedAccounts.length !== 1 ? 's' : ''}</span>
+            <span className="sm:hidden">{selectedAccounts.length}</span>
+          </div>
+
           <Button
             variant="ghost"
             size="icon"
+            className="h-8 w-8"
             onClick={() => onThemeChange?.(theme === 'light' ? 'dark' : 'light')}
             data-testid="button-theme-toggle"
           >
-            {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            {theme === 'light' ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />}
           </Button>
 
           {/* Account selector popover */}
@@ -225,7 +262,7 @@ export default function TopNavigation({
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-2 hover-elevate"
+                className="gap-1 hover-elevate h-8 px-2"
                 data-testid="button-account-selector"
               >
                 <Settings2 className="h-4 w-4" />

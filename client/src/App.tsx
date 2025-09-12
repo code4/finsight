@@ -9,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 import TopNavigation from "@/components/TopNavigation";
 import SearchOverlay from "@/components/SearchOverlay";
-import ContextBar from "@/components/ContextBar";
 import AnswerCard from "@/components/AnswerCard";
 import AnswerCardSkeleton from "@/components/AnswerCardSkeleton";
 import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
@@ -311,6 +310,8 @@ function FinSightDashboard() {
           onSelectionModeChange={handleSelectionModeChange}
           onAccountSelection={handleAccountSelection}
           onGroupSelection={handleGroupSelection}
+          timeframe={timeframe}
+          onTimeframeChange={setTimeframe}
           theme={theme}
           onThemeChange={setTheme}
         />
@@ -336,14 +337,6 @@ function FinSightDashboard() {
         )}
       </div>
 
-      {/* Context Bar */}
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/20 flex-shrink-0">
-        <ContextBar 
-          selectedAccounts={selectedAccounts}
-          timeframe={timeframe}
-          onTimeframeChange={setTimeframe}
-        />
-      </div>
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
