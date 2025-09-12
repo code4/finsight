@@ -321,6 +321,7 @@ function FinSightDashboard() {
           <SearchOverlay 
             isOpen={isSearchFocused}
             searchValue={searchValue}
+            onSearchChange={setSearchValue}
             onQuestionSelect={handleSearchSubmit}
             onCategorySelect={(category) => console.log('Category:', category)}
             onClose={handleCloseSearch}

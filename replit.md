@@ -4,6 +4,33 @@
 
 FinSight is a professional financial advisory platform designed to provide portfolio analytics, risk assessment, and performance insights for financial advisors. The application follows a search-first, non-chatbot approach that emphasizes data discovery and structured answers rather than conversational interfaces. Built with React, TypeScript, and modern web technologies, it features a Bloomberg Terminal-inspired design with dark mode priority and institutional-grade credibility.
 
+## Current Focus & Goals
+
+### Current Development Sprint (Sep 2025)
+**Primary Goal**: Transform search experience from disjointed header input + overlay into unified command palette experience
+
+**Vision**: Create a seamless, Bloomberg Terminal-inspired search interface where:
+- Header search input and overlay work as one cohesive experience
+- Professional, compact design with clear visual hierarchy  
+- Full keyboard navigation and accessibility support
+- Unified search across questions, categories, and recent queries
+- Command palette pattern familiar to professional users
+
+**Progress Status**:
+- ✅ Successfully consolidated headers and optimized space utilization (reduced from 64-112px to ~52px)
+- ✅ Identified core UX issue: search input and overlay feel completely separate instead of unified
+- ✅ Implemented Command-based structure with proper ARIA support and keyboard navigation
+- ✅ **COMPLETED**: Unified search experience - header input and overlay now work as one cohesive command palette
+- ✅ Added professional focus management and seamless state synchronization
+- ✅ Created mobile-optimized Dialog interface for touch devices
+- ⏳ **Next**: Add fuzzy search with highlighting and further visual refinements
+
+**Key Architectural Decisions**:
+- Adopted shadcn/ui Command component for unified search interface
+- Moved from separate header input + overlay to integrated command palette
+- Implementing professional, compact Bloomberg-style design patterns
+- Focus on accessibility with full keyboard navigation and ARIA support
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -44,10 +71,13 @@ Preferred communication style: Simple, everyday language.
 - **Asset Management**: Vite-based asset bundling with path aliases
 
 ### Key Features
-- **Search-Centric Interface**: Perplexity-style search with category-based discovery
+- **Unified Command Palette**: Bloomberg Terminal-inspired search interface replacing traditional header search
+- **Search-Centric Interface**: Perplexity-style discovery with category-based organization
 - **Answer Cards**: Structured financial data presentation with KPIs, charts, and tables
 - **Context Management**: Persistent account and timeframe selection
 - **History System**: Query history with context snapshots
+- **Professional Design**: Compact, space-optimized layouts with institutional-grade aesthetics
+- **Accessibility**: Full keyboard navigation with ARIA support for professional workflows
 - **Responsive Design**: Mobile-first approach with professional desktop experience
 
 ## External Dependencies

@@ -1,12 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft, Search } from "lucide-react";
 
 interface SearchOverlayProps {
   isOpen?: boolean;
   searchValue?: string;
+  onSearchChange?: (value: string) => void;
   onCategorySelect?: (category: string) => void;
   onQuestionSelect?: (question: string) => void;
   onClose?: () => void;
@@ -94,31 +97,46 @@ const recentQueries = [
 export default function SearchOverlay({ 
   isOpen = false,
   searchValue = "",
+  onSearchChange,
   onCategorySelect,
   onQuestionSelect,
   onClose
 }: SearchOverlayProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
-  const [showCategoryView, setShowCategoryView] = useState(false);
+  const [mode, setMode] = useState<'overview' | 'category'>('overview');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Autocomplete filtering based on search input
+  // Reset to overview when opening
+  useEffect(() => {
+    if (isOpen) {
+      setMode('overview');
+      setSelectedCategory(null);
+    }
+  }, [isOpen]);
+
+  // Unified search filtering across all questions and categories
   const filteredQuestions = useMemo(() => {
     if (!searchValue || searchValue.trim() === "") {
-      return allQuestions.slice(0, 8); // Show first 8 when no search
+      return mode === 'category' && selectedCategory
+        ? allQuestions.filter(q => q.category === selectedCategory)
+        : allQuestions.slice(0, 5); // Show fewer when no search
     }
 
     const searchTerm = searchValue.toLowerCase().trim();
-    return allQuestions
+    const questions = mode === 'category' && selectedCategory
+      ? allQuestions.filter(q => q.category === selectedCategory)
+      : allQuestions;
+      
+    return questions
       .filter(question => 
         question.text.toLowerCase().includes(searchTerm) ||
         question.category.toLowerCase().includes(searchTerm)
       )
-      .slice(0, 6); // Limit to 6 results when searching
-  }, [searchValue]);
+      .slice(0, 8); // More results when searching
+  }, [searchValue, mode, selectedCategory]);
 
   const handleCategoryClick = (categoryName: string) => {
     setSelectedCategory(categoryName);
-    setShowCategoryView(true);
+    setMode('category');
     onCategorySelect?.(categoryName);
     console.log('Category selected:', categoryName);
   };
@@ -126,241 +144,262 @@ export default function SearchOverlay({
   const handleQuestionClick = (question: string) => {
     onQuestionSelect?.(question);
     console.log('Question selected:', question);
+    onClose?.();
   };
 
   const handleBackToOverview = () => {
-    setShowCategoryView(false);
-    setSelectedCategory("All Categories");
+    setMode('overview');
+    setSelectedCategory(null);
   };
 
-  const handleShowAllQuestions = () => {
-    setSelectedCategory("All Categories");
-    setShowCategoryView(true);
-  };
-
-  const handleShowAllCategories = () => {
-    // Show all categories in a special view
-    setSelectedCategory("Browse All Categories");
-    setShowCategoryView(true);
-  };
-
-  const handleShowAllRecent = () => {
-    // For now, just log - could expand recent queries list
-    console.log('Show all recent queries');
-    onClose?.(); // Close overlay for now
-  };
-
-  const currentQuestions = selectedCategory === "Browse All Categories" 
-    ? allQuestions
-    : selectedCategory === "All Categories"
-      ? allQuestions
-      : allQuestions.filter(q => q.category === selectedCategory);
+  const currentQuestions = mode === 'category' && selectedCategory
+    ? allQuestions.filter(q => q.category === selectedCategory)
+    : allQuestions;
 
   return (
-    <div className={`absolute top-full left-0 right-0 mt-2 z-50 transition-all duration-300 ease-out ${
-      isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
-    }`}>
-      <Card className="p-6 shadow-xl backdrop-blur-sm border-border/50 bg-card/95">
-        {showCategoryView ? (
-          /* Category View - Show questions for selected category */
-          <div className="space-y-4">
-            {/* Header with back button */}
-            <div className="flex items-center gap-3 pb-3 border-b border-border/50">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="h-8 w-8 hover-elevate"
-                onClick={handleBackToOverview}
-                data-testid="button-back-to-overview"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex items-center gap-2">
-                {selectedCategory !== "All Categories" && selectedCategory !== "Browse All Categories" && (
-                  <>
-                    {(() => {
-                      const category = categories.find(c => c.name === selectedCategory);
-                      return category ? (
-                        <>
-                          <div className={`w-3 h-3 rounded-sm ${category.color}`} />
-                          <category.icon className="h-4 w-4" />
-                        </>
-                      ) : null;
-                    })()}
-                  </>
-                )}
-                {(selectedCategory === "All Categories" || selectedCategory === "Browse All Categories") && <Grid3X3 className="h-4 w-4" />}
-                <h3 className="text-lg font-medium">{selectedCategory}</h3>
+    <>
+      {/* Desktop Overlay - dropdown style with focus trap */}
+      <div 
+        className={`hidden md:block absolute top-full left-0 right-0 mt-1 z-50 transition-all duration-200 ease-out ${
+          isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+        }`}
+        onMouseDown={(e) => {
+          // Prevent blur on header input when clicking in overlay
+          e.preventDefault();
+        }}
+      >
+        <Command className="rounded-lg border bg-popover shadow-lg" shouldFilter={false}>
+          {/* Unified search input that seamlessly integrates */}
+          <div className="border-b px-3">
+            <CommandInput 
+              placeholder="Search questions, categories..."
+              value={searchValue}
+              onValueChange={onSearchChange}
+              className="h-12 border-0 bg-transparent focus:ring-0 text-sm"
+              autoFocus={isOpen}
+            />
+          </div>
+          
+          {mode === 'category' ? (
+            /* Category View */
+            <>
+              <div className="flex items-center gap-3 px-4 py-3 border-b bg-muted/50">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleBackToOverview}
+                  className="h-6 px-2"
+                >
+                  <ArrowLeft className="h-3 w-3 mr-1" />
+                  Back
+                </Button>
+                <div className="flex items-center gap-2">
+                  {selectedCategory && (() => {
+                    const category = categories.find(c => c.name === selectedCategory);
+                    return category ? (
+                      <>
+                        <div className={`w-2 h-2 rounded-full ${category.color}`} />
+                        <category.icon className="h-3 w-3" />
+                        <span className="text-xs font-medium text-muted-foreground">{selectedCategory}</span>
+                      </>
+                    ) : null;
+                  })()}
+                </div>
               </div>
-            </div>
 
-            {/* Questions for selected category */}
-            <div className="space-y-2">
-              {currentQuestions.map((question: Question, index: number) => {
-                const categoryInfo = getCategoryInfo(question.category);
-                return (
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    className="justify-start text-left h-auto py-3 px-4 hover-elevate transition-all duration-200 group w-full"
-                    onClick={() => handleQuestionClick(question.text)}
-                    data-testid={`button-category-question-${index}`}
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="flex items-start gap-2 w-full">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm group-hover:text-primary transition-colors duration-200">
-                          {question.text}
-                        </span>
-                        {categoryInfo && (selectedCategory === "All Categories" || selectedCategory === "Browse All Categories") && (
+              <CommandList className="max-h-80">
+                <CommandGroup>
+                  {filteredQuestions.map((question, index) => (
+                    <CommandItem
+                      key={index}
+                      value={question.text}
+                      onSelect={() => handleQuestionClick(question.text)}
+                      className="px-4 py-2.5"
+                    >
+                      <span className="text-sm">{question.text}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </>
+          ) : (
+            /* Overview - Unified Command Interface */
+            <CommandList className="max-h-80">
+              {/* Search Results */}
+              {searchValue && (
+                <CommandGroup heading={`Results (${filteredQuestions.length})`}>
+                  {filteredQuestions.length > 0 ? (
+                    filteredQuestions.map((question, index) => {
+                      const categoryInfo = getCategoryInfo(question.category);
+                      return (
+                        <CommandItem
+                          key={index}
+                          value={question.text}
+                          onSelect={() => handleQuestionClick(question.text)}
+                          className="px-4 py-2.5"
+                        >
+                          <div className="flex items-center gap-2 w-full">
+                            <span className="text-sm flex-1">{question.text}</span>
+                            {categoryInfo && (
+                              <Badge 
+                                variant="outline" 
+                                className="text-xs px-1.5 py-0.5 h-5 gap-1"
+                              >
+                                <div className={`w-1.5 h-1.5 rounded-full ${categoryInfo.color}`} />
+                                {question.category}
+                              </Badge>
+                            )}
+                          </div>
+                        </CommandItem>
+                      );
+                    })
+                  ) : (
+                    <CommandEmpty className="py-6 text-center text-sm">
+                      No questions found matching "{searchValue}"
+                    </CommandEmpty>
+                  )}
+                </CommandGroup>
+              )}
+
+              {/* Suggested Questions */}
+              {!searchValue && (
+                <CommandGroup heading="Suggested">
+                  {allQuestions.slice(0, 4).map((question, index) => {
+                    const categoryInfo = getCategoryInfo(question.category);
+                    return (
+                      <CommandItem
+                        key={index}
+                        value={question.text}
+                        onSelect={() => handleQuestionClick(question.text)}
+                        className="px-4 py-2.5"
+                      >
+                        <div className="flex items-center gap-2 w-full">
+                          <span className="text-sm flex-1">{question.text}</span>
                           <Badge 
                             variant="outline" 
-                            className="flex-shrink-0 text-xs gap-1 transition-all duration-200 group-hover:scale-105 cursor-pointer hover:bg-accent"
+                            className="text-xs px-1.5 py-0.5 h-5 gap-1 cursor-pointer hover:bg-accent"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleCategoryClick(question.category);
                             }}
                           >
-                            <div className={`w-2 h-2 rounded-full ${categoryInfo.color}`} />
+                            <div className={`w-1.5 h-1.5 rounded-full ${categoryInfo?.color}`} />
                             {question.category}
                           </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          /* Overview - Show suggested questions, categories, and recent */
-          <>
-            {/* Suggested Questions with Autocomplete */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  {searchValue ? `Search Results (${filteredQuestions.length})` : 'Suggested Questions'}
-                </h3>
-                {!searchValue && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="text-xs hover-elevate h-6"
-                    onClick={handleShowAllQuestions}
-                    data-testid="button-show-all-questions"
-                  >
-                    View All
-                  </Button>
-                )}
-              </div>
-              <div className="space-y-2">
-                {filteredQuestions.length > 0 ? (
-                  filteredQuestions.map((question, index) => {
-                    const categoryInfo = getCategoryInfo(question.category);
-                    return (
-                      <Button
-                        key={index}
-                        variant="ghost"
-                        className="justify-start text-left h-auto py-2 px-3 hover-elevate transition-all duration-200 group w-full"
-                        onClick={() => handleQuestionClick(question.text)}
-                        data-testid={`button-suggested-${index}`}
-                        style={{ animationDelay: `${index * 50}ms` }}
-                      >
-                        <div className="flex items-start gap-2 w-full">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm group-hover:text-primary transition-colors duration-200">
-                              {question.text}
-                            </span>
-                            {categoryInfo && (
-                              <Badge 
-                                variant="outline" 
-                                className="flex-shrink-0 text-xs gap-1 transition-all duration-200 group-hover:scale-105 cursor-pointer hover:bg-accent"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCategoryClick(question.category);
-                                }}
-                              >
-                                <div className={`w-2 h-2 rounded-full ${categoryInfo.color}`} />
-                                {question.category}
-                              </Badge>
-                            )}
-                          </div>
                         </div>
-                      </Button>
+                      </CommandItem>
                     );
-                  })
-                ) : searchValue ? (
-                  <div className="text-sm text-muted-foreground py-4 text-center">
-                    No questions found matching "{searchValue}"
-                  </div>
-                ) : null}
-              </div>
-            </div>
+                  })}
+                </CommandGroup>
+              )}
 
-            {/* Categories - Now second */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-muted-foreground">Categories</h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="text-xs hover-elevate h-6"
-                  onClick={handleShowAllCategories}
-                  data-testid="button-show-all-categories"
-                >
-                  View All
-                </Button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {categories.map((category, index) => (
-                  <Button
-                    key={category.name}
-                    variant="ghost"
-                    className="justify-start gap-2 h-10 hover-elevate transition-all duration-200 group"
-                    onClick={() => handleCategoryClick(category.name)}
-                    data-testid={`button-category-${category.name.toLowerCase()}`}
-                    style={{ animationDelay: `${(index + 4) * 50}ms` }}
-                  >
-                    <div className={`w-3 h-3 rounded-sm ${category.color} transition-transform duration-200 group-hover:scale-110`} />
-                    <category.icon className="h-4 w-4 transition-transform duration-200 group-hover:scale-105" />
-                    {category.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
+              {/* Categories */}
+              {!searchValue && (
+                <CommandGroup heading="Categories">
+                  {categories.slice(0, 6).map((category) => (
+                    <CommandItem
+                      key={category.name}
+                      value={category.name}
+                      onSelect={() => handleCategoryClick(category.name)}
+                      className="px-4 py-2.5"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${category.color}`} />
+                        <category.icon className="h-3 w-3" />
+                        <span className="text-sm">{category.name}</span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
 
-            {/* Recent Queries - Now third */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-muted-foreground">Recent</h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="text-xs hover-elevate h-6"
-                  onClick={handleShowAllRecent}
-                  data-testid="button-show-all-recent"
-                >
-                  View All
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {recentQueries.map((query, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="cursor-pointer hover-elevate transition-all duration-200 hover:scale-105"
-                    onClick={() => handleQuestionClick(query)}
-                    data-testid={`badge-recent-${index}`}
-                    style={{ animationDelay: `${(index + 10) * 50}ms` }}
-                  >
-                    {query}
-                  </Badge>
-                ))}
-              </div>
+              {/* Recent Queries */}
+              {!searchValue && recentQueries.length > 0 && (
+                <CommandGroup heading="Recent">
+                  {recentQueries.slice(0, 3).map((query, index) => (
+                    <CommandItem
+                      key={index}
+                      value={query}
+                      onSelect={() => handleQuestionClick(query)}
+                      className="px-4 py-2.5"
+                    >
+                      <span className="text-sm text-muted-foreground">{query}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+            </CommandList>
+          )}
+        </Command>
+      </div>
+
+      {/* Mobile Full-Screen Dialog */}
+      <Dialog open={isOpen && typeof window !== 'undefined' && window.innerWidth < 768} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-full h-full p-0">
+          <Command className="h-full" shouldFilter={false}>
+            <div className="border-b px-3">
+              <CommandInput 
+                placeholder="Search questions, categories..."
+                value={searchValue}
+                onValueChange={onSearchChange}
+                className="h-14 border-0 bg-transparent focus:ring-0"
+                autoFocus
+              />
             </div>
-          </>
-        )}
-      </Card>
-    </div>
+            <CommandList className="flex-1">
+              {/* Mobile content structure similar to desktop but optimized for touch */}
+              {searchValue && (
+                <CommandGroup heading={`Results (${filteredQuestions.length})`}>
+                  {filteredQuestions.map((question, index) => (
+                    <CommandItem
+                      key={index}
+                      value={question.text}
+                      onSelect={() => handleQuestionClick(question.text)}
+                      className="px-4 py-4"
+                    >
+                      <span className="text-sm">{question.text}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+              
+              {!searchValue && (
+                <>
+                  <CommandGroup heading="Suggested">
+                    {allQuestions.slice(0, 5).map((question, index) => (
+                      <CommandItem
+                        key={index}
+                        value={question.text}
+                        onSelect={() => handleQuestionClick(question.text)}
+                        className="px-4 py-4"
+                      >
+                        <span className="text-sm">{question.text}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                  
+                  <CommandGroup heading="Categories">
+                    {categories.map((category) => (
+                      <CommandItem
+                        key={category.name}
+                        value={category.name}
+                        onSelect={() => handleCategoryClick(category.name)}
+                        className="px-4 py-4"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${category.color}`} />
+                          <category.icon className="h-4 w-4" />
+                          <span className="text-sm">{category.name}</span>
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </>
+              )}
+            </CommandList>
+          </Command>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
