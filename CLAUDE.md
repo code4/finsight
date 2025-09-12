@@ -110,12 +110,13 @@ The search system in `App.tsx:160-256` implements:
 
 ```
 App.tsx (Main Controller)
-├── TopNavigation.tsx (Search interface)
-├── SearchOverlay.tsx (Category-based search)
+├── TopNavigation.tsx (Search interface with typing animation)
+├── SearchOverlay.tsx (Enhanced category-based search with modern UX)
 ├── ContextBar.tsx (Account selection)
 ├── AnswerCard.tsx (Data presentation)
 │   ├── FinancialChart.tsx (Recharts integration)
 │   └── FollowUpChips.tsx (Question suggestions)
+├── AnswerCardSkeleton.tsx (Enhanced loading states with progress)
 ├── HistoryDrawer.tsx (Search history)
 └── ThemeProvider.tsx (Dark/light mode)
 ```
@@ -164,9 +165,14 @@ npm run db:push      # Apply Drizzle schema changes
 ## Recent Changes (Git History)
 Based on recent commits, the application has been evolving with:
 - UI simplifications (removing unnecessary navigation elements)
-- Empty state improvements
+- Empty state improvements and above-the-fold optimization
 - Account selection display optimizations
 - Configuration updates for system stability
+- Enhanced SearchOverlay UX with modern design and animations
+- Added typing animation to search inputs with dynamic placeholder cycling
+- Fixed input focus management and overlay backdrop positioning
+- Improved mobile experience with touch-optimized interactions
+- Enhanced loading state visibility and skeleton positioning
 
 ## Development Notes for Claude
 - Always maintain the mutually exclusive account selection business logic
@@ -175,3 +181,7 @@ Based on recent commits, the application has been evolving with:
 - Use the established mock data structure for consistency
 - Maintain the Bloomberg Terminal aesthetic and professional design
 - Ensure all new components integrate with the existing state management patterns
+- SearchOverlay uses advanced UX patterns: typing animations, focus management, z-index layering
+- Loading states should provide real account/timeframe context for better user experience
+- Overlay backdrop must cover entire viewport including header for proper modal behavior
+- Mobile experience should be touch-optimized with appropriate tap targets and animations
