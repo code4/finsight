@@ -37,16 +37,14 @@ function FinSightDashboard() {
   const [selectedAccountIds, setSelectedAccountIds] = useState(new Set(['ACC001', 'ACC002']));
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [timeframe, setTimeframe] = useState("ytd");
-  const [answers, setAnswers] = useState([
-    {
-      id: "1",
-      question: "What's the YTD performance vs S&P 500?",
-      asOfDate: "Dec 10, 2024",
-      accounts: ["Growth Portfolio (10001)", "Conservative Fund (10002)"],
-      timeframe: "YTD",
-      isUnmatched: false
-    }
-  ]);
+  const [answers, setAnswers] = useState<Array<{
+    id: string;
+    question: string;
+    asOfDate: string;
+    accounts: string[];
+    timeframe: string;
+    isUnmatched: boolean;
+  }>>([]);
   const [newAnswerId, setNewAnswerId] = useState<string | null>(null);
   const [isGeneratingAnswer, setIsGeneratingAnswer] = useState(false);
   const newAnswerRef = useRef<HTMLDivElement>(null);
@@ -366,14 +364,206 @@ function FinSightDashboard() {
           <div className="flex-1 min-w-0 px-2 sm:px-4 py-4 sm:py-6 overflow-y-auto pb-20 lg:pb-6">
             <div className="max-w-none mx-auto">
               {answers.length === 0 ? (
-                <div className="text-center py-12">
-                  <h2 className="text-2xl font-semibold mb-4">Welcome to FinSight</h2>
-                  <p className="text-muted-foreground mb-6">
-                    Ask questions about portfolio performance, risk metrics, and financial insights
-                  </p>
-                  <Button onClick={() => handleSearchSubmit("What's the YTD performance vs S&P 500?")}>
-                    Try a sample question
-                  </Button>
+                <div className="max-w-4xl mx-auto py-8 lg:py-12">
+                  {/* Hero Section */}
+                  <div className="text-center mb-12">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-xl mb-6">
+                      <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <h1 className="text-3xl lg:text-4xl font-bold mb-4">Welcome to FinSight</h1>
+                    <p className="text-lg text-muted-foreground mb-2">
+                      Professional portfolio analytics and investment insights
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Currently analyzing {selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''} • {timeframe.toUpperCase()} timeframe
+                    </p>
+                  </div>
+
+                  {/* Sample Questions by Category */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div className="bg-card border rounded-lg p-6">
+                      <div className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-10 h-10 bg-chart-1/10 rounded-lg mr-3">
+                          <svg className="w-5 h-5 text-chart-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold">Performance Analysis</h3>
+                      </div>
+                      <div className="space-y-2">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("What's the YTD performance vs S&P 500?")}
+                        >
+                          <div>
+                            <div className="font-medium">Performance vs Benchmark</div>
+                            <div className="text-xs text-muted-foreground">Compare YTD returns against S&P 500</div>
+                          </div>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("What's the portfolio's beta and volatility?")}
+                        >
+                          <div>
+                            <div className="font-medium">Risk Metrics Analysis</div>
+                            <div className="text-xs text-muted-foreground">View beta, volatility, and risk measures</div>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="bg-card border rounded-lg p-6">
+                      <div className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-10 h-10 bg-chart-2/10 rounded-lg mr-3">
+                          <svg className="w-5 h-5 text-chart-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold">Portfolio Composition</h3>
+                      </div>
+                      <div className="space-y-2">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("Show me the top 10 holdings by weight")}
+                        >
+                          <div>
+                            <div className="font-medium">Top Holdings Analysis</div>
+                            <div className="text-xs text-muted-foreground">View largest positions and weightings</div>
+                          </div>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("Show sector allocation breakdown")}
+                        >
+                          <div>
+                            <div className="font-medium">Sector Allocation</div>
+                            <div className="text-xs text-muted-foreground">Analyze diversification by sector</div>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="bg-card border rounded-lg p-6">
+                      <div className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-10 h-10 bg-chart-3/10 rounded-lg mr-3">
+                          <svg className="w-5 h-5 text-chart-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold">Trading Activity</h3>
+                      </div>
+                      <div className="space-y-2">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("What were the largest trades last month?")}
+                        >
+                          <div>
+                            <div className="font-medium">Recent Large Trades</div>
+                            <div className="text-xs text-muted-foreground">Review significant portfolio transactions</div>
+                          </div>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("Show me recent portfolio activity summary")}
+                        >
+                          <div>
+                            <div className="font-medium">Activity Summary</div>
+                            <div className="text-xs text-muted-foreground">Overview of recent portfolio changes</div>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="bg-card border rounded-lg p-6">
+                      <div className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-10 h-10 bg-chart-4/10 rounded-lg mr-3">
+                          <svg className="w-5 h-5 text-chart-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold">Attribution Analysis</h3>
+                      </div>
+                      <div className="space-y-2">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("What's driving current performance attribution?")}
+                        >
+                          <div>
+                            <div className="font-medium">Performance Drivers</div>
+                            <div className="text-xs text-muted-foreground">Identify key contributors to returns</div>
+                          </div>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start h-auto p-3 text-left"
+                          onClick={() => handleSearchSubmit("How did tech sector allocation perform?")}
+                        >
+                          <div>
+                            <div className="font-medium">Sector Performance</div>
+                            <div className="text-xs text-muted-foreground">Analyze sector-specific returns</div>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Getting Started Tips */}
+                  <div className="bg-muted/30 border rounded-lg p-6">
+                    <h3 className="font-semibold mb-3 flex items-center">
+                      <svg className="w-5 h-5 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Getting Started
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                          <span className="text-xs font-semibold text-primary">1</span>
+                        </div>
+                        <div>
+                          <span className="font-medium">Select Your Context</span>
+                          <p className="text-muted-foreground">Use the account selector above to choose individual accounts or account groups</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                          <span className="text-xs font-semibold text-primary">2</span>
+                        </div>
+                        <div>
+                          <span className="font-medium">Ask Questions</span>
+                          <p className="text-muted-foreground">Type questions in natural language or use the search bar above</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                          <span className="text-xs font-semibold text-primary">3</span>
+                        </div>
+                        <div>
+                          <span className="font-medium">Set Timeframe</span>
+                          <p className="text-muted-foreground">Adjust the timeframe in the context bar to focus your analysis</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                          <span className="text-xs font-semibold text-primary">4</span>
+                        </div>
+                        <div>
+                          <span className="font-medium">Explore Insights</span>
+                          <p className="text-muted-foreground">Follow up on answers with related questions to dive deeper</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-6">
