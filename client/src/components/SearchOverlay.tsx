@@ -169,15 +169,18 @@ export default function SearchOverlay({
         }}
       >
         <Command className="rounded-lg border bg-popover shadow-lg" shouldFilter={false}>
-          {/* Unified search input that seamlessly integrates */}
-          <div className="border-b px-3">
+          {/* Unified search input with context */}
+          <div className="border-b">
             <CommandInput 
-              placeholder="Search questions, categories..."
+              placeholder="Ask about performance, risk, holdings, allocation..."
               value={searchValue}
               onValueChange={onSearchChange}
-              className="h-12 border-0 bg-transparent focus:ring-0 text-sm"
+              className="h-10 border-0 bg-transparent focus:ring-0 text-sm px-3"
               autoFocus={isOpen}
             />
+            <div className="px-3 pb-2 text-xs text-muted-foreground">
+              Questions about your selected accounts • {typeof window !== 'undefined' && window.innerWidth >= 768 ? 'Press ↑↓ to navigate • Enter to select' : 'Tap to select'}
+            </div>
           </div>
           
           {mode === 'category' ? (
@@ -207,27 +210,30 @@ export default function SearchOverlay({
                 </div>
               </div>
 
-              <CommandList className="max-h-80">
+              <CommandList className="max-h-96">
                 <CommandGroup>
                   {filteredQuestions.map((question, index) => (
                     <CommandItem
                       key={index}
                       value={question.text}
                       onSelect={() => handleQuestionClick(question.text)}
-                      className="px-4 py-2.5"
+                      className="px-3 py-1.5 text-sm"
                     >
-                      <span className="text-sm">{question.text}</span>
+                      {question.text}
                     </CommandItem>
                   ))}
                 </CommandGroup>
+                <CommandEmpty className="py-4 text-center text-sm">
+                  No questions found in this category
+                </CommandEmpty>
               </CommandList>
             </>
           ) : (
             /* Overview - Unified Command Interface */
-            <CommandList className="max-h-80">
+            <CommandList className="max-h-96">
               {/* Search Results */}
               {searchValue && (
-                <CommandGroup heading={`Results (${filteredQuestions.length})`}>
+                <CommandGroup heading={`Results • ${filteredQuestions.length} matches`}>
                   {filteredQuestions.length > 0 ? (
                     filteredQuestions.map((question, index) => {
                       const categoryInfo = getCategoryInfo(question.category);
@@ -236,14 +242,14 @@ export default function SearchOverlay({
                           key={index}
                           value={question.text}
                           onSelect={() => handleQuestionClick(question.text)}
-                          className="px-4 py-2.5"
+                          className="px-3 py-1.5"
                         >
                           <div className="flex items-center gap-2 w-full">
                             <span className="text-sm flex-1">{question.text}</span>
                             {categoryInfo && (
                               <Badge 
                                 variant="outline" 
-                                className="text-xs px-1.5 py-0.5 h-5 gap-1"
+                                className="text-xs px-1.5 py-0.5 h-4 gap-1 shrink-0"
                               >
                                 <div className={`w-1.5 h-1.5 rounded-full ${categoryInfo.color}`} />
                                 {question.category}
@@ -254,30 +260,30 @@ export default function SearchOverlay({
                       );
                     })
                   ) : (
-                    <CommandEmpty className="py-6 text-center text-sm">
-                      No questions found matching "{searchValue}"
+                    <CommandEmpty className="py-4 text-center text-sm">
+                      No portfolio questions match "{searchValue}"
                     </CommandEmpty>
                   )}
                 </CommandGroup>
               )}
 
-              {/* Suggested Questions */}
+              {/* Popular Questions */}
               {!searchValue && (
-                <CommandGroup heading="Suggested">
-                  {allQuestions.slice(0, 4).map((question, index) => {
+                <CommandGroup heading="Popular Questions">
+                  {allQuestions.slice(0, 6).map((question, index) => {
                     const categoryInfo = getCategoryInfo(question.category);
                     return (
                       <CommandItem
                         key={index}
                         value={question.text}
                         onSelect={() => handleQuestionClick(question.text)}
-                        className="px-4 py-2.5"
+                        className="px-3 py-1.5"
                       >
                         <div className="flex items-center gap-2 w-full">
                           <span className="text-sm flex-1">{question.text}</span>
                           <Badge 
                             variant="outline" 
-                            className="text-xs px-1.5 py-0.5 h-5 gap-1 cursor-pointer hover:bg-accent"
+                            className="text-xs px-1.5 py-0.5 h-4 gap-1 shrink-0 cursor-pointer hover:bg-accent"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleCategoryClick(question.category);
@@ -293,35 +299,37 @@ export default function SearchOverlay({
                 </CommandGroup>
               )}
 
-              {/* Categories */}
+              {/* Categories - Compact Grid */}
               {!searchValue && (
-                <CommandGroup heading="Categories">
-                  {categories.slice(0, 6).map((category) => (
-                    <CommandItem
-                      key={category.name}
-                      value={category.name}
-                      onSelect={() => handleCategoryClick(category.name)}
-                      className="px-4 py-2.5"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${category.color}`} />
-                        <category.icon className="h-3 w-3" />
-                        <span className="text-sm">{category.name}</span>
-                      </div>
-                    </CommandItem>
-                  ))}
+                <CommandGroup heading="Browse by Category">
+                  <div className="grid grid-cols-2 gap-1 px-3 py-2">
+                    {categories.map((category) => (
+                      <CommandItem
+                        key={category.name}
+                        value={category.name}
+                        onSelect={() => handleCategoryClick(category.name)}
+                        className="px-2 py-1.5 rounded-md cursor-pointer hover:bg-accent"
+                      >
+                        <div className="flex items-center gap-2 w-full">
+                          <div className={`w-1.5 h-1.5 rounded-full ${category.color}`} />
+                          <category.icon className="h-3 w-3" />
+                          <span className="text-xs font-medium">{category.name}</span>
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </div>
                 </CommandGroup>
               )}
 
               {/* Recent Queries */}
               {!searchValue && recentQueries.length > 0 && (
-                <CommandGroup heading="Recent">
-                  {recentQueries.slice(0, 3).map((query, index) => (
+                <CommandGroup heading="Recent Questions">
+                  {recentQueries.slice(0, 4).map((query, index) => (
                     <CommandItem
                       key={index}
                       value={query}
                       onSelect={() => handleQuestionClick(query)}
-                      className="px-4 py-2.5"
+                      className="px-3 py-1.5"
                     >
                       <span className="text-sm text-muted-foreground">{query}</span>
                     </CommandItem>
