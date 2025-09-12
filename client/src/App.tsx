@@ -548,67 +548,6 @@ function FinSightDashboard() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {/* Portfolio Summary - Only show when there are answers */}
-                  <div className="mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">Portfolio Summary</h3>
-                      {portfolioLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
-                    </div>
-                    
-                    {portfolioError ? (
-                      <div className="p-4 bg-destructive/10 rounded-md border border-destructive/20">
-                        <div className="text-sm text-destructive">Error loading portfolio data</div>
-                      </div>
-                    ) : portfolioLoading ? (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 bg-card rounded-lg border">
-                          <Skeleton className="h-8 w-20 mb-2" />
-                          <Skeleton className="h-4 w-24" />
-                        </div>
-                        <div className="p-4 bg-card rounded-lg border">
-                          <Skeleton className="h-8 w-24 mb-2" />
-                          <Skeleton className="h-4 w-16" />
-                        </div>
-                        <div className="p-4 bg-card rounded-lg border">
-                          <Skeleton className="h-8 w-16 mb-2" />
-                          <Skeleton className="h-4 w-20" />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 bg-card rounded-lg border">
-                          <div className={`text-2xl font-mono font-bold transition-colors duration-200 ${
-                            portfolioSummary?.ytdReturn && portfolioSummary.ytdReturn > 0 
-                              ? 'text-chart-2' 
-                              : portfolioSummary?.ytdReturn && portfolioSummary.ytdReturn < 0 
-                                ? 'text-destructive' 
-                                : 'text-muted-foreground'
-                          }`}>
-                            {portfolioSummary ? formatPercentage(portfolioSummary.ytdReturn) : 'N/A'}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {timeframe.toUpperCase()} Return
-                            {portfolioSummary && portfolioSummary.totalAccounts > 0 && (
-                              <span className="ml-1">({portfolioSummary.totalAccounts} accounts)</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="p-4 bg-card rounded-lg border">
-                          <div className="text-2xl font-mono font-bold transition-all duration-200">
-                            {portfolioSummary ? formatCurrency(portfolioSummary.totalAUM) : 'N/A'}
-                          </div>
-                          <div className="text-sm text-muted-foreground">Total AUM</div>
-                        </div>
-                        <div className="p-4 bg-card rounded-lg border">
-                          <div className="text-2xl font-mono font-bold transition-all duration-200">
-                            {portfolioSummary ? formatRatio(portfolioSummary.sharpeRatio) : 'N/A'}
-                          </div>
-                          <div className="text-sm text-muted-foreground">Sharpe Ratio</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
                   {/* Show skeleton while generating new answer */}
                   {isGeneratingAnswer && <AnswerCardSkeleton />}
                   
