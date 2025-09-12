@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(set NODE_ENV=development)",
+      "Bash(tsx:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

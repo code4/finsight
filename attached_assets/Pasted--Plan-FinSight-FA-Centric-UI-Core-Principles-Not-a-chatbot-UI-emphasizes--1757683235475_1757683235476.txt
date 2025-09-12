@@ -1,0 +1,113 @@
+
+# 🌟 Plan: FinSight FA-Centric UI
+
+## 🎯 Core Principles
+
+* **Not a chatbot** → UI emphasizes **search, discovery, and structured answers**, not chat bubbles.
+* **Advisor-first design** → financial advisors need **clarity, trust, auditability, and low friction**.
+* **Context clarity** → accounts + timeframe always visible; answers carry **as-of timestamps**.
+* **One-click insights** → smart defaults, minimal typing, fast follow-ups.
+* **Consistency** → standard layouts for answers (KPIs → charts → tables).
+
+---
+
+## 🛠️ Information Architecture
+
+### 1. **Top Navigation Bar**
+
+* Left: FinSight logo + app name.
+* Center: **Search Box (Perplexity-style)**.
+* Right: Account context switcher + timeframe picker.
+
+### 2. **Search & Discovery (Entry Point)**
+
+* Compact search box → expands on focus.
+* Expanded overlay includes:
+
+  * **Categories** (Comparison, Holdings, Risk, Attribution vs SP500, Activity, Allocation).
+  * **Suggested Questions** (based on popularity/recent use).
+  * **Pinned/Recent** (quick access).
+* Freeform entry allowed; if no match, system captures the query for backend curation.
+
+### 3. **Answer Canvas**
+
+* Each answer renders as a **card** (not a chat bubble).
+* Card structure:
+
+  1. **Header**: Question text, account/timeframe chips, “As of {date}” badge.
+  2. **Body**: Ordered blocks → paragraph → KPIs → charts → tables.
+  3. **Footer**: Related/follow-up questions.
+* Multiple answers stack vertically in scroll view.
+* History drawer (right-hand panel) shows past Q\&A runs with exact context snapshots.
+
+### 4. **Context Controls (Persistent Bar)**
+
+* Always visible under the search bar:
+
+  * **Accounts**: chips for selected accounts, color-coded.
+  * **Timeframe**: YTD, 1M, 1Y, Previous Quarter, etc.
+* Changes to context do not reset state; FAs can re-run answers in the new context.
+
+---
+
+## 📊 Answer Experience
+
+* **Blocks from backend JSON** are rendered deterministically:
+
+  * `paragraph` → text block (markdown-style).
+  * `chart` → interactive chart with consistent palette & tooltips.
+  * `table` → sortable, scrollable table with header type formatting (currency, %, symbol).
+* **Standard layout** ensures answers feel like analyst reports, not chat responses.
+* **Loading State**: skeleton charts/tables + rotating “system thinking” text (e.g., “Collating portfolio metrics…”).
+* **Error State**: clear retry and refine options.
+
+---
+
+## 🔁 Follow-up Questions
+
+* Displayed as chips/cards under each answer.
+* If placeholders exist, show **inline quick-pills** (e.g., default benchmark).
+* One tap executes immediately; chevron/expand opens parameter editor.
+* Keeps the FA in flow: guided next steps without retyping.
+
+---
+
+## 📜 History & Auditability
+
+* **History drawer** accessible via sidebar or shortcut.
+* Each entry stores:
+
+  * Entered vs Interpreted question.
+  * Accounts + timeframe snapshot.
+  * Placeholders resolved (incl. defaults used).
+  * As-of timestamp + data version.
+* Entries marked **Stale** when backend signals updated data.
+* Deep-links: `/answers/{id}` restores the snapshot.
+* Export to PDF/CSV with as-of + parameters in footer for compliance.
+
+---
+
+## ⚡ Interaction Model
+
+* **Search box**: `/` to focus, ↑/↓ to navigate suggestions, Enter to run.
+* **Context bar**: quick multi-select for accounts; timeframe presets.
+* **One-click ask**: backend defaults fill placeholders when possible → FA gets instant answer.
+* **Refine later**: each answer has a **Refine Parameters** button to adjust after the fact.
+
+---
+
+## 🎨 Visual Style
+
+* Clean **dashboard look**, not conversational UI.
+* **Cards and panels** over chat bubbles.
+* Color-coded account chips and neutral aggregate style.
+* Consistent typography hierarchy: question header > KPI strip > chart/table.
+* Dark mode + compact mode for power users.
+* Responsive: side-by-side layout on desktop, stacked on mobile.
+
+---
+
+✅ **Summary**:
+FinSight will deliver a **structured, FA-centric Q\&A interface** — closer to a Bloomberg-style analytical dashboard than a chatbot. Advisors type or select questions, get consistent analyst-style answers with as-of timestamps, and pivot instantly with context controls or follow-ups. The UI emphasizes **clarity, reproducibility, and speed** — making it **an insight tool, not a chat app**.
+
+---
