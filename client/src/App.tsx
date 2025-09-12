@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
@@ -347,24 +348,68 @@ function FinSightDashboard() {
             <div className="max-w-none mx-auto">
               {answers.length === 0 ? (
                 <div className="max-w-4xl mx-auto py-8 lg:py-12">
-                  {/* Hero Section */}
-                  <div className="text-center mb-12">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-xl mb-6">
-                      <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {/* Prominent Search Hero Section */}
+                  <div className="text-center mb-16">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-2xl mb-8">
+                      <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                     </div>
-                    <h1 className="text-3xl lg:text-4xl font-bold mb-4">Welcome to FinSight</h1>
-                    <p className="text-lg text-muted-foreground mb-2">
-                      Professional portfolio analytics and investment insights
+                    
+                    <h1 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                      Ask about your portfolio
+                    </h1>
+                    <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+                      Get instant analytics and insights by asking questions about your selected accounts
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      Currently analyzing {selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''} • {timeframe.toUpperCase()} timeframe
-                    </p>
+                    
+                    {/* Prominent Search Input */}
+                    <div className="max-w-2xl mx-auto mb-6">
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <input
+                          type="text"
+                          placeholder="What's the YTD performance vs S&P 500?"
+                          className="w-full h-16 pl-12 pr-4 text-lg rounded-2xl border-2 border-border bg-background/50 backdrop-blur-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200 placeholder:text-muted-foreground/70"
+                          value={searchValue}
+                          onChange={(e) => setSearchValue(e.target.value)}
+                          onFocus={() => setIsSearchFocused(true)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && searchValue.trim()) {
+                              handleSearchSubmit(searchValue);
+                            }
+                          }}
+                        />
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-3">
+                        Currently analyzing <span className="font-medium">{selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}</span> • <span className="font-medium">{timeframe.toUpperCase()}</span> timeframe
+                      </p>
+                    </div>
+                    
+                    {/* Quick Action Chips */}
+                    <div className="flex flex-wrap justify-center gap-2 mb-8">
+                      {['YTD Performance', 'Risk Analysis', 'Top Holdings', 'Sector Allocation'].map((chip) => (
+                        <button
+                          key={chip}
+                          onClick={() => {
+                            const questions = {
+                              'YTD Performance': "What's the YTD performance vs S&P 500?",
+                              'Risk Analysis': "What's the portfolio's beta and volatility?", 
+                              'Top Holdings': "Show me the top 10 holdings by weight",
+                              'Sector Allocation': "How is the portfolio allocated by sector?"
+                            };
+                            handleSearchSubmit(questions[chip as keyof typeof questions]);
+                          }}
+                          className="px-4 py-2 rounded-full border bg-background/50 backdrop-blur-sm hover:bg-accent hover:text-accent-foreground transition-colors text-sm font-medium"
+                        >
+                          {chip}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Sample Questions by Category */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                  {/* Compact Sample Questions */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                     <div className="bg-card border rounded-lg p-6">
                       <div className="flex items-center mb-4">
                         <div className="flex items-center justify-center w-10 h-10 bg-chart-1/10 rounded-lg mr-3">
