@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Search, Menu, ChevronDown, Settings2, X } from "lucide-react";
+import { Search, Menu, ChevronDown, Settings2, X, Moon, Sun } from "lucide-react";
+
+type Theme = "dark" | "light" | "system";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -43,6 +45,9 @@ interface TopNavigationProps {
   onSelectionModeChange: (mode: 'accounts' | 'group') => void;
   onAccountSelection: (accountIds: Set<string>) => void;
   onGroupSelection: (groupId: string) => void;
+  // Theme props
+  theme?: Theme;
+  onThemeChange?: (theme: Theme) => void;
 }
 
 export default function TopNavigation({ 
@@ -58,7 +63,9 @@ export default function TopNavigation({
   selectedGroupId,
   onSelectionModeChange,
   onAccountSelection,
-  onGroupSelection
+  onGroupSelection,
+  theme,
+  onThemeChange
 }: TopNavigationProps) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isAccountSelectorOpen, setIsAccountSelectorOpen] = useState(false);
@@ -201,8 +208,16 @@ export default function TopNavigation({
           </div>
         </div>
 
-        {/* Right: Account Selection */}
+        {/* Right: Theme Toggle and Account Selection */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onThemeChange?.(theme === 'light' ? 'dark' : 'light')}
+            data-testid="button-theme-toggle"
+          >
+            {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          </Button>
 
           {/* Account selector popover */}
           <Popover open={isAccountSelectorOpen} onOpenChange={setIsAccountSelectorOpen}>

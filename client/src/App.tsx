@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 import TopNavigation from "@/components/TopNavigation";
@@ -12,25 +12,11 @@ import SearchOverlay from "@/components/SearchOverlay";
 import ContextBar from "@/components/ContextBar";
 import AnswerCard from "@/components/AnswerCard";
 import AnswerCardSkeleton from "@/components/AnswerCardSkeleton";
-import HistoryDrawer from "@/components/HistoryDrawer";
 import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
 
-function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-      data-testid="button-theme-toggle"
-    >
-      {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-    </Button>
-  );
-}
 
 function FinSightDashboard() {
+  const { theme, setTheme } = useTheme();
   const [searchValue, setSearchValue] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectionMode, setSelectionMode] = useState<'accounts' | 'group'>('accounts');
@@ -325,6 +311,8 @@ function FinSightDashboard() {
           onSelectionModeChange={handleSelectionModeChange}
           onAccountSelection={handleAccountSelection}
           onGroupSelection={handleGroupSelection}
+          theme={theme}
+          onThemeChange={setTheme}
         />
         
         {/* Search Overlay */}
@@ -359,10 +347,71 @@ function FinSightDashboard() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
-        <div className="h-full flex">
+        <div className="h-full">
           {/* Main Content Area - Full width utilization */}
-          <div className="flex-1 min-w-0 px-2 sm:px-4 py-4 sm:py-6 overflow-y-auto pb-20 lg:pb-6">
+          <div className="flex-1 min-w-0 px-2 sm:px-4 py-4 sm:py-6 overflow-y-auto">
             <div className="max-w-none mx-auto">
+              {/* Portfolio Summary */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Portfolio Summary</h3>
+                  {portfolioLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                </div>
+                
+                {portfolioError ? (
+                  <div className="p-4 bg-destructive/10 rounded-md border border-destructive/20">
+                    <div className="text-sm text-destructive">Error loading portfolio data</div>
+                  </div>
+                ) : portfolioLoading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-card rounded-lg border">
+                      <Skeleton className="h-8 w-20 mb-2" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                    <div className="p-4 bg-card rounded-lg border">
+                      <Skeleton className="h-8 w-24 mb-2" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                    <div className="p-4 bg-card rounded-lg border">
+                      <Skeleton className="h-8 w-16 mb-2" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-card rounded-lg border">
+                      <div className={`text-2xl font-mono font-bold transition-colors duration-200 ${
+                        portfolioSummary?.ytdReturn && portfolioSummary.ytdReturn > 0 
+                          ? 'text-chart-2' 
+                          : portfolioSummary?.ytdReturn && portfolioSummary.ytdReturn < 0 
+                            ? 'text-destructive' 
+                            : 'text-muted-foreground'
+                      }`}>
+                        {portfolioSummary ? formatPercentage(portfolioSummary.ytdReturn) : 'N/A'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {timeframe.toUpperCase()} Return
+                        {portfolioSummary && portfolioSummary.totalAccounts > 0 && (
+                          <span className="ml-1">({portfolioSummary.totalAccounts} accounts)</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="p-4 bg-card rounded-lg border">
+                      <div className="text-2xl font-mono font-bold transition-all duration-200">
+                        {portfolioSummary ? formatCurrency(portfolioSummary.totalAUM) : 'N/A'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Total AUM</div>
+                    </div>
+                    <div className="p-4 bg-card rounded-lg border">
+                      <div className="text-2xl font-mono font-bold transition-all duration-200">
+                        {portfolioSummary ? formatRatio(portfolioSummary.sharpeRatio) : 'N/A'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Sharpe Ratio</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {answers.length === 0 ? (
                 <div className="max-w-4xl mx-auto py-8 lg:py-12">
                   {/* Hero Section */}
@@ -594,104 +643,6 @@ function FinSightDashboard() {
                   ))}
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Right Sidebar - Responsive width */}
-          <div className="hidden lg:flex lg:w-80 xl:w-96 flex-col border-l border-border bg-card/50">
-            <div className="p-4 border-b border-border">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Quick Actions</h3>
-                <ThemeToggle />
-              </div>
-            </div>
-            
-            <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-              <div className="space-y-2">
-                <HistoryDrawer 
-                  onEntryClick={(entry) => handleSearchSubmit(entry.question)}
-                />
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={() => console.log('Export all clicked')}
-                  data-testid="button-export-all"
-                >
-                  Export All Answers
-                </Button>
-              </div>
-
-              {/* Portfolio Summary - Updates with account selection */}
-              <div className="space-y-3 pt-4 border-t border-border">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium text-muted-foreground">Portfolio Summary</h4>
-                  {portfolioLoading && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
-                </div>
-                
-                {portfolioError ? (
-                  <div className="p-3 bg-destructive/10 rounded-md border border-destructive/20">
-                    <div className="text-xs text-destructive">Error loading portfolio data</div>
-                  </div>
-                ) : portfolioLoading ? (
-                  // Portfolio Summary Skeleton
-                  <div className="grid grid-cols-1 gap-3">
-                    <div className="p-3 bg-background rounded-md border">
-                      <Skeleton className="h-7 w-16 mb-2" />
-                      <Skeleton className="h-3 w-20" />
-                    </div>
-                    <div className="p-3 bg-background rounded-md border">
-                      <Skeleton className="h-7 w-20 mb-2" />
-                      <Skeleton className="h-3 w-16" />
-                    </div>
-                    <div className="p-3 bg-background rounded-md border">
-                      <Skeleton className="h-7 w-12 mb-2" />
-                      <Skeleton className="h-3 w-18" />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-3">
-                    <div className="p-3 bg-background rounded-md border">
-                      <div className={`text-lg font-mono font-bold transition-colors duration-200 ${
-                        portfolioSummary?.ytdReturn && portfolioSummary.ytdReturn > 0 
-                          ? 'text-chart-2' 
-                          : portfolioSummary?.ytdReturn && portfolioSummary.ytdReturn < 0 
-                            ? 'text-destructive' 
-                            : 'text-muted-foreground'
-                      }`}>
-                        {portfolioSummary ? formatPercentage(portfolioSummary.ytdReturn) : 'N/A'}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {timeframe.toUpperCase()} Return
-                        {portfolioSummary && portfolioSummary.totalAccounts > 0 && (
-                          <span className="ml-1">({portfolioSummary.totalAccounts} accounts)</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-3 bg-background rounded-md border">
-                      <div className="text-lg font-mono font-bold transition-all duration-200">
-                        {portfolioSummary ? formatCurrency(portfolioSummary.totalAUM) : 'N/A'}
-                      </div>
-                      <div className="text-xs text-muted-foreground">Total AUM</div>
-                    </div>
-                    <div className="p-3 bg-background rounded-md border">
-                      <div className="text-lg font-mono font-bold transition-all duration-200">
-                        {portfolioSummary ? formatRatio(portfolioSummary.sharpeRatio) : 'N/A'}
-                      </div>
-                      <div className="text-xs text-muted-foreground">Sharpe Ratio</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile bottom bar - only visible on small screens */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4">
-            <div className="flex items-center justify-between">
-              <HistoryDrawer 
-                onEntryClick={(entry) => handleSearchSubmit(entry.question)}
-              />
-              <ThemeToggle />
             </div>
           </div>
         </div>
