@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Search, Menu, ChevronDown, Settings2, X, Moon, Sun, Clock } from "lucide-react";
 
 type Theme = "dark" | "light" | "system";
@@ -64,7 +64,7 @@ const timeframes = [
   { value: "1y", label: "1Y" }
 ];
 
-export default function TopNavigation({ 
+const TopNavigation = memo(function TopNavigation({ 
   onSearchFocus, 
   onSearchChange, 
   searchValue = "",
@@ -479,4 +479,6 @@ export default function TopNavigation({
       </div>
     </nav>
   );
-}
+});
+
+export default TopNavigation;

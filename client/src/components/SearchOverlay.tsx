@@ -1,10 +1,11 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft, ChevronRight, Search } from "lucide-react";
+import { useTypingAnimation } from "@/hooks/useTypingAnimation";
 
 interface SearchOverlayProps {
   isOpen?: boolean;
@@ -94,7 +95,7 @@ const recentQueries = [
   "Top performing assets YTD"
 ];
 
-export default function SearchOverlay({ 
+const SearchOverlay = memo(function SearchOverlay({ 
   isOpen = false,
   searchValue = "",
   onSearchChange,
@@ -106,7 +107,7 @@ export default function SearchOverlay({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Typing effect for placeholder
+  // Typing animation for placeholder
   const placeholderQuestions = [
     "What's the YTD performance vs S&P 500?",
     "Show me the top 10 holdings by weight",
@@ -117,56 +118,20 @@ export default function SearchOverlay({
     "What's driving current performance attribution?",
     "Show me recent portfolio activity summary"
   ];
-  
-  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
-  const [displayedPlaceholder, setDisplayedPlaceholder] = useState("");
-  const [isTypingPlaceholder, setIsTypingPlaceholder] = useState(true);
 
-  // Typing effect for placeholder
-  useEffect(() => {
-    if (!isOpen || searchValue) {
-      setDisplayedPlaceholder("");
-      return;
-    }
-    
-    const currentQuestion = placeholderQuestions[currentPlaceholder];
-    let timeoutId: NodeJS.Timeout;
-    
-    if (isTypingPlaceholder) {
-      // Typing animation
-      if (displayedPlaceholder.length < currentQuestion.length) {
-        timeoutId = setTimeout(() => {
-          setDisplayedPlaceholder(currentQuestion.slice(0, displayedPlaceholder.length + 1));
-        }, 50 + Math.random() * 100);
-      } else {
-        // Pause before erasing
-        timeoutId = setTimeout(() => {
-          setIsTypingPlaceholder(false);
-        }, 2000);
-      }
-    } else {
-      // Erasing animation
-      if (displayedPlaceholder.length > 0) {
-        timeoutId = setTimeout(() => {
-          setDisplayedPlaceholder(displayedPlaceholder.slice(0, -1));
-        }, 30);
-      } else {
-        // Move to next question
-        setCurrentPlaceholder((prev) => (prev + 1) % placeholderQuestions.length);
-        setIsTypingPlaceholder(true);
-      }
-    }
-    
-    return () => clearTimeout(timeoutId);
-  }, [displayedPlaceholder, isTypingPlaceholder, currentPlaceholder, isOpen, searchValue]);
+  const { displayedText: displayedPlaceholder } = useTypingAnimation({
+    questions: placeholderQuestions,
+    isActive: isOpen && !searchValue,
+    typingSpeed: 50,
+    erasingSpeed: 30,
+    pauseDuration: 2000
+  });
 
   // Reset to overview when opening and focus input
   useEffect(() => {
     if (isOpen) {
       setMode('overview');
       setSelectedCategory(null);
-      setDisplayedPlaceholder("");
-      setIsTypingPlaceholder(true);
       // Focus the input with a small delay to ensure DOM is ready
       setTimeout(() => {
         inputRef.current?.focus();
@@ -598,4 +563,6 @@ export default function SearchOverlay({
       </Dialog>
     </>
   );
-}
+});
+
+export default SearchOverlay;

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,7 +47,7 @@ const mockChartData = [
   { month: "Jun", portfolio: 4800, benchmark: 4400 }
 ];
 
-export default function AnswerCard({
+const AnswerCard = memo(function AnswerCard({
   question = "What's the YTD performance vs S&P 500?",
   asOfDate = "Dec 10, 2024",
   accounts = ["Growth Portfolio", "Conservative Fund"],
@@ -199,4 +200,6 @@ export default function AnswerCard({
       </CardContent>
     </Card>
   );
-}
+});
+
+export default AnswerCard;

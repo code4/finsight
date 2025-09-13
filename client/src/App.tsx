@@ -8,11 +8,14 @@ import { Search } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import TopNavigation from "@/components/TopNavigation";
 import SearchOverlay from "@/components/SearchOverlay";
 import AnswerCard from "@/components/AnswerCard";
 import AnswerCardSkeleton from "@/components/AnswerCardSkeleton";
 import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
+import { useTypingAnimation } from "@/hooks/useTypingAnimation";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 
 function FinSightDashboard() {
@@ -20,7 +23,7 @@ function FinSightDashboard() {
   const [searchValue, setSearchValue] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   
-  // Rotating placeholder questions for Financial Advisors
+  // Typing animation for placeholder text
   const placeholderQuestions = [
     "What's the YTD performance vs S&P 500?",
     "Show me the top 10 holdings by weight",
@@ -33,56 +36,41 @@ function FinSightDashboard() {
     "Show me ESG scores for major holdings",
     "Compare returns to the benchmark"
   ];
-  
-  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
-  const [displayedText, setDisplayedText] = useState("");
-  const [isTyping, setIsTyping] = useState(true);
-  
-  // Typewriter animation effect
-  useEffect(() => {
-    if (searchValue || isSearchFocused) {
-      setDisplayedText("");
-      return;
-    }
-    
-    const currentQuestion = placeholderQuestions[currentPlaceholder];
-    let timeoutId: NodeJS.Timeout;
-    
-    if (isTyping) {
-      // Typing animation
-      if (displayedText.length < currentQuestion.length) {
-        timeoutId = setTimeout(() => {
-          setDisplayedText(currentQuestion.slice(0, displayedText.length + 1));
-        }, 50 + Math.random() * 100); // Variable speed for natural feel
-      } else {
-        // Pause before erasing
-        timeoutId = setTimeout(() => {
-          setIsTyping(false);
-        }, 2000);
+
+  const { displayedText } = useTypingAnimation({
+    questions: placeholderQuestions,
+    isActive: !searchValue && !isSearchFocused,
+    typingSpeed: 50,
+    erasingSpeed: 30,
+    pauseDuration: 2000
+  });
+
+  // Keyboard shortcuts for professional UX
+  useKeyboardShortcuts({
+    shortcuts: [
+      {
+        key: 'k',
+        ctrl: true,
+        handler: () => setIsSearchFocused(true),
+        description: 'Open search'
+      },
+      {
+        key: 'k',
+        meta: true, // Cmd on Mac
+        handler: () => setIsSearchFocused(true),
+        description: 'Open search'
+      },
+      {
+        key: 'Escape',
+        handler: () => {
+          if (isSearchFocused) {
+            handleCloseSearch();
+          }
+        },
+        description: 'Close search overlay'
       }
-    } else {
-      // Erasing animation
-      if (displayedText.length > 0) {
-        timeoutId = setTimeout(() => {
-          setDisplayedText(displayedText.slice(0, -1));
-        }, 30);
-      } else {
-        // Move to next question
-        setCurrentPlaceholder((prev) => (prev + 1) % placeholderQuestions.length);
-        setIsTyping(true);
-      }
-    }
-    
-    return () => clearTimeout(timeoutId);
-  }, [displayedText, isTyping, currentPlaceholder, searchValue, isSearchFocused]);
-  
-  // Reset animation when search becomes inactive
-  useEffect(() => {
-    if (!searchValue && !isSearchFocused) {
-      setDisplayedText("");
-      setIsTyping(true);
-    }
-  }, [searchValue, isSearchFocused]);
+    ]
+  });
   const [selectionMode, setSelectionMode] = useState<'accounts' | 'group'>('accounts');
   const [selectedAccountIds, setSelectedAccountIds] = useState(new Set(['ACC001', 'ACC002']));
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
@@ -886,7 +874,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider defaultTheme="dark">
-          <FinSightDashboard />
+          <ErrorBoundary>
+            <FinSightDashboard />
+          </ErrorBoundary>
           <Toaster />
         </ThemeProvider>
       </TooltipProvider>
