@@ -127,13 +127,28 @@ const SearchOverlay = memo(function SearchOverlay({
     pauseDuration: 2000
   });
 
+
   // Reset to overview when opening and focus input
   useEffect(() => {
     if (isOpen) {
       setMode('overview');
       setSelectedCategory(null);
-      // Focus the input with a small delay to ensure DOM is ready
+      
+      // Scroll to top of overlay content
       setTimeout(() => {
+        // Scroll desktop overlay to top
+        const desktopOverlay = document.querySelector('[data-search-overlay-desktop]');
+        if (desktopOverlay) {
+          desktopOverlay.scrollTop = 0;
+        }
+        
+        // Scroll mobile overlay to top
+        const mobileOverlay = document.querySelector('[data-search-overlay-mobile]');
+        if (mobileOverlay) {
+          mobileOverlay.scrollTop = 0;
+        }
+        
+        // Focus the input
         inputRef.current?.focus();
       }, 100);
     }
@@ -190,8 +205,17 @@ const SearchOverlay = memo(function SearchOverlay({
           isOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-95 pointer-events-none'
         }`}
         onMouseDown={(e) => {
-          // Prevent blur on header input when clicking in overlay
-          e.preventDefault();
+          // Only prevent default for non-text elements to allow text selection
+          const target = e.target as HTMLElement;
+          const isTextSelectable = target.tagName === 'SPAN' || 
+                                   target.tagName === 'P' || 
+                                   target.tagName === 'DIV' ||
+                                   target.closest('input') ||
+                                   target.closest('[contenteditable]');
+          
+          if (!isTextSelectable) {
+            e.preventDefault();
+          }
         }}
       >
         <Command 
@@ -227,7 +251,7 @@ const SearchOverlay = memo(function SearchOverlay({
                 </div>
               )}
             </div>
-            <div className="px-4 pb-3 text-xs text-muted-foreground/80 flex items-center justify-between">
+            <div className="px-4 pb-3 pt-2 text-xs text-muted-foreground/80 flex items-center justify-between">
               <span>Questions about your selected accounts</span>
               <span className="hidden sm:inline text-muted-foreground/60">↑↓ navigate • Enter to select • Esc to close</span>
             </div>
@@ -262,7 +286,7 @@ const SearchOverlay = memo(function SearchOverlay({
                 </div>
               </div>
 
-              <CommandList className="max-h-[60vh]">
+              <CommandList className="max-h-[60vh]" data-search-overlay-desktop>
                 <CommandGroup>
                   {filteredQuestions.map((question, index) => (
                     <CommandItem
@@ -285,7 +309,7 @@ const SearchOverlay = memo(function SearchOverlay({
             </>
           ) : (
             /* Overview - Unified Command Interface */
-            <CommandList className="max-h-[60vh]">
+            <CommandList className="max-h-[60vh]" data-search-overlay-desktop>
               {/* Enhanced Search Results */}
               {searchValue && (
                 <CommandGroup heading={
@@ -462,11 +486,11 @@ const SearchOverlay = memo(function SearchOverlay({
                   </div>
                 )}
               </div>
-              <div className="px-1 pb-3 text-xs text-muted-foreground/80">
-                Questions about your selected accounts
+              <div className="px-1 pb-3">
+                <span className="text-xs text-muted-foreground/80">Questions about your selected accounts</span>
               </div>
             </div>
-            <CommandList className="flex-1 px-2">
+            <CommandList className="flex-1 px-2" data-search-overlay-mobile>
               {/* Enhanced mobile search results */}
               {searchValue && (
                 <CommandGroup heading={
