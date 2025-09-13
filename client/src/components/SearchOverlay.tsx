@@ -227,6 +227,13 @@ const SearchOverlay = memo(function SearchOverlay({
               // Let Command handle the navigation
               return;
             }
+            if (e.key === 'Enter') {
+              // Submit the current search value as a question
+              if (searchValue && searchValue.trim()) {
+                onQuestionSelect?.(searchValue.trim());
+              }
+              return;
+            }
             if (e.key === 'Escape') {
               onClose?.();
             }
@@ -461,6 +468,13 @@ const SearchOverlay = memo(function SearchOverlay({
               // Ensure proper keyboard navigation
               if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 // Let Command handle the navigation
+                return;
+              }
+              if (e.key === 'Enter') {
+                // Submit the current search value as a question
+                if (searchValue && searchValue.trim()) {
+                  onQuestionSelect?.(searchValue.trim());
+                }
                 return;
               }
               if (e.key === 'Escape') {

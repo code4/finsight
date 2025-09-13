@@ -16,6 +16,8 @@ import AnswerCardSkeleton from "@/components/AnswerCardSkeleton";
 import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
 import { useTypingAnimation } from "@/hooks/useTypingAnimation";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { apiService } from "@/lib/api";
+import { ContentGenerator } from "@/lib/contentGenerator";
 
 
 function FinSightDashboard() {
@@ -82,6 +84,25 @@ function FinSightDashboard() {
     accounts: string[];
     timeframe: string;
     isUnmatched: boolean;
+    isReview?: boolean;
+    isError?: boolean;
+    message?: string;
+    matchedAnswer?: {
+      id: string;
+      title: string;
+      content: string;
+      category?: string;
+    };
+    confidence?: "high" | "medium" | "low";
+    backendResponse?: any;
+    content?: {
+      paragraph?: string;
+      kpis?: any[];
+      chartData?: any[];
+      tableData?: any[];
+      highlights?: string[];
+      metrics?: any[];
+    };
   }>>([]);
   const [newAnswerId, setNewAnswerId] = useState<string | null>(null);
   const [isGeneratingAnswer, setIsGeneratingAnswer] = useState(false);
@@ -202,7 +223,6 @@ function FinSightDashboard() {
     }
   }, [newAnswerId, answers.length]);
 
-  // todo: remove mock functionality
   const handleSearchSubmit = async (question: string) => {
     setSearchValue("");
     setIsSearchFocused(false);
@@ -238,81 +258,49 @@ function FinSightDashboard() {
       }
     }, answers.length === 0 ? 200 : 150);
     
-    // Define loading stages with estimated times (longer for better UX)
+    // Define loading stages with estimated times
     const loadingStages = [
-      { message: "Analyzing portfolio data...", duration: 800, progress: 20 },
-      { message: "Calculating performance metrics...", duration: 900, progress: 45 },
-      { message: "Comparing with benchmarks...", duration: 700, progress: 70 },
-      { message: "Generating insights...", duration: 800, progress: 90 },
-      { message: "Finalizing analysis...", duration: 400, progress: 100 }
+      { message: "Processing your question...", duration: 500, progress: 25 },
+      { message: "Searching knowledge base...", duration: 800, progress: 50 },
+      { message: "Analyzing context and accounts...", duration: 600, progress: 75 },
+      { message: "Generating response...", duration: 400, progress: 100 }
     ];
     
     // Set estimated total time
     const totalTime = loadingStages.reduce((sum, stage) => sum + stage.duration, 0);
     setEstimatedTime(Math.ceil(totalTime / 1000));
-    
-    // Execute loading stages progressively
-    for (let i = 0; i < loadingStages.length; i++) {
-      const stage = loadingStages[i];
-      setLoadingStage(stage.message);
-      setLoadingProgress(stage.progress);
-      
-      await new Promise(resolve => setTimeout(resolve, stage.duration));
-    }
 
-    // Check if the question matches existing predefined questions (improved matching logic)
-    const allPredefinedQuestions = [
-      "What's the YTD performance vs S&P 500?",
-      "Show me the top 10 holdings by weight",
-      "What's the portfolio's beta and volatility?",
-      "How did tech sector allocation perform?",
-      "What were the largest trades last month?",
-      "Show sector allocation breakdown",
-      "Compare risk-adjusted returns to benchmark",
-      "What's driving current performance attribution?",
-      "Show me recent portfolio activity summary",
-      "How is the portfolio allocated by asset class?",
-      "What are my portfolio's risk metrics?",
-      "How has my portfolio performed this quarter?",
-      "Show me asset allocation details",
-      "What are the performance drivers?",
-      "Display recent trading activity"
-    ];
+    try {
+      // Execute loading stages while processing
+      const loadingPromise = (async () => {
+        for (let i = 0; i < loadingStages.length; i++) {
+          const stage = loadingStages[i];
+          setLoadingStage(stage.message);
+          setLoadingProgress(stage.progress);
+          await new Promise(resolve => setTimeout(resolve, stage.duration));
+        }
+      })();
 
-    // Improved matching with better similarity checking
-    const normalizedInput = question.toLowerCase().trim();
-    const isMatchedQuestion = allPredefinedQuestions.some(predefined => {
-      const normalizedPredefined = predefined.toLowerCase();
-      
-      // Exact substring match
-      if (normalizedPredefined.includes(normalizedInput) || normalizedInput.includes(normalizedPredefined)) {
-        return true;
-      }
-      
-      // Keyword-based matching for common financial terms
-      const inputWords = normalizedInput.split(/\s+/);
-      const predefinedWords = normalizedPredefined.split(/\s+/);
-      
-      // Check for significant keyword overlap (at least 2 meaningful words)
-      const meaningfulWords = inputWords.filter(word => 
-        word.length > 3 && !['what', 'show', 'how', 'the', 'and', 'are', 'my'].includes(word)
-      );
-      
-      if (meaningfulWords.length >= 2) {
-        const matches = meaningfulWords.filter(word => 
-          predefinedWords.some(pWord => pWord.includes(word) || word.includes(pWord))
-        );
-        return matches.length >= Math.min(2, meaningfulWords.length);
-      }
-      
-      return false;
-    });
+      // Prepare context for the backend
+      const context = {
+        accounts: selectedAccounts.map(acc => acc.id),
+        timeframe: timeframe,
+        selectionMode: selectionMode,
+      };
 
-    const answerId = Date.now().toString();
-    
-    if (isMatchedQuestion) {
-      // Create a regular answer for matched questions
-      const newAnswer = {
+      // Submit question to backend
+      const apiPromise = apiService.submitQuestion({
+        question: question,
+        context: context,
+      });
+
+      // Wait for both loading animation and API call
+      const [_, response] = await Promise.all([loadingPromise, apiPromise]);
+
+      const answerId = response.id || Date.now().toString();
+      
+      // Create answer based on backend response
+      const baseAnswer = {
         id: answerId,
         question,
         asOfDate: new Date().toLocaleString('en-US', { 
@@ -325,13 +313,68 @@ function FinSightDashboard() {
         }),
         accounts: selectedAccounts.map(acc => `${acc.alias || acc.name} (${acc.accountNumber})`),
         timeframe: timeframe.toUpperCase(),
-        isUnmatched: false
+        backendResponse: response,
       };
-      setAnswers(prev => [newAnswer, ...prev]);
-    } else {
-      // Create a fallback answer for unmatched questions
-      const fallbackAnswer = {
-        id: answerId,
+
+      if (response.status === "matched" && response.answer) {
+        // Generate rich content from backend answer data
+        const generatedContent = ContentGenerator.generateContent(response.answer);
+        
+        // Successful match found
+        const newAnswer = {
+          ...baseAnswer,
+          isUnmatched: false,
+          matchedAnswer: response.answer,
+          confidence: response.confidence,
+          message: response.message,
+          content: generatedContent,
+        };
+        setAnswers(prev => [newAnswer, ...prev]);
+      } else if (response.status === "no_match" && response.answer) {
+        // Smart fallback with contextual answer data
+        const fallbackContent = {
+          paragraph: response.answer.content,
+          fallbackType: response.answer.data?.fallbackType,
+          actionText: response.answer.data?.actionText,
+          isUnmatched: true,
+        };
+        
+        const smartFallbackAnswer = {
+          ...baseAnswer,
+          isUnmatched: true,
+          matchedAnswer: response.answer,
+          message: response.message,
+          content: fallbackContent,
+        };
+        setAnswers(prev => [smartFallbackAnswer, ...prev]);
+      } else if (response.status === "review") {
+        // Question sent for review
+        const reviewAnswer = {
+          ...baseAnswer,
+          isUnmatched: false,
+          isReview: true,
+          message: response.message || "Question sent for expert review",
+        };
+        setAnswers(prev => [reviewAnswer, ...prev]);
+      } else {
+        // No match found (fallback for any other case)
+        const noMatchAnswer = {
+          ...baseAnswer,
+          isUnmatched: true,
+          message: response.message || "No matching answer found",
+        };
+        setAnswers(prev => [noMatchAnswer, ...prev]);
+      }
+
+      setNewAnswerId(answerId);
+      console.log('Question processed by backend:', response);
+
+    } catch (error) {
+      console.error('Error submitting question:', error);
+      
+      // Create error answer
+      const errorAnswer = {
+        id: Date.now().toString(),
         question,
         asOfDate: new Date().toLocaleString('en-US', { 
           month: 'short', 
@@ -343,28 +386,26 @@ function FinSightDashboard() {
         }),
         accounts: selectedAccounts.map(acc => `${acc.alias || acc.name} (${acc.accountNumber})`),
         timeframe: timeframe.toUpperCase(),
-        isUnmatched: true
+        isUnmatched: true,
+        isError: true,
+        message: "Sorry, there was an error processing your question. Please try again.",
       };
-      setAnswers(prev => [fallbackAnswer, ...prev]);
       
-      // todo: Save to backend for future addition
-      console.log('Unmatched question saved for future addition:', question);
+      setAnswers(prev => [errorAnswer, ...prev]);
+      setNewAnswerId(errorAnswer.id);
+    } finally {
+      setIsGeneratingAnswer(false);
+      setLoadingProgress(0);
+      setLoadingStage("");
+      setEstimatedTime(0);
+      
+      // Complete search transition animation after a short delay
+      if (isSearchTransitioning) {
+        setTimeout(() => {
+          setIsSearchTransitioning(false);
+        }, 500);
+      }
     }
-    
-    setNewAnswerId(answerId);
-    setIsGeneratingAnswer(false);
-    setLoadingProgress(0);
-    setLoadingStage("");
-    setEstimatedTime(0);
-    
-    // Complete search transition animation after a short delay
-    if (isSearchTransitioning) {
-      setTimeout(() => {
-        setIsSearchTransitioning(false);
-      }, 500);
-    }
-    
-    console.log('New question submitted:', question);
   };
 
   const handleFollowUpClick = (question: string) => {
@@ -852,7 +893,8 @@ function FinSightDashboard() {
                         asOfDate={answer.asOfDate}
                         accounts={answer.accounts}
                         timeframe={answer.timeframe}
-                        isUnmatched={answer.isUnmatched}
+                        isUnmatched={answer.isUnmatched || answer.isReview || answer.isError}
+                        content={answer.content}
                         onFollowUpClick={handleFollowUpClick}
                         onRefresh={() => console.log('Refresh answer:', answer.id)}
                         onExport={() => console.log('Export answer:', answer.id)}

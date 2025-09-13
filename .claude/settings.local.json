@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm run dev:*)",
       "Bash(set NODE_ENV=development)",
-      "Bash(tsx:*)"
+      "Bash(tsx:*)",
+      "Bash(npm run check:*)"
     ],
     "deny": [],
     "ask": []

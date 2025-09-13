@@ -1,8 +1,9 @@
-import { memo } from "react";
+import { memo, useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, RefreshCw, Download } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Calendar, RefreshCw, Download, User, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter } from "lucide-react";
 import FinancialChart from "@/components/FinancialChart";
 import FollowUpChips from "@/components/FollowUpChips";
 
@@ -11,6 +12,12 @@ interface KPI {
   value: string;
   change: string;
   isPositive: boolean;
+}
+
+interface Metric {
+  label: string;
+  value: string;
+  subtext?: string;
 }
 
 interface AnswerCardProps {
@@ -24,6 +31,12 @@ interface AnswerCardProps {
     kpis?: KPI[];
     chartData?: any[];
     tableData?: any[];
+    highlights?: string[];
+    metrics?: Metric[];
+    // Fallback content
+    fallbackType?: "personal" | "market" | "financial_advice" | "portfolio";
+    actionText?: string;
+    isUnmatched?: boolean;
   };
   followUpQuestions?: string[];
   onRefresh?: () => void;
@@ -46,6 +59,183 @@ const mockChartData = [
   { month: "May", portfolio: 4600, benchmark: 4300 },
   { month: "Jun", portfolio: 4800, benchmark: 4400 }
 ];
+
+// Enhanced Table Component with Sorting and Filtering
+const EnhancedTable = memo(function EnhancedTable({ 
+  data, 
+  animationDelay 
+}: { 
+  data: any[], 
+  animationDelay: string 
+}) {
+  const [sortField, setSortField] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [filterText, setFilterText] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Get column headers (exclude isPositive utility field)
+  const headers = Object.keys(data[0] || {}).filter(key => key !== 'isPositive');
+
+  // Sort and filter data
+  const processedData = useMemo(() => {
+    let filteredData = data;
+
+    // Apply text filter
+    if (filterText) {
+      filteredData = data.filter(row =>
+        Object.entries(row)
+          .filter(([key]) => key !== 'isPositive')
+          .some(([_, value]) => 
+            String(value).toLowerCase().includes(filterText.toLowerCase())
+          )
+      );
+    }
+
+    // Apply sorting
+    if (sortField) {
+      filteredData = [...filteredData].sort((a, b) => {
+        let aVal = a[sortField];
+        let bVal = b[sortField];
+
+        // Handle percentage values (remove % and convert to number)
+        if (typeof aVal === 'string' && aVal.includes('%')) {
+          aVal = parseFloat(aVal.replace('%', '').replace('+', ''));
+          bVal = parseFloat(bVal.replace('%', '').replace('+', ''));
+        }
+        
+        // Handle currency values (remove $ and K/M, convert to number)
+        if (typeof aVal === 'string' && aVal.includes('$')) {
+          aVal = parseFloat(aVal.replace(/[$,K]/g, '')) * (aVal.includes('K') ? 1000 : 1);
+          bVal = parseFloat(bVal.replace(/[$,K]/g, '')) * (bVal.includes('K') ? 1000 : 1);
+        }
+
+        // Handle numeric strings
+        const aNum = parseFloat(String(aVal).replace(/[^\d.-]/g, ''));
+        const bNum = parseFloat(String(bVal).replace(/[^\d.-]/g, ''));
+        
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
+        }
+
+        // String comparison
+        const aStr = String(aVal).toLowerCase();
+        const bStr = String(bVal).toLowerCase();
+        
+        if (sortDirection === 'asc') {
+          return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
+        } else {
+          return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
+        }
+      });
+    }
+
+    return filteredData;
+  }, [data, sortField, sortDirection, filterText]);
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) return <ArrowUpDown className="h-3 w-3 opacity-50" />;
+    return sortDirection === 'asc' ? 
+      <ArrowUp className="h-3 w-3 text-primary" /> : 
+      <ArrowDown className="h-3 w-3 text-primary" />;
+  };
+
+  return (
+    <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay }}>
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium text-muted-foreground">Detailed Breakdown</h4>
+        <div className="flex items-center gap-2">
+          {showFilters && (
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-3 w-3 text-muted-foreground" />
+              <Input
+                placeholder="Filter data..."
+                value={filterText}
+                onChange={(e) => setFilterText(e.target.value)}
+                className="pl-7 h-8 w-48 text-xs"
+              />
+            </div>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className="h-8 px-2 gap-1 text-xs"
+          >
+            <Filter className="h-3 w-3" />
+            Filter
+          </Button>
+        </div>
+      </div>
+      
+      <div className="rounded-lg border border-border/50 overflow-hidden bg-muted/30 hover-elevate transition-all duration-300">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50">
+              <tr>
+                {headers.map((header, index) => (
+                  <th key={index} className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    <button
+                      onClick={() => handleSort(header)}
+                      className="flex items-center gap-1 hover:text-foreground transition-colors duration-200 capitalize"
+                    >
+                      {header}
+                      {getSortIcon(header)}
+                    </button>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {processedData.length > 0 ? (
+                processedData.map((row: any, index: number) => (
+                  <tr key={index} className="border-b border-border/50 hover:bg-muted/30 transition-colors duration-200">
+                    {Object.entries(row).filter(([key]) => key !== 'isPositive').map(([key, value], cellIndex) => (
+                      <td key={cellIndex} className="px-4 py-3">
+                        {key === 'return' && row.isPositive !== undefined ? (
+                          <span className={`font-medium ${row.isPositive ? 'text-chart-2' : 'text-chart-3'}`}>
+                            {value as string}
+                          </span>
+                        ) : key.includes('weight') || key.includes('yield') || key.includes('return') ? (
+                          <span className="font-mono">
+                            {value as string}
+                          </span>
+                        ) : (
+                          value as string
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={headers.length} className="px-4 py-6 text-center text-muted-foreground">
+                    No matching data found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        {processedData.length > 0 && (
+          <div className="px-4 py-2 bg-muted/30 border-t border-border/50 text-xs text-muted-foreground">
+            Showing {processedData.length} of {data.length} entries
+            {filterText && ` • Filtered by "${filterText}"`}
+            {sortField && ` • Sorted by ${sortField} (${sortDirection})`}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
 
 const AnswerCard = memo(function AnswerCard({
   question = "What's the YTD performance vs S&P 500?",
@@ -130,21 +320,59 @@ const AnswerCard = memo(function AnswerCard({
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {isUnmatched ? (
-          /* Fallback content for unmatched questions */
-          <div className="text-center py-8 space-y-4">
-            <div className="mx-auto w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-muted-foreground" />
+        {(isUnmatched || content?.isUnmatched) ? (
+          /* Smart Fallback content for unmatched questions */
+          <div className="text-center py-8 space-y-6">
+            {/* Dynamic Icon based on fallback type */}
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+              {content?.fallbackType === "personal" ? (
+                <User className="h-8 w-8 text-primary" />
+              ) : content?.fallbackType === "market" ? (
+                <TrendingUp className="h-8 w-8 text-primary" />
+              ) : content?.fallbackType === "financial_advice" ? (
+                <MessageCircle className="h-8 w-8 text-primary" />
+              ) : (
+                <Calendar className="h-8 w-8 text-primary" />
+              )}
             </div>
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Question Added for Review</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-                We've added your question to our development list and will review it for inclusion in future platform updates. 
-                Our team will work to provide comprehensive analytics for this type of query.
+
+            <div className="space-y-3">
+              <h4 className="text-lg font-semibold">
+                {content?.fallbackType === "personal" ? "Account Information" :
+                 content?.fallbackType === "market" ? "Market Data Request" :
+                 content?.fallbackType === "financial_advice" ? "Added for Review" :
+                 "Portfolio Analysis"}
+              </h4>
+              
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
+                {content?.paragraph || 
+                 "We've added your question to our development list and will review it for inclusion in future platform updates."}
               </p>
             </div>
-            <Badge variant="outline" className="text-xs">
-              Pending Review
+
+            {/* Action Button */}
+            {content?.actionText && (
+              <div className="flex justify-center">
+                <Button 
+                  variant="outline" 
+                  className="gap-2 hover-elevate transition-all duration-200"
+                  onClick={() => console.log(`Action: ${content.actionText}`)}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  {content.actionText}
+                </Button>
+              </div>
+            )}
+
+            {/* Status Badge */}
+            <Badge 
+              variant={content?.fallbackType === "financial_advice" ? "default" : "outline"} 
+              className="text-xs"
+            >
+              {content?.fallbackType === "personal" ? "Account Information" :
+               content?.fallbackType === "market" ? "External Data" :
+               content?.fallbackType === "financial_advice" ? "Pending Review" :
+               "Development Queue"}
             </Badge>
           </div>
         ) : (
@@ -180,12 +408,52 @@ const AnswerCard = memo(function AnswerCard({
               </div>
             )}
 
+            {/* Enhanced Table Data with Sorting & Filtering */}
+            {content.tableData && (
+              <EnhancedTable 
+                data={content.tableData} 
+                animationDelay={`${(content.kpis?.length || 0) * 150 + 300}ms`}
+              />
+            )}
+
             {/* Chart */}
             {content.chartData && (
               <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${(content.kpis?.length || 0) * 150 + 400}ms` }}>
                 <h4 className="text-sm font-medium mb-3 text-muted-foreground">Performance Comparison</h4>
                 <div className="rounded-lg border border-border/50 p-4 bg-muted/30 hover-elevate transition-all duration-300">
                   <FinancialChart data={content.chartData} />
+                </div>
+              </div>
+            )}
+
+            {/* Metrics */}
+            {content.metrics && (
+              <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${(content.kpis?.length || 0) * 150 + 500}ms` }}>
+                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Additional Metrics</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {content.metrics.map((metric, index) => (
+                    <div key={index} className="bg-muted/50 rounded-lg p-4 hover-elevate transition-all duration-300 hover:scale-105">
+                      <div className="text-lg font-mono font-bold mb-1">{metric.value}</div>
+                      <div className="text-sm font-medium mb-1">{metric.label}</div>
+                      {metric.subtext && (
+                        <div className="text-xs text-muted-foreground">{metric.subtext}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Highlights */}
+            {content.highlights && (
+              <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${(content.kpis?.length || 0) * 150 + 600}ms` }}>
+                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Key Insights</h4>
+                <div className="space-y-2">
+                  {content.highlights.map((highlight, index) => (
+                    <div key={index} className="bg-muted/30 rounded-lg p-3 border-l-4 border-primary/30 hover-elevate transition-all duration-300">
+                      <p className="text-sm leading-relaxed">{highlight}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
