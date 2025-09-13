@@ -185,3 +185,4 @@ Based on recent commits, the application has been evolving with:
 - Loading states should provide real account/timeframe context for better user experience
 - Overlay backdrop must cover entire viewport including header for proper modal behavior
 - Mobile experience should be touch-optimized with appropriate tap targets and animations
+- **NEVER** add "Generated with Claude Code" or similar attribution messages to commit messages
