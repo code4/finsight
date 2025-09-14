@@ -498,68 +498,58 @@ const FeedbackSection = memo(function FeedbackSection({
   );
 });
 
-// Editable Badge Section Component
+// Enhanced Interactive Placeholder System for Single Account/Timeframe Selection
 const EditableBadgeSection = memo(function EditableBadgeSection({
-  accounts,
+  account, // Single account instead of array
   timeframe,
   availableAccounts = ["Growth Portfolio", "Conservative Fund", "Aggressive Growth", "Income Focus", "All Accounts"],
-  availableTimeframes = ["1D", "1W", "1M", "3M", "6M", "YTD", "1Y", "2Y", "3Y", "5Y"],
-  onAccountsChange,
+  availableTimeframes = ["Month to date", "One month", "One year", "Previous calendar year", "Previous month", "Previous quarter", "Year to date"],
+  onAccountChange, // Single account change
   onTimeframeChange,
-  onResubmit
+  onPlaceholderEdit, // Called when placeholder is clicked (triggers blur)
+  onSubmitChanges, // Called when submit button is clicked
+  hasChanges, // Whether there are unsaved changes
+  isBlurred // Whether answer should be blurred
 }: {
-  accounts: string[];
+  account: string; // Single account
   timeframe: string;
   availableAccounts?: string[];
   availableTimeframes?: string[];
-  onAccountsChange?: (newAccounts: string[]) => void;
+  onAccountChange?: (newAccount: string) => void;
   onTimeframeChange?: (newTimeframe: string) => void;
-  onResubmit?: () => void;
+  onPlaceholderEdit?: () => void; // Triggers blur state
+  onSubmitChanges?: () => void; // Submits with new parameters
+  hasChanges?: boolean;
+  isBlurred?: boolean;
 }) {
-  const [isEditingAccounts, setIsEditingAccounts] = useState(false);
+  const [isEditingAccount, setIsEditingAccount] = useState(false);
   const [isEditingTimeframe, setIsEditingTimeframe] = useState(false);
-  const [tempAccounts, setTempAccounts] = useState<string[]>(accounts);
+  const [tempAccount, setTempAccount] = useState(account);
   const [tempTimeframe, setTempTimeframe] = useState(timeframe);
 
   // Reset temp values when props change
   useEffect(() => {
-    setTempAccounts(accounts);
+    setTempAccount(account);
     setTempTimeframe(timeframe);
-  }, [accounts, timeframe]);
+  }, [account, timeframe]);
 
-  const handleAccountToggle = (account: string) => {
-    setTempAccounts(prev => 
-      prev.includes(account)
-        ? prev.filter(a => a !== account)
-        : [...prev, account]
-    );
+  const handleAccountSelect = (newAccount: string) => {
+    setTempAccount(newAccount);
   };
 
-  const handleSaveAccounts = () => {
-    if (tempAccounts.length === 0) return; // Prevent empty selection
-    
-    onAccountsChange?.(tempAccounts);
-    setIsEditingAccounts(false);
-    
-    // Trigger resubmission if accounts changed
-    if (JSON.stringify([...tempAccounts].sort()) !== JSON.stringify([...accounts].sort())) {
-      setTimeout(() => onResubmit?.(), 100);
-    }
+  const handleSaveAccount = () => {
+    onAccountChange?.(tempAccount);
+    setIsEditingAccount(false);
   };
 
   const handleSaveTimeframe = () => {
     onTimeframeChange?.(tempTimeframe);
     setIsEditingTimeframe(false);
-    
-    // Trigger resubmission if timeframe changed
-    if (tempTimeframe !== timeframe) {
-      setTimeout(() => onResubmit?.(), 100);
-    }
   };
 
-  const handleCancelAccounts = () => {
-    setTempAccounts(accounts);
-    setIsEditingAccounts(false);
+  const handleCancelAccount = () => {
+    setTempAccount(account);
+    setIsEditingAccount(false);
   };
 
   const handleCancelTimeframe = () => {
@@ -567,118 +557,97 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
     setIsEditingTimeframe(false);
   };
 
+  // Check if there are any changes for submit button visibility
+  const hasAccountChange = tempAccount !== account;
+  const hasTimeframeChange = tempTimeframe !== timeframe;
+  const hasLocalChanges = hasAccountChange || hasTimeframeChange;
+  const showSubmitButton = hasChanges || hasLocalChanges; // Use prop or local changes
+
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      {/* Editable Accounts */}
-      {isEditingAccounts ? (
-        <Popover open={isEditingAccounts} onOpenChange={setIsEditingAccounts}>
+      {/* Single Account Pill - Using same Popover as top navigation */}
+      {isEditingAccount ? (
+        <Popover open={isEditingAccount} onOpenChange={setIsEditingAccount}>
           <PopoverTrigger asChild>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="h-6 px-2 text-xs gap-1 border-primary/50"
-              data-testid="button-edit-accounts"
+              className={`gap-1 hover-elevate h-6 px-2 ${
+                isBlurred ? 'animate-pulse' : ''
+              }`}
+              data-testid="button-edit-account"
             >
-              <Edit2 className="h-3 w-3" />
-              Editing accounts...
+              <Settings2 className="h-3 w-3" />
+              <span className="text-xs">Selecting...</span>
+              <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 p-3" align="start">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-medium">Select Accounts</Label>
-                <div className="flex gap-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleSaveAccounts}
-                    disabled={tempAccounts.length === 0}
-                    className="h-6 px-2 gap-1"
-                    data-testid="button-save-accounts"
-                  >
-                    <Check className="h-3 w-3" />
-                    Save
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleCancelAccounts}
-                    className="h-6 px-2 gap-1"
-                    data-testid="button-cancel-accounts"
-                  >
-                    <X className="h-3 w-3" />
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-              
+          <PopoverContent className="w-72 p-0" align="start">
+            <div className="p-3 border-b">
+              <h4 className="font-medium text-sm">Select Account</h4>
+              <p className="text-xs text-muted-foreground mt-1">Choose a single account for this analysis</p>
+            </div>
+            <div className="p-3">
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {availableAccounts.map((account) => (
-                  <div key={account} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={account}
-                      checked={tempAccounts.includes(account)}
-                      onCheckedChange={() => handleAccountToggle(account)}
-                      data-testid={`checkbox-account-${account.toLowerCase().replace(/\s+/g, '-')}`}
-                    />
-                    <Label
-                      htmlFor={account}
-                      className="text-xs cursor-pointer flex-1"
-                    >
-                      {account}
-                    </Label>
+                {availableAccounts.map((acc) => (
+                  <div 
+                    key={acc} 
+                    className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 p-2 rounded-md transition-colors" 
+                    onClick={() => {
+                      handleAccountSelect(acc);
+                      handleSaveAccount();
+                    }}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center ${
+                      tempAccount === acc 
+                        ? 'bg-primary border-primary' 
+                        : 'border-border hover:border-primary/50'
+                    }`}>
+                      {tempAccount === acc && (
+                        <div className="w-2 h-2 bg-primary-foreground rounded-full" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">{acc}</div>
+                    </div>
                   </div>
                 ))}
-              </div>
-              
-              <div className="text-xs text-muted-foreground">
-                {tempAccounts.length} account{tempAccounts.length !== 1 ? 's' : ''} selected
               </div>
             </div>
           </PopoverContent>
         </Popover>
       ) : (
-        <div className="flex items-center gap-1">
-          {accounts.length <= 2 ? (
-            /* Show individual badges for 1-2 accounts */
-            accounts.map((account, index) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className="text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative"
-                onClick={() => setIsEditingAccounts(true)}
-                style={{ animationDelay: `${index * 100}ms` }}
-                data-testid={`badge-account-${index}`}
-              >
-                {account}
-                <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
-              </Badge>
-            ))
-          ) : (
-            /* Show summary badge for 3+ accounts */
-            <Badge
-              variant="outline"
-              className="text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative bg-primary/5 border-primary/30 text-primary hover:bg-primary/10"
-              onClick={() => setIsEditingAccounts(true)}
-              data-testid="badge-account-summary"
-            >
-              <Users className="h-3 w-3 mr-1" />
-              {accounts.length} Account{accounts.length !== 1 ? 's' : ''}
-              <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-70 transition-opacity" />
-            </Badge>
-          )}
-        </div>
+        // Single Account Pill Display
+        <Badge
+          variant="outline"
+          className={`text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative ${
+            isBlurred ? 'opacity-60 grayscale' : 'hover:bg-primary/10'
+          }`}
+          onClick={() => {
+            onPlaceholderEdit?.(); // Trigger blur state
+            setIsEditingAccount(true);
+          }}
+          data-testid="badge-account-single"
+        >
+          <User className="h-3 w-3 mr-1" />
+          {account}
+          <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
+          <ChevronDown className="h-2 w-2 ml-0.5 opacity-60 group-hover:opacity-80 transition-opacity" />
+        </Badge>
       )}
 
-      {/* Editable Timeframe */}
+      {/* Editable Timeframe - Using same Select as top navigation */}
       {isEditingTimeframe ? (
         <div className="flex items-center gap-1">
           <Select
             value={tempTimeframe}
-            onValueChange={setTempTimeframe}
+            onValueChange={(value) => {
+              setTempTimeframe(value);
+              handleSaveTimeframe();
+            }}
             data-testid="select-timeframe"
           >
-            <SelectTrigger className="h-6 w-20 px-2 text-xs border-primary/50">
+            <SelectTrigger className="h-6 w-16 text-xs border-none bg-muted/50 hover:bg-muted px-2">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -689,35 +658,37 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
               ))}
             </SelectContent>
           </Select>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleSaveTimeframe}
-            className="h-6 px-1.5"
-            data-testid="button-save-timeframe"
-          >
-            <Check className="h-3 w-3" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleCancelTimeframe}
-            className="h-6 px-1.5"
-            data-testid="button-cancel-timeframe"
-          >
-            <X className="h-3 w-3" />
-          </Button>
         </div>
       ) : (
         <Badge
           variant="secondary"
-          className="text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative"
-          onClick={() => setIsEditingTimeframe(true)}
+          className={`text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative ${
+            isBlurred ? 'opacity-60 grayscale' : 'hover:bg-secondary/80'
+          }`}
+          onClick={() => {
+            onPlaceholderEdit?.(); // Trigger blur state
+            setIsEditingTimeframe(true);
+          }}
           data-testid="badge-timeframe"
         >
+          <Calendar className="h-3 w-3 mr-1" />
           {timeframe}
           <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
+          <ChevronDown className="h-2 w-2 ml-0.5 opacity-60 group-hover:opacity-80 transition-opacity" />
         </Badge>
+      )}
+      
+      {/* Submit Changes Button - Appears when there are unsaved changes */}
+      {hasChanges && (
+        <Button
+          size="sm"
+          onClick={onSubmitChanges}
+          className="h-6 px-3 gap-1 bg-primary hover:bg-primary/90 animate-in fade-in-0 slide-in-from-right-2 duration-200"
+          data-testid="button-submit-placeholder-changes"
+        >
+          <RefreshCw className="h-3 w-3" />
+          <span className="text-xs font-medium">Update Analysis</span>
+        </Button>
       )}
     </div>
   );
@@ -1220,8 +1191,9 @@ const EnhancedTable = memo(function EnhancedTable({
 const AnswerCard = memo(function AnswerCard({
   question = "What's the YTD performance vs S&P 500?",
   asOfDate = "Dec 10, 2024",
-  accounts = ["Growth Portfolio", "Conservative Fund"],
-  timeframe = "YTD",
+  accounts = ["Growth Portfolio", "Conservative Fund"], // Keep for backward compatibility
+  account = "Growth Portfolio", // Single account for new system
+  timeframe = "Year to date",
   isUnmatched = false,
   isError = false,
   errorType,
@@ -1329,13 +1301,16 @@ const AnswerCard = memo(function AnswerCard({
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <EditableBadgeSection
-                accounts={accounts}
+                account={account || accounts?.[0] || "Growth Portfolio"}
                 timeframe={timeframe}
                 availableAccounts={availableAccounts}
                 availableTimeframes={availableTimeframes}
-                onAccountsChange={onAccountsChange}
+                onAccountChange={(newAccount) => console.log('Account changed:', newAccount)}
                 onTimeframeChange={onTimeframeChange}
-                onResubmit={onResubmit}
+                onPlaceholderEdit={() => console.log('Placeholder editing started')}
+                onSubmitChanges={() => console.log('Submit changes clicked')}
+                hasChanges={hasModifiedPlaceholders}
+                isBlurred={false}
               />
               <Tooltip>
                 <TooltipTrigger asChild>
