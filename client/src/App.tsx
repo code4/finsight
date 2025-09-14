@@ -589,20 +589,20 @@ function FinSightDashboard() {
               )}
               
               {answers.length === 0 && !isGeneratingAnswer ? (
-                <div className="max-w-4xl mx-auto py-4 lg:py-6">
-                  {/* Compact Search Hero Section */}
+                <div className="max-w-4xl mx-auto py-6 lg:py-12">
+                  {/* Above-the-fold Hero - Compact & Essential */}
                   <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-2xl mb-6">
                       <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
                     
-                    <h1 className="text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                      Ask about your portfolio
+                    <h1 className="text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                      AI-Powered Portfolio Intelligence
                     </h1>
                     <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-                      Get instant analytics and insights by asking questions about your selected accounts
+                      Ask questions in plain English • Get institutional insights instantly
                     </p>
                     
                     {/* Prominent Search Input */}
@@ -636,283 +636,80 @@ function FinSightDashboard() {
                       </p>
                     </div>
                     
-                    {/* Quick Action Chips */}
-                    <div className="flex flex-wrap justify-center gap-2 mb-6">
-                      {['YTD Performance', 'Risk Analysis', 'Top Holdings', 'Sector Allocation'].map((chip) => (
+                    {/* Essential Quick Actions - Above the Fold */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+                      {[
+                        { label: 'Performance vs S&P', question: "What's the YTD performance vs S&P 500?", icon: "📈", color: "from-green-500/10 to-green-600/10" },
+                        { label: 'Risk Analysis', question: "What's the portfolio's beta and volatility?", icon: "⚖️", color: "from-orange-500/10 to-red-600/10" },
+                        { label: 'Top Holdings', question: "Show me the top 10 holdings by weight", icon: "🏆", color: "from-blue-500/10 to-blue-600/10" },
+                        { label: 'Sector Allocation', question: "How is the portfolio allocated by sector?", icon: "🏢", color: "from-purple-500/10 to-purple-600/10" }
+                      ].map((item) => (
                         <button
-                          key={chip}
-                          onClick={() => {
-                            const questions = {
-                              'YTD Performance': "What's the YTD performance vs S&P 500?",
-                              'Risk Analysis': "What's the portfolio's beta and volatility?", 
-                              'Top Holdings': "Show me the top 10 holdings by weight",
-                              'Sector Allocation': "How is the portfolio allocated by sector?"
-                            };
-                            handleSearchSubmit(questions[chip as keyof typeof questions]);
-                          }}
-                          className="px-4 py-2 rounded-full border bg-background/50 backdrop-blur-sm hover:bg-accent hover:text-accent-foreground transition-colors text-sm font-medium"
+                          key={item.label}
+                          onClick={() => handleSearchSubmit(item.question)}
+                          className={`group p-4 rounded-xl border bg-gradient-to-br ${item.color} hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 text-left`}
+                          data-testid={`quick-action-${item.label.toLowerCase().replace(' ', '-')}`}
                         >
-                          {chip}
+                          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{item.icon}</div>
+                          <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                            {item.label}
+                          </div>
                         </button>
                       ))}
                     </div>
-                  </div>
 
-                  {/* Sample Questions - Expanded */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-card border rounded-lg p-6">
-                      <div className="flex items-center mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-chart-1/10 rounded-lg mr-3">
-                          <svg className="w-5 h-5 text-chart-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                          </svg>
+                    {/* Current Analysis Context - Prominent */}
+                    <div className="bg-gradient-to-r from-primary/5 to-blue-500/5 border border-primary/20 rounded-xl p-4 mb-8">
+                      <div className="flex items-center justify-center gap-6 text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-primary rounded-full"></div>
+                          <span className="text-muted-foreground">Analyzing</span>
+                          <span className="font-semibold text-primary">
+                            {selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}
+                          </span>
                         </div>
-                        <h3 className="text-lg font-semibold">Performance Analysis</h3>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("What's the YTD performance vs S&P 500?")}
-                        >
-                          <div>
-                            <div className="font-medium">Performance vs Benchmark</div>
-                            <div className="text-xs text-muted-foreground">Compare YTD returns against S&P 500</div>
-                          </div>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("What's the portfolio's beta and volatility?")}
-                        >
-                          <div>
-                            <div className="font-medium">Risk Metrics Analysis</div>
-                            <div className="text-xs text-muted-foreground">View beta, volatility, and risk measures</div>
-                          </div>
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="bg-card border rounded-lg p-6">
-                      <div className="flex items-center mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-chart-2/10 rounded-lg mr-3">
-                          <svg className="w-5 h-5 text-chart-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                          </svg>
+                        <div className="h-4 w-px bg-border"></div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span className="text-muted-foreground">Timeframe</span>
+                          <span className="font-semibold text-blue-600">
+                            {timeframes.find(tf => tf.value === timeframe)?.label || timeframe}
+                          </span>
                         </div>
-                        <h3 className="text-lg font-semibold">Portfolio Composition</h3>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("Show me the top 10 holdings by weight")}
-                        >
-                          <div>
-                            <div className="font-medium">Top Holdings Analysis</div>
-                            <div className="text-xs text-muted-foreground">View largest positions and weightings</div>
-                          </div>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("Show sector allocation breakdown")}
-                        >
-                          <div>
-                            <div className="font-medium">Sector Allocation</div>
-                            <div className="text-xs text-muted-foreground">Analyze diversification by sector</div>
-                          </div>
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="bg-card border rounded-lg p-6">
-                      <div className="flex items-center mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-chart-3/10 rounded-lg mr-3">
-                          <svg className="w-5 h-5 text-chart-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold">Trading Activity</h3>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("What were the largest trades last month?")}
-                        >
-                          <div>
-                            <div className="font-medium">Recent Large Trades</div>
-                            <div className="text-xs text-muted-foreground">Review significant portfolio transactions</div>
-                          </div>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("Show me recent portfolio activity summary")}
-                        >
-                          <div>
-                            <div className="font-medium">Activity Summary</div>
-                            <div className="text-xs text-muted-foreground">Overview of recent portfolio changes</div>
-                          </div>
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="bg-card border rounded-lg p-6">
-                      <div className="flex items-center mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-chart-4/10 rounded-lg mr-3">
-                          <svg className="w-5 h-5 text-chart-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold">Attribution Analysis</h3>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("What's driving current performance attribution?")}
-                        >
-                          <div>
-                            <div className="font-medium">Performance Drivers</div>
-                            <div className="text-xs text-muted-foreground">Identify key contributors to returns</div>
-                          </div>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("How did tech sector allocation perform?")}
-                        >
-                          <div>
-                            <div className="font-medium">Sector Performance</div>
-                            <div className="text-xs text-muted-foreground">Analyze sector-specific returns</div>
-                          </div>
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="bg-card border rounded-lg p-6">
-                      <div className="flex items-center mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-chart-5/10 rounded-lg mr-3">
-                          <svg className="w-5 h-5 text-chart-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold">Income & Dividends</h3>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("How much dividend income was generated this year?")}
-                        >
-                          <div>
-                            <div className="font-medium">Dividend Income YTD</div>
-                            <div className="text-xs text-muted-foreground">Track dividend payments and yield</div>
-                          </div>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("What are the highest dividend-yielding positions?")}
-                        >
-                          <div>
-                            <div className="font-medium">Top Dividend Stocks</div>
-                            <div className="text-xs text-muted-foreground">Identify best income generators</div>
-                          </div>
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="bg-card border rounded-lg p-6">
-                      <div className="flex items-center mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-emerald-500/10 rounded-lg mr-3">
-                          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold">ESG & Sustainability</h3>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("Show me ESG scores for major holdings")}
-                        >
-                          <div>
-                            <div className="font-medium">ESG Ratings Analysis</div>
-                            <div className="text-xs text-muted-foreground">Review sustainability metrics</div>
-                          </div>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start h-auto p-3 text-left"
-                          onClick={() => handleSearchSubmit("What's the portfolio's carbon footprint?")}
-                        >
-                          <div>
-                            <div className="font-medium">Carbon Impact Assessment</div>
-                            <div className="text-xs text-muted-foreground">Measure environmental footprint</div>
-                          </div>
-                        </Button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Getting Started Tips */}
-                  <div className="bg-muted/30 border rounded-lg p-6">
-                    <h3 className="font-semibold mb-3 flex items-center">
-                      <svg className="w-5 h-5 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Getting Started
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-start">
-                        <div className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                          <span className="text-xs font-semibold text-primary">1</span>
-                        </div>
-                        <div>
-                          <span className="font-medium">Select Your Context</span>
-                          <p className="text-muted-foreground">Use the account selector above to choose individual accounts or account groups</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                          <span className="text-xs font-semibold text-primary">2</span>
-                        </div>
-                        <div>
-                          <span className="font-medium">Ask Questions</span>
-                          <p className="text-muted-foreground">Type questions in natural language or use the search bar above</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                          <span className="text-xs font-semibold text-primary">3</span>
-                        </div>
-                        <div>
-                          <span className="font-medium">Set Timeframe</span>
-                          <p className="text-muted-foreground">Adjust the timeframe in the context bar to focus your analysis</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                          <span className="text-xs font-semibold text-primary">4</span>
-                        </div>
-                        <div>
-                          <span className="font-medium">Explore Insights</span>
-                          <p className="text-muted-foreground">Follow up on answers with related questions to dive deeper</p>
-                        </div>
+                  {/* Sample Insight Preview - Shows Value Immediately */}
+                  <div className="bg-gradient-to-br from-background/80 to-primary/5 border border-primary/10 rounded-xl p-6 mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">Example: What you'll get</h3>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        Real-time data
                       </div>
                     </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600 mb-1">+14.7%</div>
+                        <div className="text-xs text-muted-foreground">YTD Return</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary mb-1">1.34</div>
+                        <div className="text-xs text-muted-foreground">Sharpe Ratio</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600 mb-1">+3.5%</div>
+                        <div className="text-xs text-muted-foreground">vs S&P 500</div>
+                      </div>
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground text-center">
+                      <span className="text-primary font-medium">Key Insight:</span> Your portfolio outperformed by 3.5%, driven primarily by tech sector allocation and superior risk management.
+                    </p>
                   </div>
+
                 </div>
               ) : (
                 <div className="space-y-6">
