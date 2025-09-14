@@ -4,7 +4,9 @@ import {
   type Question,
   type InsertQuestion, 
   type Answer,
-  type InsertAnswer 
+  type InsertAnswer,
+  type Feedback,
+  type InsertFeedback
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -29,17 +31,25 @@ export interface IStorage {
   searchAnswers(query: string): Promise<Answer[]>;
   getAnswersByCategory(category: string): Promise<Answer[]>;
   getAllAnswers(): Promise<Answer[]>;
+  
+  // Feedback methods
+  createFeedback(feedback: InsertFeedback): Promise<Feedback>;
+  getFeedback(id: string): Promise<Feedback | undefined>;
+  getFeedbackForAnswer(answerId: string): Promise<Feedback[]>;
+  getAllFeedback(): Promise<Feedback[]>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private questions: Map<string, Question>;
   private answers: Map<string, Answer>;
+  private feedback: Map<string, Feedback>;
 
   constructor() {
     this.users = new Map();
     this.questions = new Map();
     this.answers = new Map();
+    this.feedback = new Map();
     
     // Initialize with some default answers for demo
     this.initializeDefaultAnswers();
@@ -200,6 +210,135 @@ export class MemStorage implements IStorage {
           carbonReduction: 65,
           sustainableRevenue: 34.2
         }
+      },
+      {
+        title: "Expense Ratio Analysis",
+        content: "Your portfolio maintains a cost-efficient structure with a weighted average expense ratio of 0.47%, significantly below the industry average of 0.68% for actively managed funds. Index funds comprise 38% of holdings with ultra-low fees averaging 0.08%, while active strategies represent 62% with an average expense ratio of 0.71%. Total annual fees across all holdings amount to approximately $7,100, representing strong value given the portfolio's active management and outperformance.",
+        category: "Costs",
+        keywords: ["expense", "ratio", "fees", "costs", "management", "fee", "cheap", "expensive"],
+        answerType: "costs",
+        data: {
+          avgExpenseRatio: 0.47,
+          industryAverage: 0.68,
+          indexFundRatio: 0.08,
+          activeFundRatio: 0.71,
+          indexAllocation: 38,
+          activeAllocation: 62,
+          totalAnnualFees: 7100,
+          costBreakdown: [
+            { type: "Index Funds", allocation: 38, avgFee: 0.08, totalCost: 1200 },
+            { type: "Active Equity", allocation: 45, avgFee: 0.68, totalCost: 4600 },
+            { type: "Active Fixed Income", allocation: 17, avgFee: 0.81, totalCost: 1300 }
+          ]
+        }
+      },
+      {
+        title: "Geographic Diversification",
+        content: "Your portfolio exhibits strong international diversification with 72% US equity exposure, 18% developed international markets, and 10% emerging markets allocation. European holdings (12%) are led by strong positions in ASML and Nestlé, while Asia-Pacific exposure (14%) includes Taiwan Semiconductor and Samsung. Currency hedging covers 60% of international positions, reducing volatility while maintaining global growth exposure.",
+        category: "Geographic",
+        keywords: ["geographic", "international", "global", "region", "country", "foreign", "domestic", "us", "europe", "asia"],
+        answerType: "geographic",
+        data: {
+          usExposure: 72,
+          developedIntl: 18,
+          emergingMarkets: 10,
+          europeanHoldings: 12,
+          asiaPacific: 14,
+          currencyHedged: 60,
+          topIntlHoldings: [
+            { name: "ASML Holding", country: "Netherlands", weight: 1.8, sector: "Technology" },
+            { name: "Taiwan Semiconductor", country: "Taiwan", weight: 1.6, sector: "Technology" },
+            { name: "Nestlé SA", country: "Switzerland", weight: 1.4, sector: "Consumer Staples" },
+            { name: "Samsung Electronics", country: "South Korea", weight: 1.2, sector: "Technology" },
+            { name: "LVMH", country: "France", weight: 1.1, sector: "Consumer Discretionary" }
+          ]
+        }
+      },
+      {
+        title: "Bond Portfolio Analysis",
+        content: "Your fixed income allocation of 25% provides portfolio stability with a duration of 4.2 years and average credit quality of AA-. Government bonds represent 60% of fixed income (15% of total portfolio), with corporate investment grade at 35% and high yield at 5%. The bond portfolio yields 4.3% currently, contributing $6,400 annually to income. Interest rate sensitivity is well-managed with laddered maturities from 2025 to 2034.",
+        category: "Fixed Income",
+        keywords: ["bond", "fixed", "income", "duration", "yield", "credit", "government", "corporate", "treasury", "municipal"],
+        answerType: "fixed_income",
+        data: {
+          fixedIncomeAllocation: 25,
+          duration: 4.2,
+          averageCredit: "AA-",
+          currentYield: 4.3,
+          annualIncome: 6400,
+          governmentBonds: 60,
+          corporateIG: 35,
+          highYield: 5,
+          maturityLadder: [
+            { year: "2025", allocation: 15, yield: 3.8 },
+            { year: "2026", allocation: 18, yield: 4.1 },
+            { year: "2027", allocation: 20, yield: 4.3 },
+            { year: "2028", allocation: 17, yield: 4.5 },
+            { year: "2029-2034", allocation: 30, yield: 4.7 }
+          ]
+        }
+      },
+      {
+        title: "Alternative Investments Overview",
+        content: "Alternative investments comprise 8% of your total portfolio allocation, providing diversification and inflation protection. REITs represent the largest alternative holding at 4.2%, delivering 9.1% returns year-to-date. Commodities exposure (2.3%) includes gold ETFs and energy futures, while private equity allocations (1.5%) are accessed through interval funds. These alternatives have contributed +0.7% to overall portfolio performance.",
+        category: "Alternatives",
+        keywords: ["alternatives", "reit", "commodities", "private", "equity", "gold", "real", "estate"],
+        answerType: "alternatives",
+        data: {
+          totalAlternatives: 8,
+          reitAllocation: 4.2,
+          reitReturn: 9.1,
+          commoditiesAllocation: 2.3,
+          privateEquityAllocation: 1.5,
+          performanceContribution: 0.7,
+          alternativeBreakdown: [
+            { type: "REITs", allocation: 4.2, return: 9.1, income: 3.8 },
+            { type: "Commodities", allocation: 2.3, return: 12.4, income: 0 },
+            { type: "Private Equity", allocation: 1.5, return: 15.2, income: 0 }
+          ]
+        }
+      },
+      {
+        title: "Tax Efficiency Analysis",
+        content: "Your portfolio demonstrates strong tax efficiency with 67% of holdings in tax-advantaged accounts (401k, IRA). Tax-loss harvesting generated $3,200 in realized losses to offset gains, while municipal bonds provide $1,800 in tax-free income annually. Asset location optimization places growth stocks in IRAs and dividend stocks in taxable accounts. The effective tax rate on portfolio income is 18.3%, well below your marginal rate of 28%.",
+        category: "Tax",
+        keywords: ["tax", "efficiency", "harvest", "loss", "municipal", "ira", "401k", "taxable", "deferred"],
+        answerType: "tax",
+        data: {
+          taxAdvantaged: 67,
+          taxLossHarvesting: 3200,
+          municipalIncome: 1800,
+          effectiveTaxRate: 18.3,
+          marginalTaxRate: 28,
+          accountTypes: [
+            { type: "401(k)", allocation: 42, strategy: "Growth focus" },
+            { type: "Traditional IRA", allocation: 18, strategy: "International equity" },
+            { type: "Roth IRA", allocation: 7, strategy: "High-growth positions" },
+            { type: "Taxable", allocation: 33, strategy: "Municipal bonds, tax-efficient equity" }
+          ]
+        }
+      },
+      {
+        title: "Market Volatility Impact",
+        content: "During recent market volatility, your portfolio demonstrated strong defensive characteristics with a maximum 30-day rolling volatility of 14.2% versus the S&P 500's 19.8%. The portfolio's low-volatility tilt and quality factor exposure provided downside protection during the March correction. Beta-adjusted performance shows +2.1% excess return after accounting for the portfolio's 1.08 beta, indicating genuine alpha generation beyond market exposure.",
+        category: "Risk",
+        keywords: ["volatility", "risk", "market", "correction", "drawdown", "beta", "alpha", "defensive"],
+        answerType: "risk",
+        data: {
+          portfolioVolatility: 14.2,
+          marketVolatility: 19.8,
+          maxDrawdown: -8.2,
+          recoveryDays: 42,
+          beta: 1.08,
+          betaAdjustedReturn: 2.1,
+          riskMetrics: [
+            { metric: "Volatility", portfolio: 14.2, benchmark: 19.8, advantage: "Lower" },
+            { metric: "Max Drawdown", portfolio: -8.2, benchmark: -12.4, advantage: "Better" },
+            { metric: "Downside Deviation", portfolio: 9.8, benchmark: 13.7, advantage: "Lower" },
+            { metric: "Up Capture", portfolio: 94, benchmark: 100, advantage: "Slightly Lower" },
+            { metric: "Down Capture", portfolio: 78, benchmark: 100, advantage: "Much Better" }
+          ]
+        }
       }
     ];
 
@@ -268,7 +407,7 @@ export class MemStorage implements IStorage {
   }
 
   // Answer methods
-  async createAnswer(insertAnswer: any): Promise<Answer> {
+  async createAnswer(insertAnswer: InsertAnswer): Promise<Answer> {
     const id = randomUUID();
     const now = new Date();
     const answer: Answer = {
@@ -315,6 +454,38 @@ export class MemStorage implements IStorage {
 
   async getAllAnswers(): Promise<Answer[]> {
     return Array.from(this.answers.values()).filter(answer => answer.isActive);
+  }
+
+  // Feedback methods
+  async createFeedback(insertFeedback: InsertFeedback): Promise<Feedback> {
+    const id = randomUUID();
+    const now = new Date();
+    const feedback: Feedback = {
+      id,
+      answerId: insertFeedback.answerId || null,
+      questionId: insertFeedback.questionId || null,
+      question: insertFeedback.question ?? null,
+      sentiment: insertFeedback.sentiment,
+      reasons: insertFeedback.reasons || [],
+      comment: insertFeedback.comment || null,
+      createdAt: now,
+    };
+    this.feedback.set(id, feedback);
+    return feedback;
+  }
+
+  async getFeedback(id: string): Promise<Feedback | undefined> {
+    return this.feedback.get(id);
+  }
+
+  async getFeedbackForAnswer(answerId: string): Promise<Feedback[]> {
+    return Array.from(this.feedback.values()).filter(
+      (feedback) => feedback.answerId === answerId
+    );
+  }
+
+  async getAllFeedback(): Promise<Feedback[]> {
+    return Array.from(this.feedback.values());
   }
 }
 

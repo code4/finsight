@@ -43,6 +43,18 @@ export const questionMatches = pgTable("question_matches", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Feedback on answers from FAs
+export const feedback = pgTable("feedback", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  answerId: varchar("answer_id"), // Optional - could be feedback on a question without match
+  questionId: varchar("question_id"), // Optional - for context
+  question: text("question"), // Store the original question text for context
+  sentiment: text("sentiment").notNull(), // 'up' or 'down'
+  reasons: text("reasons").array(), // Array of reason codes
+  comment: text("comment"), // Optional detailed feedback
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -58,6 +70,17 @@ export const insertAnswerSchema = createInsertSchema(answers).pick({
   content: true,
   category: true,
   keywords: true,
+  answerType: true,
+  data: true,
+});
+
+export const insertFeedbackSchema = createInsertSchema(feedback).pick({
+  answerId: true,
+  questionId: true,
+  question: true,
+  sentiment: true,
+  reasons: true,
+  comment: true,
 });
 
 // Request/Response schemas for API
@@ -68,6 +91,16 @@ export const questionRequestSchema = z.object({
     timeframe: z.string().optional(),
     selectionMode: z.enum(["accounts", "group"]).optional(),
   }).optional(),
+  placeholders: z.record(z.string()).optional(), // For placeholder replacements
+});
+
+export const feedbackRequestSchema = z.object({
+  answerId: z.string().optional(),
+  questionId: z.string().optional(), 
+  question: z.string().min(1, "Question text is required"),
+  sentiment: z.enum(["up", "down"]),
+  reasons: z.array(z.enum(["incorrect_data", "outdated", "not_relevant", "unclear", "missing_info", "wrong_timeframe", "wrong_accounts", "other"])).optional(),
+  comment: z.string().max(1000).optional(),
 });
 
 export const questionResponseSchema = z.object({
@@ -91,5 +124,8 @@ export type Question = typeof questions.$inferSelect;
 export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
 export type Answer = typeof answers.$inferSelect;
 export type InsertAnswer = z.infer<typeof insertAnswerSchema>;
+export type Feedback = typeof feedback.$inferSelect;
+export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
 export type QuestionRequest = z.infer<typeof questionRequestSchema>;
 export type QuestionResponse = z.infer<typeof questionResponseSchema>;
+export type FeedbackRequest = z.infer<typeof feedbackRequestSchema>;
