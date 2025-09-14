@@ -917,6 +917,7 @@ function FinSightDashboard() {
                         onFollowUpClick={handleFollowUpClick}
                         onRefresh={() => console.log('Refresh answer:', answer.id)}
                         onExport={() => console.log('Export answer:', answer.id)}
+                        onQuestionSubmit={handleSearchSubmit}
                       />
                     </div>
                   ))}

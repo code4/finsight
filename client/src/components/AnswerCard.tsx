@@ -19,7 +19,137 @@ import FinancialChart from "@/components/FinancialChart";
 import FollowUpChips from "@/components/FollowUpChips";
 import ErrorCard from "@/components/ErrorCard";
 
-// Utility function to clean up placeholder text for display
+// Enhanced placeholder system with interactive capabilities
+import { TIMEFRAME_OPTIONS, BENCHMARK_OPTIONS, SECTOR_OPTIONS, ACCOUNT_OPTIONS } from '@shared/enhanced-financial-data';
+
+// Placeholder options mapping
+const PLACEHOLDER_OPTIONS = {
+  benchmark: BENCHMARK_OPTIONS,
+  timeperiod: TIMEFRAME_OPTIONS, 
+  timeframe: TIMEFRAME_OPTIONS,
+  sector: SECTOR_OPTIONS,
+  account: ACCOUNT_OPTIONS,
+} as const;
+
+// Default values for common placeholders
+const DEFAULT_PLACEHOLDER_VALUES = {
+  benchmark: "S&P 500",
+  timeperiod: "YTD", 
+  timeframe: "YTD",
+  sector: "Technology",
+  account: "All Accounts",
+} as const;
+
+// Interactive placeholder component
+const InteractivePlaceholder = memo(function InteractivePlaceholder({
+  type,
+  value,
+  onValueChange,
+  className = ""
+}: {
+  type: string;
+  value: string;
+  onValueChange: (newValue: string) => void;
+  className?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const options = PLACEHOLDER_OPTIONS[type as keyof typeof PLACEHOLDER_OPTIONS] || [];
+
+  if (options.length === 0) {
+    // No options available, render as static text
+    return (
+      <span className={`inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-sm font-medium ${className}`}>
+        {value}
+      </span>
+    );
+  }
+
+  // Render as interactive dropdown
+  return (
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className={`h-auto px-2 py-1 text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-md inline-flex items-center gap-1 ${className}`}
+          data-testid={`button-placeholder-${type}`}
+        >
+          {value}
+          <ChevronDown className="h-3 w-3 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0" align="start">
+        <Command>
+          <CommandInput placeholder={`Search ${type}...`} />
+          <CommandEmpty>No options found.</CommandEmpty>
+          <CommandGroup className="max-h-48 overflow-y-auto">
+            {options.map((option) => (
+              <CommandItem
+                key={option.value}
+                value={option.value}
+                onSelect={() => {
+                  onValueChange(option.label);
+                  setIsOpen(false);
+                }}
+                className="flex flex-col items-start"
+                data-testid={`option-${type}-${option.value}`}
+              >
+                <div className="font-medium">{option.label}</div>
+                {option.description && (
+                  <div className="text-xs text-muted-foreground">{option.description}</div>
+                )}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+});
+
+// Enhanced function to render question text with interactive placeholders
+const renderInteractiveQuestionText = (
+  question: string, 
+  placeholderValues: Record<string, string>,
+  onPlaceholderChange: (type: string, value: string) => void
+) => {
+  // Find all placeholders in the question
+  const placeholderRegex = /\{(\w+)\}/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = placeholderRegex.exec(question)) !== null) {
+    // Add text before placeholder
+    if (match.index > lastIndex) {
+      parts.push(question.substring(lastIndex, match.index));
+    }
+    
+    const placeholderType = match[1].toLowerCase();
+    const currentValue = placeholderValues[placeholderType] || DEFAULT_PLACEHOLDER_VALUES[placeholderType as keyof typeof DEFAULT_PLACEHOLDER_VALUES] || match[1];
+    
+    // Add interactive placeholder
+    parts.push(
+      <InteractivePlaceholder
+        key={`${placeholderType}-${match.index}`}
+        type={placeholderType}
+        value={currentValue}
+        onValueChange={(value) => onPlaceholderChange(placeholderType, value)}
+      />
+    );
+    
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text
+  if (lastIndex < question.length) {
+    parts.push(question.substring(lastIndex));
+  }
+
+  return parts.length > 1 ? parts : question;
+};
+
+// Utility function to clean up placeholder text for display (legacy)
 const cleanQuestionText = (question: string): string => {
   // Replace common placeholder patterns with user-friendly defaults
   return question
@@ -80,6 +210,7 @@ interface AnswerCardProps {
   onAccountsChange?: (newAccounts: string[]) => void;
   onTimeframeChange?: (newTimeframe: string) => void;
   onResubmit?: () => void;
+  onQuestionSubmit?: (question: string, placeholders?: Record<string, string>) => void;
 }
 
 const mockKPIs: KPI[] = [
@@ -1107,8 +1238,49 @@ const AnswerCard = memo(function AnswerCard({
   onFeedbackSubmit,
   onAccountsChange,
   onTimeframeChange,
-  onResubmit
+  onResubmit,
+  onQuestionSubmit
 }: AnswerCardProps) {
+  // State for interactive placeholders
+  const [placeholderValues, setPlaceholderValues] = useState<Record<string, string>>({});
+  const [hasModifiedPlaceholders, setHasModifiedPlaceholders] = useState(false);
+
+  // Initialize placeholder values from question on first render
+  useEffect(() => {
+    if (question && Object.keys(placeholderValues).length === 0) {
+      const initialValues: Record<string, string> = {};
+      const placeholderRegex = /\{(\w+)\}/g;
+      let match;
+      
+      while ((match = placeholderRegex.exec(question)) !== null) {
+        const type = match[1].toLowerCase();
+        if (!initialValues[type]) {
+          initialValues[type] = DEFAULT_PLACEHOLDER_VALUES[type as keyof typeof DEFAULT_PLACEHOLDER_VALUES] || match[1];
+        }
+      }
+      
+      setPlaceholderValues(initialValues);
+    }
+  }, [question, placeholderValues]);
+
+  const handlePlaceholderChange = (type: string, value: string) => {
+    setPlaceholderValues(prev => ({ ...prev, [type]: value }));
+    setHasModifiedPlaceholders(true);
+  };
+
+  const handleSubmitModifiedQuestion = () => {
+    if (!onQuestionSubmit || !hasModifiedPlaceholders) return;
+    
+    // Replace placeholders in the question with current values
+    let modifiedQuestion = question;
+    Object.entries(placeholderValues).forEach(([type, value]) => {
+      const regex = new RegExp(`\\{${type}\\}`, 'gi');
+      modifiedQuestion = modifiedQuestion.replace(regex, value);
+    });
+    
+    onQuestionSubmit(modifiedQuestion, placeholderValues);
+    setHasModifiedPlaceholders(false);
+  };
   
   const handleRefresh = () => {
     onRefresh?.();
@@ -1125,9 +1297,28 @@ const AnswerCard = memo(function AnswerCard({
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors duration-200" data-testid="text-question">
-              {cleanQuestionText(question)}
-            </h3>
+            <div className="mb-2">
+              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors duration-200" data-testid="text-question">
+                {renderInteractiveQuestionText(question, placeholderValues, handlePlaceholderChange)}
+              </h3>
+              {/* Submit button for modified placeholders */}
+              {hasModifiedPlaceholders && onQuestionSubmit && (
+                <div className="mt-2 flex items-center gap-2">
+                  <Button 
+                    size="sm" 
+                    onClick={handleSubmitModifiedQuestion}
+                    className="gap-1.5 animate-in fade-in-0 slide-in-from-right-2 duration-300"
+                    data-testid="button-submit-modified-question"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    Ask Modified Question
+                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    Click to get updated analysis
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-2 flex-wrap">
               <EditableBadgeSection
                 accounts={accounts}
