@@ -914,6 +914,7 @@ function FinSightDashboard() {
                         timeframe={answer.timeframe}
                         isUnmatched={answer.isUnmatched || answer.isReview || answer.isError}
                         content={answer.content}
+                        answerId={answer.matchedAnswer?.id}
                         onFollowUpClick={handleFollowUpClick}
                         onRefresh={() => console.log('Refresh answer:', answer.id)}
                         onExport={() => console.log('Export answer:', answer.id)}
