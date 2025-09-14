@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, RefreshCw, Download, User, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, ThumbsUp, ThumbsDown, Send, Edit2, Check, X, ChevronDown } from "lucide-react";
 import FinancialChart from "@/components/FinancialChart";
 import FollowUpChips from "@/components/FollowUpChips";
+import ErrorCard from "@/components/ErrorCard";
 
 // Utility function to clean up placeholder text for display
 const cleanQuestionText = (question: string): string => {
@@ -51,6 +52,10 @@ interface AnswerCardProps {
   accounts: string[];
   timeframe: string;
   isUnmatched?: boolean;
+  isError?: boolean;
+  errorType?: 'network' | 'server' | 'timeout' | 'unknown';
+  originalError?: string;
+  message?: string;
   answerId?: string;
   availableAccounts?: string[];
   availableTimeframes?: string[];
@@ -665,6 +670,10 @@ const AnswerCard = memo(function AnswerCard({
   accounts = ["Growth Portfolio", "Conservative Fund"],
   timeframe = "YTD",
   isUnmatched = false,
+  isError = false,
+  errorType,
+  originalError,
+  message,
   answerId,
   availableAccounts,
   availableTimeframes,
@@ -745,7 +754,19 @@ const AnswerCard = memo(function AnswerCard({
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {(isUnmatched || content?.isUnmatched) ? (
+        {isError ? (
+          /* Error state for API failures */
+          <ErrorCard
+            question={question}
+            asOfDate={asOfDate}
+            accounts={accounts}
+            timeframe={timeframe}
+            error={originalError || message || "An unexpected error occurred"}
+            errorType={errorType}
+            onRetry={onRefresh}
+            onReportIssue={() => console.log("Report issue clicked")}
+          />
+        ) : (isUnmatched || content?.isUnmatched) ? (
           /* Smart Fallback content for unmatched questions */
           <div className="text-center py-8 space-y-6">
             {/* Dynamic Icon based on fallback type */}

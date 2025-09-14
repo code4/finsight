@@ -426,18 +426,14 @@ const renderInteractiveQuestion = (
         <button
           onClick={(e) => {
             e.preventDefault();
-            // Only stop propagation when actively editing to prevent parent CommandItem click
-            if (isEditing) {
-              e.stopPropagation();
-            }
+            // Always stop propagation on placeholder clicks to prevent question submission
+            e.stopPropagation();
             onPlaceholderClick?.(placeholderId);
           }}
           onMouseDown={(e) => {
             e.preventDefault();
-            // Only stop propagation when actively editing
-            if (isEditing) {
-              e.stopPropagation();
-            }
+            // Always stop propagation to prevent parent click
+            e.stopPropagation();
           }}
           className={`inline-flex items-center gap-0.5 text-primary hover:text-primary/80 underline decoration-dotted underline-offset-2 hover:decoration-solid transition-all duration-150 ${
             isEditing ? 'text-primary font-medium bg-primary/5 px-1 rounded' : 'font-normal'

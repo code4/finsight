@@ -372,7 +372,24 @@ function FinSightDashboard() {
     } catch (error) {
       console.error('Error submitting question:', error);
       
-      // Create error answer
+      // Categorize the error type
+      let errorType: 'network' | 'server' | 'timeout' | 'unknown' = 'unknown';
+      let errorMessage = "Sorry, there was an error processing your question. Please try again.";
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorType = 'network';
+        errorMessage = "Unable to connect to the server. Please check your internet connection.";
+      } else if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('TimeoutError')) {
+          errorType = 'timeout';
+          errorMessage = "The request timed out. Please try again.";
+        } else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
+          errorType = 'server';
+          errorMessage = "Server error occurred. We're working to resolve this.";
+        }
+      }
+      
+      // Create error answer with enhanced error details
       const errorAnswer = {
         id: Date.now().toString(),
         question,
@@ -388,7 +405,9 @@ function FinSightDashboard() {
         timeframe: timeframe.toUpperCase(),
         isUnmatched: true,
         isError: true,
-        message: "Sorry, there was an error processing your question. Please try again.",
+        errorType: errorType,
+        message: errorMessage,
+        originalError: error instanceof Error ? error.message : 'Unknown error occurred',
       };
       
       setAnswers(prev => [errorAnswer, ...prev]);
