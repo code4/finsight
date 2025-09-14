@@ -88,11 +88,11 @@ interface TopNavigationProps {
 const timeframes = [
   { value: 'mtd', label: 'MTD' },
   { value: 'ytd', label: 'YTD' },
-  { value: 'prev_month', label: 'Prev Month' },
-  { value: 'prev_quarter', label: 'Prev Quarter' },
-  { value: 'prev_year', label: 'Prev Year' },
-  { value: '1m', label: '1 Month' },
-  { value: '1y', label: '1 Year' },
+  { value: 'prev_month', label: 'Prev M' },
+  { value: 'prev_quarter', label: 'Prev Q' },
+  { value: 'prev_year', label: 'Prev Y' },
+  { value: '1m', label: '1M' },
+  { value: '1y', label: '1Y' },
 ]
 
 const TopNavigation = memo(function TopNavigation({
