@@ -6,7 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft, ChevronRight, Search, ChevronDown, Settings, Info, HelpCircle } from "lucide-react";
+import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft, ChevronRight, Search, ChevronDown, Settings, Info, HelpCircle, DollarSign, GitCompare } from "lucide-react";
 import { useTypingAnimation } from "@/hooks/useTypingAnimation";
 
 interface SearchOverlayProps {
@@ -38,12 +38,13 @@ interface PlaceholderConfig {
 }
 
 const categories = [
-  { name: "Comparison", icon: TrendingUp, color: "bg-chart-1" },
-  { name: "Holdings", icon: PieChart, color: "bg-chart-2" },
-  { name: "Risk", icon: Shield, color: "bg-chart-3" },
-  { name: "Attribution", icon: Target, color: "bg-chart-4" },
-  { name: "Activity", icon: Activity, color: "bg-chart-1" },
-  { name: "Allocation", icon: BarChart3, color: "bg-chart-2" }
+  { name: "Performance Analysis", icon: TrendingUp, color: "bg-chart-1" },
+  { name: "Risk Assessment", icon: Shield, color: "bg-chart-3" },
+  { name: "Holdings Analysis", icon: PieChart, color: "bg-chart-2" },
+  { name: "Allocation Analysis", icon: BarChart3, color: "bg-chart-2" },
+  { name: "Activity & Trading", icon: Activity, color: "bg-chart-1" },
+  { name: "Income & Dividends", icon: DollarSign, color: "bg-chart-4" },
+  { name: "Comparison", icon: GitCompare, color: "bg-chart-5" }
 ];
 
 // Global placeholder configurations
@@ -65,14 +66,19 @@ const placeholderConfigs: PlaceholderConfig = {
     label: "Time Period",
     type: "select",
     options: [
-      { value: "ytd", label: "Year to Date", description: "Since January 1st" },
-      { value: "1m", label: "Last Month", description: "Past 30 days" },
-      { value: "3m", label: "Last Quarter", description: "Past 3 months" },
-      { value: "6m", label: "Last 6 Months", description: "Past 6 months" },
-      { value: "1y", label: "Last Year", description: "Past 12 months" },
-      { value: "3y", label: "Last 3 Years", description: "Past 36 months" }
+      { value: "MTD", label: "Month to date", description: "Since beginning of current month" },
+      { value: "1M", label: "One month", description: "Past 30 days" },
+      { value: "PQ", label: "Previous quarter", description: "Last completed quarter" },
+      { value: "PM", label: "Previous month", description: "Last completed month" },
+      { value: "YTD", label: "Year to date", description: "Since January 1st" },
+      { value: "PY", label: "Previous calendar year", description: "Last completed calendar year" },
+      { value: "1Y", label: "One year", description: "Past 12 months" },
+      { value: "3M", label: "Three months", description: "Past 3 months" },
+      { value: "6M", label: "Six months", description: "Past 6 months" },
+      { value: "2Y", label: "Two years", description: "Past 24 months" },
+      { value: "5Y", label: "Five years", description: "Past 60 months" }
     ],
-    defaultValue: "ytd"
+    defaultValue: "YTD"
   },
   sector: {
     label: "Sector",
@@ -340,7 +346,7 @@ const getDisplayText = (question: Question): string => {
   return replacePlaceholders(question.text, defaultValues);
 };
 
-// Inline placeholder dropdown component with improved styling
+// Smart positioned inline placeholder dropdown component with search
 const InlinePlaceholderDropdown = ({ 
   placeholderId, 
   currentValue, 
@@ -353,34 +359,138 @@ const InlinePlaceholderDropdown = ({
   onClose: () => void; 
 }) => {
   const config = placeholderConfigs[placeholderId];
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [position, setPosition] = useState<'below' | 'above'>('below');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Filter options based on search term
+  const filteredOptions = useMemo(() => {
+    if (!config?.options || !searchTerm.trim()) return config?.options || [];
+    
+    const term = searchTerm.toLowerCase().trim();
+    return config.options.filter(option => 
+      option.label.toLowerCase().includes(term) ||
+      option.description?.toLowerCase().includes(term)
+    );
+  }, [config?.options, searchTerm]);
+
+  useEffect(() => {
+    if (!dropdownRef.current) return;
+
+    const updatePosition = () => {
+      const dropdown = dropdownRef.current;
+      const parent = dropdown?.parentElement;
+      if (!dropdown || !parent) return;
+
+      const parentRect = parent.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const dropdownHeight = 280; // Slightly larger to account for search input
+
+      // Check if there's enough space below
+      const spaceBelow = viewportHeight - parentRect.bottom;
+      const spaceAbove = parentRect.top;
+
+      // Position above if not enough space below AND there's more space above
+      if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+        setPosition('above');
+      } else {
+        setPosition('below');
+      }
+    };
+
+    // Initial position calculation
+    updatePosition();
+
+    // Focus search input after positioning
+    setTimeout(() => searchInputRef.current?.focus(), 50);
+
+    // Recalculate on scroll or resize
+    const handleScroll = () => updatePosition();
+    const handleResize = () => updatePosition();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
+    
+    // Also listen to parent scroll events
+    const scrollableParent = dropdownRef.current?.closest('[data-search-overlay-desktop], [data-search-overlay-mobile]');
+    scrollableParent?.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      scrollableParent?.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   if (!config?.options) return null;
 
+  const positionClasses = position === 'above' 
+    ? 'bottom-full left-0 mb-2' 
+    : 'top-full left-0 mt-2';
+
+  const shouldShowSearch = config.options.length > 4; // Show search if more than 4 options
+
   return (
-    <div className="absolute top-full left-0 z-50 mt-2 w-72 bg-background border border-border/50 rounded-xl shadow-xl ring-1 ring-primary/10 overflow-hidden backdrop-blur-sm">
+    <div 
+      ref={dropdownRef}
+      className={`absolute ${positionClasses} z-50 w-72 bg-background border border-border/50 rounded-xl shadow-xl ring-1 ring-primary/10 overflow-hidden backdrop-blur-sm`}
+    >
       <div className="p-3">
-        <div className="text-xs font-medium text-muted-foreground mb-2 px-1">
+        <div className="text-xs font-medium text-muted-foreground mb-3 px-1">
           Select {config.label}
         </div>
-        <div className="space-y-1 max-h-48 overflow-y-auto">
-          {config.options.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => {
-                onValueChange(option.value);
-                onClose();
+        
+        {/* Search Input */}
+        {shouldShowSearch && (
+          <div className="mb-3">
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={`Search ${config.label.toLowerCase()}...`}
+              className="w-full px-3 py-2 text-sm bg-muted/50 border border-border/30 rounded-lg placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all duration-200"
+              onKeyDown={(e) => {
+                e.stopPropagation();
+                if (e.key === 'Escape') {
+                  onClose();
+                } else if (e.key === 'Enter' && filteredOptions.length > 0) {
+                  onValueChange(filteredOptions[0].value);
+                  onClose();
+                }
               }}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 hover:scale-[1.02] ${
-                currentValue === option.value 
-                  ? 'bg-primary/20 text-primary border border-primary/30 shadow-sm' 
-                  : 'hover:bg-accent/80 border border-transparent'
-              }`}
-            >
-              <div className="font-medium">{option.label}</div>
-              {option.description && (
-                <div className="text-xs text-muted-foreground/80 mt-0.5 leading-relaxed">{option.description}</div>
-              )}
-            </button>
-          ))}
+            />
+          </div>
+        )}
+        
+        {/* Options List */}
+        <div className="space-y-1 max-h-48 overflow-y-auto">
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => {
+                  onValueChange(option.value);
+                  onClose();
+                }}
+                className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 hover:scale-[1.02] ${
+                  currentValue === option.value 
+                    ? 'bg-primary/20 text-primary border border-primary/30 shadow-sm' 
+                    : 'hover:bg-accent/80 border border-transparent'
+                }`}
+              >
+                <div className="font-medium">{option.label}</div>
+                {option.description && (
+                  <div className="text-xs text-muted-foreground/80 mt-0.5 leading-relaxed">{option.description}</div>
+                )}
+              </button>
+            ))
+          ) : shouldShowSearch && searchTerm ? (
+            <div className="px-3 py-4 text-center text-sm text-muted-foreground">
+              No {config.label.toLowerCase()} found matching "{searchTerm}"
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
