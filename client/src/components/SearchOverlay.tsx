@@ -39,13 +39,13 @@ interface PlaceholderConfig {
 }
 
 const categories = [
-  { name: "Performance Analysis", icon: TrendingUp, color: "bg-chart-1" },
-  { name: "Risk Assessment", icon: Shield, color: "bg-chart-3" },
-  { name: "Holdings Analysis", icon: PieChart, color: "bg-chart-2" },
-  { name: "Allocation Analysis", icon: BarChart3, color: "bg-chart-2" },
-  { name: "Activity & Trading", icon: Activity, color: "bg-chart-1" },
-  { name: "Income & Dividends", icon: DollarSign, color: "bg-chart-4" },
-  { name: "Comparison", icon: GitCompare, color: "bg-chart-5" }
+  { name: "Performance Analysis", icon: TrendingUp, color: "bg-chart-1", description: "Track portfolio returns, benchmarks, and performance metrics" },
+  { name: "Risk Assessment", icon: Shield, color: "bg-chart-3", description: "Analyze portfolio risk, volatility, and risk-adjusted returns" },
+  { name: "Holdings Analysis", icon: PieChart, color: "bg-chart-2", description: "Review individual positions, top holdings, and concentration" },
+  { name: "Allocation Analysis", icon: BarChart3, color: "bg-chart-2", description: "Examine asset allocation, sector distribution, and diversification" },
+  { name: "Activity & Trading", icon: Activity, color: "bg-chart-1", description: "View recent trades, transaction history, and activity patterns" },
+  { name: "Income & Dividends", icon: DollarSign, color: "bg-chart-4", description: "Check dividend income, yield analysis, and distribution trends" },
+  { name: "Comparison", icon: GitCompare, color: "bg-chart-5", description: "Compare performance against benchmarks and peer portfolios" }
 ];
 
 // Global placeholder configurations using shared data
@@ -1337,21 +1337,27 @@ const SearchOverlay = memo(function SearchOverlay({
                 }>
                   <div className="grid grid-cols-2 gap-2 px-4 py-2">
                     {categories.map((category) => (
-                      <CommandItem
-                        key={category.name}
-                        value={category.name}
-                        onSelect={() => handleCategoryClick(category.name)}
-                        className="px-3 py-2.5 rounded-lg cursor-pointer hover:bg-accent/50 transition-all duration-200 border border-border/30 hover:border-primary/30 group hover:shadow-sm"
-                      >
-                        <div className="flex items-center gap-2.5 w-full">
-                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background border border-border/50">
-                            <div className={`w-2 h-2 rounded-full ${category.color}`} />
-                          </div>
-                          <category.icon className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                          <span className="text-xs font-medium flex-1 group-hover:text-foreground transition-colors">{category.name}</span>
-                          <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
-                        </div>
-                      </CommandItem>
+                      <Tooltip key={category.name}>
+                        <TooltipTrigger asChild>
+                          <CommandItem
+                            value={category.name}
+                            onSelect={() => handleCategoryClick(category.name)}
+                            className="px-3 py-2.5 rounded-lg cursor-pointer hover:bg-accent/50 transition-all duration-200 border border-border/30 hover:border-primary/30 group hover:shadow-sm"
+                          >
+                            <div className="flex items-center gap-2.5 w-full">
+                              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background border border-border/50">
+                                <div className={`w-2 h-2 rounded-full ${category.color}`} />
+                              </div>
+                              <category.icon className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                              <span className="text-xs font-medium flex-1 group-hover:text-foreground transition-colors">{category.name}</span>
+                              <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
+                            </div>
+                          </CommandItem>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{category.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     ))}
                   </div>
                 </CommandGroup>
@@ -1602,20 +1608,26 @@ const SearchOverlay = memo(function SearchOverlay({
                   }>
                     <div className="grid grid-cols-2 gap-2 px-2">
                       {categories.map((category) => (
-                        <CommandItem
-                          key={category.name}
-                          value={category.name}
-                          onSelect={() => handleCategoryClick(category.name)}
-                          className="px-4 py-4 rounded-lg border border-border/30 hover:bg-accent/50 transition-all duration-200 active:scale-95"
-                        >
-                          <div className="flex flex-col items-center gap-2 text-center">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-background to-muted/50">
-                              <div className={`w-3 h-3 rounded-full ${category.color}`} />
-                            </div>
-                            <category.icon className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-xs font-medium">{category.name}</span>
-                          </div>
-                        </CommandItem>
+                        <Tooltip key={category.name}>
+                          <TooltipTrigger asChild>
+                            <CommandItem
+                              value={category.name}
+                              onSelect={() => handleCategoryClick(category.name)}
+                              className="px-4 py-4 rounded-lg border border-border/30 hover:bg-accent/50 transition-all duration-200 active:scale-95"
+                            >
+                              <div className="flex flex-col items-center gap-2 text-center">
+                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-background to-muted/50">
+                                  <div className={`w-3 h-3 rounded-full ${category.color}`} />
+                                </div>
+                                <category.icon className="h-5 w-5 text-muted-foreground" />
+                                <span className="text-xs font-medium">{category.name}</span>
+                              </div>
+                            </CommandItem>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{category.description}</p>
+                          </TooltipContent>
+                        </Tooltip>
                       ))}
                     </div>
                   </CommandGroup>

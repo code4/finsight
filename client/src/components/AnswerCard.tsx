@@ -15,6 +15,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "
 import { Checkbox } from "@/components/ui/checkbox";
 // Import all necessary icons including Users for account summary display  
 import { Calendar, RefreshCw, Download, User, Users, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, ThumbsUp, ThumbsDown, Send, Edit2, Check, X, ChevronDown } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import FinancialChart from "@/components/FinancialChart";
 import FollowUpChips from "@/components/FollowUpChips";
 import ErrorCard from "@/components/ErrorCard";
@@ -64,20 +65,23 @@ const InteractivePlaceholder = memo(function InteractivePlaceholder({
     );
   }
 
-  // Render as interactive dropdown
+  // Render as interactive dropdown with tooltip
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`h-auto px-2 py-1 text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-md inline-flex items-center gap-1 ${className}`}
-          data-testid={`button-placeholder-${type}`}
-        >
-          {value}
-          <ChevronDown className="h-3 w-3 opacity-50" />
-        </Button>
-      </PopoverTrigger>
+    <Tooltip>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-auto px-2 py-1 text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-md inline-flex items-center gap-1 ${className}`}
+              data-testid={`button-placeholder-${type}`}
+            >
+              {value}
+              <ChevronDown className="h-3 w-3 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
       <PopoverContent className="w-80 p-0" align="start">
         <Command>
           <CommandInput placeholder={`Search ${type}...`} />
@@ -103,7 +107,11 @@ const InteractivePlaceholder = memo(function InteractivePlaceholder({
           </CommandGroup>
         </Command>
       </PopoverContent>
-    </Popover>
+      </Popover>
+      <TooltipContent>
+        <p>Click to change {type}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 });
 
@@ -1294,7 +1302,7 @@ const AnswerCard = memo(function AnswerCard({
 
   return (
     <Card className="mb-6 animate-in fade-in-50 slide-in-from-bottom-4 duration-500 hover-elevate card-smooth stable-layout group">
-      <CardHeader className="pb-4">
+        <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="mb-2">
@@ -1329,31 +1337,55 @@ const AnswerCard = memo(function AnswerCard({
                 onTimeframeChange={onTimeframeChange}
                 onResubmit={onResubmit}
               />
-              <Badge variant="outline" className="text-xs gap-1 transition-all duration-200 hover:scale-105">
-                <Calendar className="h-3 w-3" />
-                As of {asOfDate}
-              </Badge>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="text-xs gap-1 transition-all duration-200 hover:scale-105">
+                    <Calendar className="h-3 w-3" />
+                    As of {asOfDate}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Data as of this date</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
           <div className="flex gap-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 hover-elevate button-smooth hover:rotate-180"
-              onClick={handleRefresh}
-              data-testid="button-refresh"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 hover-elevate button-smooth hover:scale-110"
-              onClick={handleExport}
-              data-testid="button-export"
-            >
-              <Download className="h-4 w-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 hover-elevate button-smooth hover:rotate-180"
+                  onClick={handleRefresh}
+                  data-testid="button-refresh"
+                  aria-label="Refresh this analysis"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Refresh this analysis</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 hover-elevate button-smooth hover:scale-110"
+                  onClick={handleExport}
+                  data-testid="button-export"
+                  aria-label="Export analysis as PDF"
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Export analysis as PDF</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </CardHeader>
