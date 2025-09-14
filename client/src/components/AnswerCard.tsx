@@ -723,7 +723,7 @@ const AnswerCard = memo(function AnswerCard({
   };
 
   return (
-    <Card className="mb-6 animate-in fade-in-50 slide-in-from-bottom-4 duration-500 hover-elevate transition-all duration-300 group">
+    <Card className="mb-6 animate-in fade-in-50 slide-in-from-bottom-4 duration-500 hover-elevate card-smooth stable-layout group">
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -750,7 +750,7 @@ const AnswerCard = memo(function AnswerCard({
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8 hover-elevate transition-all duration-200 hover:rotate-180"
+              className="h-8 w-8 hover-elevate button-smooth hover:rotate-180"
               onClick={handleRefresh}
               data-testid="button-refresh"
             >
@@ -759,7 +759,7 @@ const AnswerCard = memo(function AnswerCard({
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8 hover-elevate transition-all duration-200 hover:scale-110"
+              className="h-8 w-8 hover-elevate button-smooth hover:scale-110"
               onClick={handleExport}
               data-testid="button-export"
             >
@@ -769,7 +769,7 @@ const AnswerCard = memo(function AnswerCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 content-transition">
         {isError ? (
           /* Error state for API failures */
           <ErrorCard
