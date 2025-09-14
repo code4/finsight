@@ -80,6 +80,19 @@ export function AccountSelectorPanel({
   // Handle mode toggle between accounts and group
   const handleModeToggle = (mode: 'accounts' | 'group') => {
     setPendingMode(mode);
+    
+    // Ensure we have a valid selection when switching modes
+    if (mode === 'accounts' && pendingSelectedAccountIds.size === 0) {
+      // If switching to accounts but no accounts selected, select the first account
+      if (allAccounts.length > 0) {
+        setPendingSelectedAccountIds(new Set([allAccounts[0].id]));
+      }
+    } else if (mode === 'group' && !pendingSelectedGroupId) {
+      // If switching to groups but no group selected, select the first group
+      if (accountGroups.length > 0) {
+        setPendingSelectedGroupId(accountGroups[0].id);
+      }
+    }
   };
 
   // Handle individual account toggle (multi-select)
@@ -105,9 +118,51 @@ export function AccountSelectorPanel({
     setPendingSelectedAccountIds(newSelected);
   };
 
+  // Handle select all toggle
+  const handleSelectAllToggle = () => {
+    if (variant === 'single') return; // Not applicable for single selection
+
+    const allAccountIds = new Set(allAccounts.map(acc => acc.id));
+    const allSelected = allAccountIds.size === pendingSelectedAccountIds.size && 
+                       Array.from(allAccountIds).every(id => pendingSelectedAccountIds.has(id));
+    
+    if (allSelected) {
+      // Deselect all but keep first account (to maintain at least one selection rule)
+      const firstAccountId = allAccounts[0]?.id;
+      setPendingSelectedAccountIds(firstAccountId ? new Set([firstAccountId]) : new Set());
+    } else {
+      // Select all accounts
+      setPendingSelectedAccountIds(allAccountIds);
+    }
+  };
+
+  // Calculate select all checkbox state
+  const getSelectAllState = () => {
+    if (variant === 'single') return { checked: false, indeterminate: false };
+    
+    const allAccountIds = allAccounts.map(acc => acc.id);
+    const selectedCount = pendingSelectedAccountIds.size;
+    const totalCount = allAccountIds.length;
+    
+    if (selectedCount === 0) return { checked: false, indeterminate: false };
+    if (selectedCount === totalCount) return { checked: true, indeterminate: false };
+    return { checked: false, indeterminate: true };
+  };
+
+  const selectAllState = getSelectAllState();
+
   // Handle group selection
   const handleGroupSelect = (groupId: string) => {
     setPendingSelectedGroupId(groupId);
+  };
+
+  // Check if current selection is valid (at least one account or one group)
+  const isValidSelection = () => {
+    if (pendingMode === 'accounts') {
+      return pendingSelectedAccountIds.size > 0;
+    } else {
+      return pendingSelectedGroupId !== null && pendingSelectedGroupId !== '';
+    }
   };
 
   // Check if there are unapplied changes
@@ -115,6 +170,9 @@ export function AccountSelectorPanel({
     pendingMode !== initialMode ||
     !setsEqual(pendingSelectedAccountIds, initialSelectedAccountIds) ||
     pendingSelectedGroupId !== initialSelectedGroupId;
+
+  // Only allow saving if selection is valid and there are changes
+  const canApplyChanges = hasUnappliedChanges && isValidSelection();
 
   // Notify parent of change status
   useEffect(() => {
@@ -153,16 +211,33 @@ export function AccountSelectorPanel({
           {/* Accounts Tab */}
           <TabsContent value="accounts" className="mt-0">
             <Command>
-              <div className="flex items-center border-b px-3">
-                <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                <CommandInput
-                  placeholder="Search accounts..."
-                  className="flex h-10 w-full"
-                />
-              </div>
+              <CommandInput
+                placeholder="Search accounts..."
+                className="flex h-10 w-full rounded-none border-b border-t-0 border-l-0 border-r-0"
+              />
               <div className="max-h-64 overflow-y-auto">
                 <CommandEmpty>No accounts found.</CommandEmpty>
                 <CommandGroup>
+                  {variant === 'multi' && allAccounts.length > 1 && (
+                    <div className="flex items-center space-x-2 p-2 border-b border-border/50">
+                      <Checkbox
+                        checked={selectAllState.checked}
+                        onClick={handleSelectAllToggle}
+                        className={`data-[state=checked]:bg-primary ${selectAllState.indeterminate ? '[&>span]:bg-primary [&>span]:opacity-50' : ''}`}
+                      />
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">Select All</div>
+                        <div className="text-xs text-muted-foreground">
+                          {selectAllState.checked 
+                            ? `All ${allAccounts.length} accounts selected`
+                            : selectAllState.indeterminate
+                            ? `${pendingSelectedAccountIds.size} of ${allAccounts.length} accounts selected`
+                            : `Select all ${allAccounts.length} accounts`
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   {allAccounts.map((account) => {
                     const isSelected = pendingSelectedAccountIds.has(account.id);
                     const isLastSelected = pendingSelectedAccountIds.size === 1 && isSelected;
@@ -215,13 +290,10 @@ export function AccountSelectorPanel({
           {/* Groups Tab */}
           <TabsContent value="group" className="mt-0">
             <Command>
-              <div className="flex items-center border-b px-3">
-                <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                <CommandInput
-                  placeholder="Search groups..."
-                  className="flex h-10 w-full"
-                />
-              </div>
+              <CommandInput
+                placeholder="Search groups..."
+                className="flex h-10 w-full rounded-none border-b border-t-0 border-l-0 border-r-0"
+              />
               <div className="max-h-64 overflow-y-auto">
                 <CommandEmpty>No groups found.</CommandEmpty>
                 <CommandGroup>
@@ -264,16 +336,33 @@ export function AccountSelectorPanel({
       ) : (
         // No tabs - show accounts only
         <Command>
-          <div className="flex items-center border-b px-3">
-            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-            <CommandInput
-              placeholder="Search accounts..."
-              className="flex h-10 w-full"
-            />
-          </div>
+          <CommandInput
+            placeholder="Search accounts..."
+            className="flex h-10 w-full rounded-none border-b border-t-0 border-l-0 border-r-0"
+          />
           <div className="max-h-64 overflow-y-auto">
             <CommandEmpty>No accounts found.</CommandEmpty>
             <CommandGroup>
+              {variant === 'multi' && allAccounts.length > 1 && (
+                <div className="flex items-center space-x-2 p-2 border-b border-border/50">
+                  <Checkbox
+                    checked={selectAllState.checked}
+                    onClick={handleSelectAllToggle}
+                    className={`data-[state=checked]:bg-primary ${selectAllState.indeterminate ? '[&>span]:bg-primary [&>span]:opacity-50' : ''}`}
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">Select All</div>
+                    <div className="text-xs text-muted-foreground">
+                      {selectAllState.checked 
+                        ? `All ${allAccounts.length} accounts selected`
+                        : selectAllState.indeterminate
+                        ? `${pendingSelectedAccountIds.size} of ${allAccounts.length} accounts selected`
+                        : `Select all ${allAccounts.length} accounts`
+                      }
+                    </div>
+                  </div>
+                </div>
+              )}
               {allAccounts.map((account) => {
                 const isSelected = pendingSelectedAccountIds.has(account.id);
                 const isLastSelected = pendingSelectedAccountIds.size === 1 && isSelected;
@@ -336,7 +425,7 @@ export function AccountSelectorPanel({
         <Button
           size="sm"
           onClick={handleApply}
-          disabled={!hasUnappliedChanges}
+          disabled={!canApplyChanges}
           data-testid="button-apply-selection"
         >
           Apply Changes

@@ -417,32 +417,23 @@ const TopNavigation = memo(function TopNavigation({
                 variant="multi"
                 showTabs={true}
                 onApply={(selection) => {
-                  // Update the pending state with the selection
+                  // Update selection mode if changed
                   if (selection.mode !== pendingSelectionMode) {
                     handleSelectionModeToggle(selection.mode);
                   }
                   
-                  // Update account selection if changed
+                  // Directly set the account selection instead of toggling individual accounts
                   if (selection.mode === 'accounts') {
-                    selection.accountIds.forEach(accountId => {
-                      if (!pendingSelectedAccountIds.has(accountId)) {
-                        handleAccountToggle(accountId);
-                      }
-                    });
-                    // Remove accounts that are no longer selected
-                    Array.from(pendingSelectedAccountIds).forEach(accountId => {
-                      if (!selection.accountIds.has(accountId)) {
-                        handleAccountToggle(accountId);
-                      }
-                    });
+                    setPendingSelectedAccountIds(new Set(selection.accountIds));
                   }
                   
                   // Update group selection if changed
-                  if (selection.mode === 'group' && selection.groupId !== pendingSelectedGroupId) {
-                    handleGroupSelect(selection.groupId || '');
+                  if (selection.mode === 'group') {
+                    setPendingSelectedGroupId(selection.groupId);
                   }
                   
-                  // Apply the changes
+                  // Mark changes as applied and trigger the save
+                  setHasUnappliedChanges(true);
                   handleApplyChanges();
                 }}
                 onCancel={handleCancelChanges}
