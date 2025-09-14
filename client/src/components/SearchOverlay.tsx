@@ -425,12 +425,14 @@ const renderInteractiveQuestion = (
       <span key={`${placeholderId}-${startIndex}`} className="relative inline-block mx-0.5">
         <button
           onClick={(e) => {
-            // Always handle placeholder click, but let event bubble up for question submission too
+            e.preventDefault();
+            e.stopPropagation(); // ALWAYS stop propagation for placeholder button clicks
+            console.log('🎯 Placeholder button clicked:', placeholderId);
             onPlaceholderClick?.(placeholderId);
-            // Don't prevent default or stop propagation - let it bubble to CommandItem
           }}
           onMouseDown={(e) => {
-            // Don't prevent default to allow normal click behavior
+            e.preventDefault();
+            e.stopPropagation(); // Also stop on mousedown to prevent any bubbling
           }}
           className={`inline-flex items-center gap-0.5 text-primary hover:text-primary/80 underline decoration-dotted underline-offset-2 hover:decoration-solid transition-all duration-150 ${
             isEditing ? 'text-primary font-medium bg-primary/5 px-1 rounded' : 'font-normal'
