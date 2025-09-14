@@ -425,15 +425,12 @@ const renderInteractiveQuestion = (
       <span key={`${placeholderId}-${startIndex}`} className="relative inline-block mx-0.5">
         <button
           onClick={(e) => {
-            e.preventDefault();
-            // Always stop propagation on placeholder clicks to prevent question submission
-            e.stopPropagation();
+            // Always handle placeholder click, but let event bubble up for question submission too
             onPlaceholderClick?.(placeholderId);
+            // Don't prevent default or stop propagation - let it bubble to CommandItem
           }}
           onMouseDown={(e) => {
-            e.preventDefault();
-            // Always stop propagation to prevent parent click
-            e.stopPropagation();
+            // Don't prevent default to allow normal click behavior
           }}
           className={`inline-flex items-center gap-0.5 text-primary hover:text-primary/80 underline decoration-dotted underline-offset-2 hover:decoration-solid transition-all duration-150 ${
             isEditing ? 'text-primary font-medium bg-primary/5 px-1 rounded' : 'font-normal'
@@ -916,7 +913,12 @@ const SearchOverlay = memo(function SearchOverlay({
                     <CommandItem
                       key={index}
                       value={question.text}
-                      onSelect={() => {
+                      className="px-4 py-3 text-sm hover:bg-accent/50 cursor-pointer transition-all duration-200 rounded-md mx-2 my-0.5 border-l-2 border-transparent hover:border-primary/30"
+                      onClick={(e) => {
+                        console.log('🎯 Direct click handler triggered for:', question.text);
+                        console.log('🎯 editingPlaceholder state:', editingPlaceholder);
+                        console.log('🎯 recentlyModifiedQuestion:', recentlyModifiedQuestion);
+                        
                         // Don't auto-submit if actively editing a placeholder dropdown
                         if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
                           console.log('🚫 Question click blocked - actively editing placeholder');
@@ -931,7 +933,6 @@ const SearchOverlay = memo(function SearchOverlay({
                           console.log('🎯 All placeholder values:', inlinePlaceholderValues);
                           
                           // Always submit - user clicked to submit the question
-                          // Use configured values if available, otherwise use defaults
                           console.log('🚀 Submitting question with values:', values);
                           handleInlineQuestionSubmit(question);
                         } else {
@@ -939,7 +940,6 @@ const SearchOverlay = memo(function SearchOverlay({
                           handleQuestionClick(question.text);
                         }
                       }}
-                      className="px-4 py-3 text-sm hover:bg-accent/50 cursor-pointer transition-all duration-200 rounded-md mx-2 my-0.5 border-l-2 border-transparent hover:border-primary/30"
                     >
                       <div className="flex items-center gap-2 w-full">
                         <span className="flex-1">
