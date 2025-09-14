@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft, ChevronRight, Search, ChevronDown, Settings, Info, HelpCircle, DollarSign, GitCompare } from "lucide-react";
 import { useTypingAnimation } from "@/hooks/useTypingAnimation";
+import { TIMEFRAME_OPTIONS, BENCHMARK_OPTIONS, SECTOR_OPTIONS, ACCOUNT_OPTIONS } from "@shared/enhanced-financial-data";
 
 interface SearchOverlayProps {
   isOpen?: boolean;
@@ -47,61 +48,49 @@ const categories = [
   { name: "Comparison", icon: GitCompare, color: "bg-chart-5" }
 ];
 
-// Global placeholder configurations
+// Global placeholder configurations using shared data
 const placeholderConfigs: PlaceholderConfig = {
   benchmark: {
     label: "Benchmark",
     type: "select",
-    options: [
-      { value: "spxtr", label: "S&P 500 TR Index", description: "Most common benchmark" },
-      { value: "qqq", label: "Invesco QQQ Trust", description: "Tech-focused" },
-      { value: "rlg", label: "Russell 1000 Growth", description: "Large cap growth" },
-      { value: "rut", label: "Russell 2000", description: "Small cap" },
-      { value: "bil", label: "Bloomberg T-Bill ETF", description: "Cash proxy" },
-      { value: "vwo", label: "Vanguard Emerging Markets", description: "Emerging markets" }
-    ],
+    options: BENCHMARK_OPTIONS,
     defaultValue: "spxtr"
   },
   timeperiod: {
-    label: "Time Period",
+    label: "Time Period", 
     type: "select",
-    options: [
-      { value: "MTD", label: "Month to date", description: "Since beginning of current month" },
-      { value: "1M", label: "One month", description: "Past 30 days" },
-      { value: "PQ", label: "Previous quarter", description: "Last completed quarter" },
-      { value: "PM", label: "Previous month", description: "Last completed month" },
-      { value: "YTD", label: "Year to date", description: "Since January 1st" },
-      { value: "PY", label: "Previous calendar year", description: "Last completed calendar year" },
-      { value: "1Y", label: "One year", description: "Past 12 months" },
-      { value: "3M", label: "Three months", description: "Past 3 months" },
-      { value: "6M", label: "Six months", description: "Past 6 months" },
-      { value: "2Y", label: "Two years", description: "Past 24 months" },
-      { value: "5Y", label: "Five years", description: "Past 60 months" }
-    ],
+    options: TIMEFRAME_OPTIONS.map(opt => {
+      const descriptions: Record<string, string> = {
+        "MTD": "Since beginning of current month",
+        "1M": "Past 30 days",
+        "1Y": "Past 12 months", 
+        "PY": "Last completed calendar year",
+        "PM": "Last completed month",
+        "PQ": "Last completed quarter",
+        "YTD": "Since January 1st",
+        "3M": "Past 3 months",
+        "6M": "Past 6 months",
+        "2Y": "Past 24 months",
+        "5Y": "Past 60 months"
+      };
+      return {
+        value: opt.value,
+        label: opt.label,
+        description: descriptions[opt.value] || ""
+      };
+    }),
     defaultValue: "YTD"
   },
   sector: {
     label: "Sector",
-    type: "select",
-    options: [
-      { value: "technology", label: "Technology", description: "Software, hardware, semiconductors" },
-      { value: "healthcare", label: "Healthcare", description: "Pharmaceuticals, biotech, devices" },
-      { value: "financials", label: "Financials", description: "Banks, insurance, real estate" },
-      { value: "consumer", label: "Consumer Discretionary", description: "Retail, automotive, entertainment" },
-      { value: "industrials", label: "Industrials", description: "Manufacturing, aerospace, defense" },
-      { value: "energy", label: "Energy", description: "Oil, gas, renewable energy" }
-    ],
-    defaultValue: "technology"
+    type: "select", 
+    options: SECTOR_OPTIONS,
+    defaultValue: "TECHNOLOGY"
   },
   account: {
     label: "Account Type",
     type: "select",
-    options: [
-      { value: "all", label: "All Accounts", description: "Include all portfolio accounts" },
-      { value: "taxable", label: "Taxable Accounts", description: "Only taxable investment accounts" },
-      { value: "retirement", label: "Retirement Accounts", description: "401k, IRA, and other retirement accounts" },
-      { value: "trust", label: "Trust Accounts", description: "Trust and estate accounts" }
-    ],
+    options: ACCOUNT_OPTIONS,
     defaultValue: "all"
   }
 };

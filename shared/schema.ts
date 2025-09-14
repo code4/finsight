@@ -130,20 +130,8 @@ export type QuestionRequest = z.infer<typeof questionRequestSchema>;
 export type QuestionResponse = z.infer<typeof questionResponseSchema>;
 export type FeedbackRequest = z.infer<typeof feedbackRequestSchema>;
 
-// Enhanced Timeframe Options
-export const TIMEFRAME_OPTIONS = [
-  { value: "MTD", label: "Month to date" },
-  { value: "1M", label: "One month" },
-  { value: "1Y", label: "One year" },
-  { value: "PY", label: "Previous calendar year" },
-  { value: "PM", label: "Previous month" },
-  { value: "PQ", label: "Previous quarter" },
-  { value: "YTD", label: "Year to date" },
-  { value: "3M", label: "Three months" },
-  { value: "6M", label: "Six months" },
-  { value: "2Y", label: "Two years" },
-  { value: "5Y", label: "Five years" }
-] as const;
+// Import enhanced data from single source of truth
+export { TIMEFRAME_OPTIONS } from "./enhanced-financial-data";
 
 // Enhanced Financial Questions by Category
 export const FINANCIAL_QUESTIONS = [
