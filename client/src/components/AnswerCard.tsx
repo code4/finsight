@@ -99,21 +99,41 @@ const mockChartData = [
 ];
 
 // Feedback Section Component
+// Detailed feedback reasons matching the backend schema
+const FEEDBACK_REASONS = [
+  { value: "incorrect_data", label: "Incorrect Data", description: "Numbers or facts appear wrong" },
+  { value: "outdated", label: "Outdated Information", description: "Data seems old or stale" },
+  { value: "not_relevant", label: "Not Relevant", description: "Doesn't answer my question" },
+  { value: "unclear", label: "Unclear Explanation", description: "Hard to understand or confusing" },
+  { value: "missing_info", label: "Missing Information", description: "Key details are missing" },
+  { value: "wrong_timeframe", label: "Wrong Timeframe", description: "Time period doesn't match request" },
+  { value: "wrong_accounts", label: "Wrong Accounts", description: "Account selection is incorrect" },
+  { value: "other", label: "Other", description: "Something else" }
+] as const;
+
 const FeedbackSection = memo(function FeedbackSection({ 
   answerId, 
   onFeedbackSubmit 
 }: { 
   answerId?: string, 
-  onFeedbackSubmit?: (feedback: { type: 'positive' | 'negative', reasoning: string }) => void 
+  onFeedbackSubmit?: (feedback: { type: 'positive' | 'negative', reasoning: string, reasons?: string[] }) => void 
 }) {
   const [feedbackType, setFeedbackType] = useState<'positive' | 'negative' | null>(null);
   const [reasoning, setReasoning] = useState("");
+  const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
 
   const feedbackMutation = useMutation({
-    mutationFn: async (feedback: { answerId: string, type: 'positive' | 'negative', reasoning: string }) => {
+    mutationFn: async (feedback: { 
+      answerId: string, 
+      questionId?: string,
+      question: string,
+      sentiment: 'up' | 'down',
+      reasons?: string[],
+      comment?: string
+    }) => {
       const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,21 +164,49 @@ const FeedbackSection = memo(function FeedbackSection({
     if (isSubmitted) return;
     
     setFeedbackType(type);
+    setSelectedReasons([]);
+    setReasoning("");
     setIsOpen(true);
+  };
+
+  const handleReasonToggle = (reasonValue: string) => {
+    setSelectedReasons(prev => 
+      prev.includes(reasonValue) 
+        ? prev.filter(r => r !== reasonValue)
+        : [...prev, reasonValue]
+    );
   };
 
   const handleSubmitFeedback = () => {
     if (!feedbackType || !answerId) return;
     
-    const feedbackData = { type: feedbackType, reasoning: reasoning.trim() };
+    // Validation: For negative feedback, require at least one reason OR comment
+    if (feedbackType === 'negative' && selectedReasons.length === 0 && !reasoning.trim()) {
+      toast({
+        title: "Feedback required",
+        description: "Please select at least one reason or provide additional details.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const feedbackData = { 
+      type: feedbackType, 
+      reasoning: reasoning.trim(),
+      reasons: feedbackType === 'negative' ? selectedReasons : undefined
+    };
     
     // Call parent callback if provided
     onFeedbackSubmit?.(feedbackData);
     
-    // Submit via API
+    // Submit via API with proper schema format
     feedbackMutation.mutate({
       answerId,
-      ...feedbackData
+      questionId: undefined, // Could be passed from parent if available
+      question: "Portfolio analysis feedback", // Generic for now
+      sentiment: feedbackType === 'positive' ? 'up' : 'down',
+      reasons: feedbackType === 'negative' && selectedReasons.length > 0 ? selectedReasons : undefined,
+      comment: reasoning.trim() || undefined
     });
   };
 
@@ -228,18 +276,51 @@ const FeedbackSection = memo(function FeedbackSection({
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
+            {/* Detailed reason checkboxes for negative feedback */}
+            {feedbackType === 'negative' && (
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">What was the main issue? (select all that apply)</Label>
+                {selectedReasons.length === 0 && !reasoning.trim() && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    Please select at least one reason or provide details below
+                  </p>
+                )}
+                <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto">
+                  {FEEDBACK_REASONS.map((reason) => (
+                    <div key={reason.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={reason.value}
+                        checked={selectedReasons.includes(reason.value)}
+                        onCheckedChange={() => handleReasonToggle(reason.value)}
+                        data-testid={`checkbox-reason-${reason.value}`}
+                      />
+                      <div className="flex flex-col">
+                        <Label
+                          htmlFor={reason.value}
+                          className="text-sm font-medium cursor-pointer"
+                        >
+                          {reason.label}
+                        </Label>
+                        <span className="text-xs text-muted-foreground">{reason.description}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="reasoning">
                 {feedbackType === 'positive' 
-                  ? "What worked well?"
-                  : "What could be improved?"
+                  ? "What worked well?" 
+                  : "Additional details (optional)"
                 }
               </Label>
               <Textarea
                 id="reasoning"
                 placeholder={feedbackType === 'positive' 
                   ? "e.g., Clear metrics, good visualizations, actionable insights..."
-                  : "e.g., Missing data, unclear explanations, need more details..."
+                  : "Any specific details that might help us improve..."
                 }
                 value={reasoning}
                 onChange={(e) => setReasoning(e.target.value)}
@@ -255,7 +336,7 @@ const FeedbackSection = memo(function FeedbackSection({
             </Button>
             <Button 
               onClick={handleSubmitFeedback}
-              disabled={feedbackMutation.isPending || !reasoning.trim()}
+              disabled={feedbackMutation.isPending || (feedbackType === 'positive' ? !reasoning.trim() : false)}
               className="gap-2"
               data-testid="button-submit-feedback"
             >
