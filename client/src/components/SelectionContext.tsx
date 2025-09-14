@@ -24,7 +24,7 @@ interface SelectionContextType extends SelectionState {
 // Default values
 const defaultSelection: SelectionState = {
   selectionMode: 'accounts',
-  selectedAccountIds: new Set(['account1', 'account2']), // Default to first two accounts
+  selectedAccountIds: new Set(['ACC001', 'ACC002']), // Default to first two accounts
   selectedGroupId: null,
   timeframe: 'ytd'
 };

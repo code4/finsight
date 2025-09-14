@@ -514,7 +514,7 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
     { value: 'prev_year', short: 'PY', label: 'Previous Year' },
     { value: '1m', short: '1M', label: 'One Month' },
     { value: '1y', short: '1Y', label: 'One Year' },
-  ], // Same as TopNavigation
+  ] as const, // Same as TopNavigation
   onAccountChange, // Single account change
   onTimeframeChange,
   onPlaceholderEdit, // Called when placeholder is clicked (triggers blur)
@@ -525,7 +525,7 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
   account: { id: string; accountNumber: string; name: string; alias?: string; type: string; balance: number; color: string } | string; // Support both formats for backward compatibility
   timeframe: string;
   availableAccounts?: { id: string; accountNumber: string; name: string; alias?: string; type: string; balance: number; color: string }[];
-  availableTimeframes?: { value: string; label: string }[];
+  availableTimeframes?: { value: string; short: string; label: string }[];
   onAccountChange?: (newAccount: any) => void;
   onTimeframeChange?: (newTimeframe: string) => void;
   onPlaceholderEdit?: () => void; // Triggers blur state
@@ -768,7 +768,7 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
           data-testid="badge-timeframe"
         >
           <Calendar className="h-3 w-3 mr-1" />
-          {availableTimeframes.find(tf => tf.value === timeframe)?.short || timeframe}
+          {availableTimeframes.find(tf => tf.value === timeframe)?.label || timeframe}
           <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
           <ChevronDown className="h-2 w-2 ml-0.5 opacity-60 group-hover:opacity-80 transition-opacity" />
         </Badge>
@@ -1404,7 +1404,15 @@ const AnswerCard = memo(function AnswerCard({
                   { id: "ACC002", accountNumber: "DU0234567", name: "Smith Retirement IRA", alias: "Smith Retirement", type: "IRA", balance: 1850000, color: "bg-chart-2" },
                   { id: "ACC003", accountNumber: "DU0345678", name: "Wilson Tech Holdings", alias: "Wilson Tech", type: "Individual", balance: 980000, color: "bg-chart-4" }
                 ]}
-                availableTimeframes={availableTimeframes}
+                availableTimeframes={availableTimeframes || [
+                  { value: 'mtd', short: 'MTD', label: 'Month to Date' },
+                  { value: 'ytd', short: 'YTD', label: 'Year to Date' },
+                  { value: 'prev_month', short: 'PM', label: 'Previous Month' },
+                  { value: 'prev_quarter', short: 'PQ', label: 'Previous Quarter' },
+                  { value: 'prev_year', short: 'PY', label: 'Previous Year' },
+                  { value: '1m', short: '1M', label: 'One Month' },
+                  { value: '1y', short: '1Y', label: 'One Year' },
+                ]}
                 onAccountChange={(newAccount) => console.log('Account changed:', newAccount)}
                 onTimeframeChange={onTimeframeChange}
                 onPlaceholderEdit={() => console.log('Placeholder editing started')}

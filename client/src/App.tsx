@@ -21,6 +21,17 @@ import { apiService } from "@/lib/api";
 import { ContentGenerator } from "@/lib/contentGenerator";
 
 
+// Timeframe options for display mapping
+const timeframes = [
+  { value: 'mtd', short: 'MTD', label: 'Month to Date' },
+  { value: 'ytd', short: 'YTD', label: 'Year to Date' },
+  { value: 'prev_month', short: 'PM', label: 'Previous Month' },
+  { value: 'prev_quarter', short: 'PQ', label: 'Previous Quarter' },
+  { value: 'prev_year', short: 'PY', label: 'Previous Year' },
+  { value: '1m', short: '1M', label: 'One Month' },
+  { value: '1y', short: '1Y', label: 'One Year' },
+];
+
 function FinSightDashboard() {
   const { theme, setTheme } = useTheme();
   
@@ -160,6 +171,17 @@ function FinSightDashboard() {
     { id: "ACC008", accountNumber: "DU0890123", name: "Anderson REIT", alias: "Anderson REIT", type: "REIT", balance: 890000, color: "bg-chart-4" },
     { id: "ACC009", accountNumber: "DU0901234", name: "Thompson Emerging", alias: "Thompson Emerging", type: "Individual", balance: 540000, color: "bg-chart-3" },
     { id: "ACC010", accountNumber: "DU1012345", name: "Lee Family 529", alias: "Lee Family", type: "529 Plan", balance: 320000, color: "bg-chart-5" }
+  ];
+
+  // Timeframes for consistent display across components
+  const timeframes = [
+    { value: 'mtd', short: 'MTD', label: 'Month to Date' },
+    { value: 'ytd', short: 'YTD', label: 'Year to Date' },
+    { value: 'prev_month', short: 'PM', label: 'Previous Month' },
+    { value: 'prev_quarter', short: 'PQ', label: 'Previous Quarter' },
+    { value: 'prev_year', short: 'PY', label: 'Previous Year' },
+    { value: '1m', short: '1M', label: 'One Month' },
+    { value: '1y', short: '1Y', label: 'One Year' },
   ];
 
   // Derived state: compute selectedAccounts from current selection mode
@@ -324,7 +346,7 @@ function FinSightDashboard() {
           hour12: true
         }),
         accounts: selectedAccounts.map(acc => `${acc.alias || acc.name} (${acc.accountNumber})`),
-        timeframe: timeframe.toUpperCase(),
+        timeframe: timeframe,
         backendResponse: response,
       };
 
@@ -414,7 +436,7 @@ function FinSightDashboard() {
           hour12: true
         }),
         accounts: selectedAccounts.map(acc => `${acc.alias || acc.name} (${acc.accountNumber})`),
-        timeframe: timeframe.toUpperCase(),
+        timeframe: timeframe,
         isUnmatched: true,
         isError: true,
         errorType: errorType,
@@ -609,7 +631,7 @@ function FinSightDashboard() {
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground mt-2">
-                        Currently analyzing <span className="font-medium">{selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}</span> • <span className="font-medium">{timeframe.toUpperCase()}</span> timeframe
+                        Currently analyzing <span className="font-medium">{selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}</span> • <span className="font-medium">{timeframes.find(tf => tf.value === timeframe)?.label || timeframe}</span> timeframe
                       </p>
                     </div>
                     

@@ -34,7 +34,14 @@ export default function AnswerCardSkeleton({
             {/* Context badges showing actual account/timeframe info */}
             <div className="flex items-center gap-2 flex-wrap">
               <div className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
-                {timeframe.toUpperCase()}
+                {timeframe === 'mtd' ? 'Month to Date' : 
+                 timeframe === 'ytd' ? 'Year to Date' :
+                 timeframe === 'prev_month' ? 'Previous Month' :
+                 timeframe === 'prev_quarter' ? 'Previous Quarter' :
+                 timeframe === 'prev_year' ? 'Previous Year' :
+                 timeframe === '1m' ? 'One Month' :
+                 timeframe === '1y' ? 'One Year' :
+                 timeframe}
               </div>
               <div className="px-2 py-1 bg-muted/50 text-muted-foreground rounded-md text-xs">
                 {selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}
