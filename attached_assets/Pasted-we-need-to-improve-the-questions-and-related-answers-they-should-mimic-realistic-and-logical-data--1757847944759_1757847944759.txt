@@ -1,0 +1,18 @@
+we need to improve the questions and related answers they should mimic realistic and logical data. 
+we need more question and answer variations.
+whena a user opens the searchoverlay the user should be able to change the placeholders and submit the questions. currently after changing the placeholders if the user clicks on the question the question does not submit.
+we need to add feedback fuctionality to answers. FA should be able to thumbs up or down an answer. if the FA thumbs down an answer there should be some mechanism for the FA to notify what was inaccurate or what the FA did not like.
+the accounts and timeframe on the aanswers are placeholders, we should allow the FA to change that on the answercard if the FA clicks on the placeholders on the answercards the answer should blur out as it is no longer valid for that selection once the FA updates all the placeholders the FA should be able to click a button and submit that as a new question.
+Are there anymore improvements that we can make to the UI and UX of the empty state for the app. 
+are there any more improvements we can make to the search overlay.
+Does the app work well on a asmaller screen too like a mobile device ?
+
+
+How can we improve the UI UX for placeholder display and selection on the questions.
+we need to improve the scrollbars
+there are pills and icons that are not self explanatory and might require tooltips. e.g. when a question has multiple categories we add a +1 but there is no way to know what hat +1 is there is a icon for questions that have placeholders but no way to know what that is
+if there are 2 accounts selected the placeholder shows buth the icons as seperate pills this would be hard to change if a user want to change that selection in the answer to regenerate and it would also be hard to show if there are like a 100 account selected. if a group is selected it is suffiecient to show the group name and number of accounts.
+the follow up questions in the answer card should be updated to relaistic questions and could have much bigger character count how would that look and how can that be shown with an improve UI UX
+We need an error state to show if the API fails
+are the animations being used good enough or can they be improved. are ther layout sifts or jarring that can be improved ?
+do we have a good variation of answer UI's 
