@@ -1,15 +1,24 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { questionRequestSchema, type QuestionResponse } from "@shared/schema";
+import { questionRequestSchema, type QuestionResponse, feedbackRequestSchema } from "@shared/schema";
 import { z } from "zod";
 
 // Question matching service
 class QuestionMatchingService {
   // Simple keyword-based matching - could be enhanced with NLP/ML
-  async findBestMatch(question: string): Promise<{ answer: any; confidence: "high" | "medium" | "low" } | null> {
+  // Now handles placeholder replacement for better matching
+  async findBestMatch(question: string, placeholders?: Record<string, string>): Promise<{ answer: any; confidence: "high" | "medium" | "low" } | null> {
     const answers = await storage.getAllAnswers();
-    const questionLower = question.toLowerCase();
+    let processedQuestion = question.toLowerCase();
+    
+    // Replace placeholders with actual values for better matching
+    if (placeholders) {
+      for (const [key, value] of Object.entries(placeholders)) {
+        const placeholderPattern = new RegExp(`\\{${key}\\}`, 'gi');
+        processedQuestion = processedQuestion.replace(placeholderPattern, value.toLowerCase());
+      }
+    }
     
     let bestMatch = null;
     let highestScore = 0;
@@ -19,20 +28,25 @@ class QuestionMatchingService {
       const keywords = answer.keywords || [];
       
       // Check exact phrase matches (higher weight)
-      if (answer.title.toLowerCase().includes(questionLower)) {
+      if (answer.title.toLowerCase().includes(processedQuestion)) {
         score += 100;
       }
       
       // Check keyword matches
       for (const keyword of keywords) {
-        if (questionLower.includes(keyword.toLowerCase())) {
+        if (processedQuestion.includes(keyword.toLowerCase())) {
           score += 10;
         }
       }
       
       // Check category matches
-      if (answer.category && questionLower.includes(answer.category.toLowerCase())) {
+      if (answer.category && processedQuestion.includes(answer.category.toLowerCase())) {
         score += 20;
+      }
+      
+      // Additional scoring for answer type matches
+      if (answer.answerType && processedQuestion.includes(answer.answerType.toLowerCase())) {
+        score += 15;
       }
       
       if (score > highestScore) {
@@ -111,8 +125,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         context: validatedData.context || null,
       });
       
-      // Try to find a matching answer
-      const match = await questionMatcher.findBestMatch(validatedData.question);
+      // Try to find a matching answer (with placeholder support)
+      const match = await questionMatcher.findBestMatch(validatedData.question, validatedData.placeholders);
       
       if (match) {
         // Found a match - update question status
@@ -209,6 +223,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating answer:", error);
       res.status(500).json({ message: "Failed to create answer" });
+    }
+  });
+  
+  // Submit feedback on answers
+  app.post("/api/feedback", async (req, res) => {
+    try {
+      // Validate request using feedback schema
+      const validatedData = feedbackRequestSchema.parse(req.body);
+      
+      // Store the feedback
+      const feedback = await storage.createFeedback({
+        answerId: validatedData.answerId,
+        questionId: validatedData.questionId,
+        question: validatedData.question,
+        sentiment: validatedData.sentiment,
+        reasons: validatedData.reasons,
+        comment: validatedData.comment,
+      });
+      
+      res.json({
+        id: feedback.id,
+        message: feedback.sentiment === "up" 
+          ? "Thank you for your positive feedback!" 
+          : "Thank you for your feedback. We'll use this to improve our responses.",
+        feedback: feedback
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ 
+          message: "Invalid feedback format", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error submitting feedback:", error);
+        res.status(500).json({ 
+          message: "Failed to submit feedback" 
+        });
+      }
+    }
+  });
+  
+  // Get feedback for a specific answer (admin endpoint)
+  app.get("/api/feedback/answer/:answerId", async (req, res) => {
+    try {
+      const { answerId } = req.params;
+      const feedback = await storage.getFeedbackForAnswer(answerId);
+      res.json(feedback);
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+      res.status(500).json({ message: "Failed to fetch feedback" });
+    }
+  });
+  
+  // Get all feedback (admin endpoint)
+  app.get("/api/feedback", async (req, res) => {
+    try {
+      const feedback = await storage.getAllFeedback();
+      res.json(feedback);
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+      res.status(500).json({ message: "Failed to fetch feedback" });
     }
   });
 
