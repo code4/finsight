@@ -560,8 +560,8 @@ const renderInteractiveQuestion = (
             e.preventDefault();
             e.stopPropagation(); // Also stop on mousedown to prevent any bubbling
           }}
-          className={`inline-flex items-center gap-0.5 text-primary hover:text-primary/80 underline decoration-dotted underline-offset-2 hover:decoration-solid transition-all duration-150 ${
-            isEditing ? 'text-primary font-medium bg-primary/5 px-1 rounded' : 'font-normal'
+          className={`inline-flex items-center gap-0.5 px-1 text-primary hover:text-primary/80 underline decoration-dotted underline-offset-2 hover:decoration-solid transition-all duration-150 ${
+            isEditing ? 'text-primary font-medium bg-primary/5 rounded' : 'font-normal'
           }`}
           title={`Click to change ${config?.label || placeholderId}`}
         >
@@ -1065,10 +1065,11 @@ const SearchOverlay = memo(function SearchOverlay({
                         console.log('🎯 editingPlaceholder state:', editingPlaceholder);
                         console.log('🎯 recentlyModifiedQuestion:', recentlyModifiedQuestion);
                         
-                        // Don't auto-submit if actively editing a placeholder dropdown
-                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
-                          console.log('🚫 Question click blocked - actively editing placeholder');
-                          return;
+                        // Don't block question clicks - always allow question submission
+                        // Clear any open placeholder dropdowns first
+                        if (editingPlaceholder) {
+                          console.log('🔄 Clearing placeholder dropdown before question submission');
+                          setEditingPlaceholder(null);
                         }
                         
                         if (hasPlaceholders(question.text)) {
@@ -1142,9 +1143,9 @@ const SearchOverlay = memo(function SearchOverlay({
                           key={index}
                           value={question.text}
                           onSelect={() => {
-                        // Don't auto-submit if actively editing a placeholder dropdown
-                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
-                          return;
+                        // Clear any open placeholder dropdowns before question submission
+                        if (editingPlaceholder) {
+                          setEditingPlaceholder(null);
                         }
                         
                         if (hasPlaceholders(question.text)) {
@@ -1292,9 +1293,9 @@ const SearchOverlay = memo(function SearchOverlay({
                         key={index}
                         value={question.text}
                         onSelect={() => {
-                        // Don't auto-submit if actively editing a placeholder dropdown
-                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
-                          return;
+                        // Clear any open placeholder dropdowns before question submission
+                        if (editingPlaceholder) {
+                          setEditingPlaceholder(null);
                         }
                         
                         if (hasPlaceholders(question.text)) {
@@ -1491,9 +1492,9 @@ const SearchOverlay = memo(function SearchOverlay({
                           key={index}
                           value={question.text}
                           onSelect={() => {
-                        // Don't auto-submit if actively editing a placeholder dropdown
-                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
-                          return;
+                        // Clear any open placeholder dropdowns before question submission
+                        if (editingPlaceholder) {
+                          setEditingPlaceholder(null);
                         }
                         
                         if (hasPlaceholders(question.text)) {
@@ -1592,9 +1593,9 @@ const SearchOverlay = memo(function SearchOverlay({
                           key={index}
                           value={question.text}
                           onSelect={() => {
-                        // Don't auto-submit if actively editing a placeholder dropdown
-                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
-                          return;
+                        // Clear any open placeholder dropdowns before question submission
+                        if (editingPlaceholder) {
+                          setEditingPlaceholder(null);
                         }
                         
                         if (hasPlaceholders(question.text)) {
