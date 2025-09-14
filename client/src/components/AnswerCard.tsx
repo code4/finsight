@@ -1,4 +1,4 @@
-import { memo, useState, useMemo } from "react";
+import { memo, useState, useEffect, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -13,7 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, RefreshCw, Download, User, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, ThumbsUp, ThumbsDown, Send, Edit2, Check, X, ChevronDown } from "lucide-react";
+// Import all necessary icons including Users for account summary display  
+import { Calendar, RefreshCw, Download, User, Users, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, ThumbsUp, ThumbsDown, Send, Edit2, Check, X, ChevronDown } from "lucide-react";
 import FinancialChart from "@/components/FinancialChart";
 import FollowUpChips from "@/components/FollowUpChips";
 import ErrorCard from "@/components/ErrorCard";
@@ -301,7 +302,7 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
   const [tempTimeframe, setTempTimeframe] = useState(timeframe);
 
   // Reset temp values when props change
-  useMemo(() => {
+  useEffect(() => {
     setTempAccounts(accounts);
     setTempTimeframe(timeframe);
   }, [accounts, timeframe]);
@@ -321,7 +322,7 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
     setIsEditingAccounts(false);
     
     // Trigger resubmission if accounts changed
-    if (JSON.stringify(tempAccounts.sort()) !== JSON.stringify(accounts.sort())) {
+    if (JSON.stringify([...tempAccounts].sort()) !== JSON.stringify([...accounts].sort())) {
       setTimeout(() => onResubmit?.(), 100);
     }
   };
@@ -418,19 +419,34 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
         </Popover>
       ) : (
         <div className="flex items-center gap-1">
-          {accounts.map((account, index) => (
+          {accounts.length <= 2 ? (
+            /* Show individual badges for 1-2 accounts */
+            accounts.map((account, index) => (
+              <Badge
+                key={index}
+                variant="outline"
+                className="text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative"
+                onClick={() => setIsEditingAccounts(true)}
+                style={{ animationDelay: `${index * 100}ms` }}
+                data-testid={`badge-account-${index}`}
+              >
+                {account}
+                <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
+              </Badge>
+            ))
+          ) : (
+            /* Show summary badge for 3+ accounts */
             <Badge
-              key={index}
               variant="outline"
-              className="text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative"
+              className="text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative bg-primary/5 border-primary/30 text-primary hover:bg-primary/10"
               onClick={() => setIsEditingAccounts(true)}
-              style={{ animationDelay: `${index * 100}ms` }}
-              data-testid={`badge-account-${index}`}
+              data-testid="badge-account-summary"
             >
-              {account}
-              <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
+              <Users className="h-3 w-3 mr-1" />
+              {accounts.length} Account{accounts.length !== 1 ? 's' : ''}
+              <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-70 transition-opacity" />
             </Badge>
-          ))}
+          )}
         </div>
       )}
 
