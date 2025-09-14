@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SelectionProvider } from "@/components/SelectionContext";
 import TopNavigation from "@/components/TopNavigation";
 import SearchOverlay from "@/components/SearchOverlay";
 import AnswerCard from "@/components/AnswerCard";
@@ -937,9 +938,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider defaultTheme="dark">
-          <ErrorBoundary>
-            <FinSightDashboard />
-          </ErrorBoundary>
+          <SelectionProvider>
+            <ErrorBoundary>
+              <FinSightDashboard />
+            </ErrorBoundary>
+          </SelectionProvider>
           <Toaster />
         </ThemeProvider>
       </TooltipProvider>

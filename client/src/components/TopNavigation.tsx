@@ -38,6 +38,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { AccountSelectorPanel } from '@/components/AccountSelectorPanel'
+import { useSelection } from '@/components/SelectionContext'
 
 // Account and group types
 interface Account {
@@ -231,14 +233,14 @@ const TopNavigation = memo(function TopNavigation({
     setIsAccountSelectorOpen(false)
   }
 
-  // Get display name for current selection
+  // Get display name for current selection - use pending state to show live updates
   const getSelectionDisplayName = () => {
-    if (selectionMode === 'group' && selectedGroupId) {
-      const group = accountGroups.find(g => g.id === selectedGroupId)
+    if (pendingSelectionMode === 'group' && pendingSelectedGroupId) {
+      const group = accountGroups.find(g => g.id === pendingSelectedGroupId)
       return group ? group.name : 'Unknown Group'
     }
-    return `${selectedAccounts.length} account${
-      selectedAccounts.length === 1 ? '' : 's'
+    return `${pendingSelectedAccountIds.size} account${
+      pendingSelectedAccountIds.size === 1 ? '' : 's'
     }`
   }
 
@@ -406,143 +408,46 @@ const TopNavigation = memo(function TopNavigation({
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-96 p-0" align="end">
-              <Tabs
-                value={pendingSelectionMode}
-                onValueChange={value =>
-                  handleSelectionModeToggle(value as 'accounts' | 'group')
-                }
-              >
-                {/* Mode Switcher */}
-                <div className="p-3 border-b">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="accounts">Accounts</TabsTrigger>
-                    <TabsTrigger value="group">Group</TabsTrigger>
-                  </TabsList>
-                </div>
-
-                {/* Accounts Tab */}
-                <TabsContent value="accounts" className="mt-0">
-                  <Command>
-                    <div className="flex items-center border-b px-3">
-                      <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                      <CommandInput
-                        placeholder="Search accounts..."
-                        className="flex h-10 w-full"
-                      />
-                    </div>
-                    <CommandList className="max-h-64">
-                      <CommandEmpty>No accounts found.</CommandEmpty>
-                      <CommandGroup>
-                        {allAccounts.map(account => {
-                          const isSelected = pendingSelectedAccountIds.has(
-                            account.id,
-                          )
-                          const isLastSelected =
-                            pendingSelectedAccountIds.size === 1 && isSelected
-
-                          return (
-                            <CommandItem
-                              key={account.id}
-                              value={`${account.accountNumber} ${
-                                account.name
-                              } ${account.alias || ''}`}
-                              onSelect={() => handleAccountToggle(account.id)}
-                              className="flex items-center space-x-2 p-2 hover-elevate transition-all duration-200"
-                              data-testid={`command-item-${account.id}`}
-                            >
-                              <Checkbox
-                                checked={isSelected}
-                                disabled={isLastSelected}
-                                className={`data-[state=checked]:bg-primary ${
-                                  isLastSelected ? 'opacity-50' : ''
-                                }`}
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate">
-                                  {account.alias || account.name}
-                                </div>
-                                <div className="text-xs text-muted-foreground truncate">
-                                  {account.accountNumber} • {account.type}
-                                </div>
-                              </div>
-                            </CommandItem>
-                          )
-                        })}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </TabsContent>
-
-                {/* Groups Tab */}
-                <TabsContent value="group" className="mt-0">
-                  <Command>
-                    <div className="flex items-center border-b px-3">
-                      <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                      <CommandInput
-                        placeholder="Search groups..."
-                        className="flex h-10 w-full"
-                      />
-                    </div>
-                    <CommandList className="max-h-64">
-                      <CommandEmpty>No groups found.</CommandEmpty>
-                      <CommandGroup>
-                        <RadioGroup
-                          value={pendingSelectedGroupId || ''}
-                          onValueChange={handleGroupSelect}
-                        >
-                          {accountGroups.map(group => (
-                            <CommandItem
-                              key={group.id}
-                              value={`${group.name} ${group.description}`}
-                              onSelect={() => handleGroupSelect(group.id)}
-                              className="flex items-center space-x-2 p-2 hover-elevate transition-all duration-200"
-                              data-testid={`command-item-${group.id}`}
-                            >
-                              <RadioGroupItem
-                                value={group.id}
-                                id={group.id}
-                                className="data-[state=checked]:bg-primary"
-                              />
-                              <Label
-                                htmlFor={group.id}
-                                className="flex-1 min-w-0 cursor-pointer"
-                              >
-                                <div className="font-medium truncate">
-                                  {group.name}
-                                </div>
-                                <div className="text-xs text-muted-foreground truncate">
-                                  {group.description} •{' '}
-                                  {group.accountIds.length} accounts
-                                </div>
-                              </Label>
-                            </CommandItem>
-                          ))}
-                        </RadioGroup>
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </TabsContent>
-              </Tabs>
-
-              {/* Apply/Cancel buttons */}
-              <div className="flex items-center justify-between p-3 border-t">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCancelChanges}
-                  data-testid="button-cancel-selection"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleApplyChanges}
-                  disabled={!hasUnappliedChanges}
-                  data-testid="button-apply-selection"
-                >
-                  Apply Changes
-                </Button>
-              </div>
+              <AccountSelectorPanel
+                allAccounts={allAccounts}
+                accountGroups={accountGroups}
+                initialMode={pendingSelectionMode}
+                initialSelectedAccountIds={pendingSelectedAccountIds}
+                initialSelectedGroupId={pendingSelectedGroupId}
+                variant="multi"
+                showTabs={true}
+                onApply={(selection) => {
+                  // Update the pending state with the selection
+                  if (selection.mode !== pendingSelectionMode) {
+                    handleSelectionModeToggle(selection.mode);
+                  }
+                  
+                  // Update account selection if changed
+                  if (selection.mode === 'accounts') {
+                    selection.accountIds.forEach(accountId => {
+                      if (!pendingSelectedAccountIds.has(accountId)) {
+                        handleAccountToggle(accountId);
+                      }
+                    });
+                    // Remove accounts that are no longer selected
+                    Array.from(pendingSelectedAccountIds).forEach(accountId => {
+                      if (!selection.accountIds.has(accountId)) {
+                        handleAccountToggle(accountId);
+                      }
+                    });
+                  }
+                  
+                  // Update group selection if changed
+                  if (selection.mode === 'group' && selection.groupId !== pendingSelectedGroupId) {
+                    handleGroupSelect(selection.groupId || '');
+                  }
+                  
+                  // Apply the changes
+                  handleApplyChanges();
+                }}
+                onCancel={handleCancelChanges}
+                onHasChanges={setHasUnappliedChanges}
+              />
             </PopoverContent>
           </Popover>
         </div>
