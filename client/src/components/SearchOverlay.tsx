@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft, ChevronRight, Search, ChevronDown } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft, ChevronRight, Search, ChevronDown, Settings, Info, HelpCircle } from "lucide-react";
 import { useTypingAnimation } from "@/hooks/useTypingAnimation";
 
 interface SearchOverlayProps {
@@ -425,12 +426,18 @@ const renderInteractiveQuestion = (
         <button
           onClick={(e) => {
             e.preventDefault();
-            e.stopPropagation();
+            // Only stop propagation when actively editing to prevent parent CommandItem click
+            if (isEditing) {
+              e.stopPropagation();
+            }
             onPlaceholderClick?.(placeholderId);
           }}
           onMouseDown={(e) => {
             e.preventDefault();
-            e.stopPropagation();
+            // Only stop propagation when actively editing
+            if (isEditing) {
+              e.stopPropagation();
+            }
           }}
           className={`inline-flex items-center gap-0.5 text-primary hover:text-primary/80 underline decoration-dotted underline-offset-2 hover:decoration-solid transition-all duration-150 ${
             isEditing ? 'text-primary font-medium bg-primary/5 px-1 rounded' : 'font-normal'
@@ -945,7 +952,19 @@ const SearchOverlay = memo(function SearchOverlay({
                         </span>
                         <div className="flex items-center gap-1">
                           {hasPlaceholders(question.text) && (
-                            <div className="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:bg-primary/60 transition-colors" title="Interactive question - click placeholders to customize" />
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-center gap-1 px-2 py-0.5 bg-primary/10 hover:bg-primary/20 rounded-full border border-primary/20 transition-all duration-200">
+                                    <Settings className="h-3 w-3 text-primary/80" />
+                                    <span className="text-xs text-primary/80 font-medium">Customizable</span>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-48">
+                                  <p className="text-xs">This question has customizable parameters. Click on underlined text to modify accounts, timeframes, or other settings.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           )}
                           <ChevronRight className="h-3 w-3 text-muted-foreground/60 group-hover:text-primary transition-colors" />
                         </div>
@@ -1023,14 +1042,43 @@ const SearchOverlay = memo(function SearchOverlay({
                                 ) : null;
                               })}
                               {question.categories.length > 2 && (
-                                <Badge variant="outline" className="text-xs px-2 py-1 h-5 border-border/50">
-                                  +{question.categories.length - 2}
-                                </Badge>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Badge variant="outline" className="text-xs px-2 py-1 h-5 border-border/50 cursor-help hover:bg-accent/50 transition-colors">
+                                        +{question.categories.length - 2}
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-56">
+                                      <p className="text-xs font-medium mb-1">Additional Categories</p>
+                                      <div className="space-y-1">
+                                        {question.categories.slice(2).map((category, index) => (
+                                          <div key={index} className="flex items-center gap-2">
+                                            <div className={`w-2 h-2 rounded-full ${getCategoryInfo(category)?.color}`} />
+                                            <span className="text-xs">{category}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               )}
                             </div>
                             <div className="flex items-center gap-1">
                               {hasPlaceholders(question.text) && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:bg-primary/60 transition-colors" title="Interactive question - click placeholders to customize" />
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center gap-1 px-2 py-0.5 bg-primary/10 hover:bg-primary/20 rounded-full border border-primary/20 transition-all duration-200">
+                                        <Settings className="h-3 w-3 text-primary/80" />
+                                        <span className="text-xs text-primary/80 font-medium">Interactive</span>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-48">
+                                      <p className="text-xs">Customize this question by clicking on underlined parameters like accounts, timeframes, and benchmarks.</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               )}
                               <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
                             </div>
