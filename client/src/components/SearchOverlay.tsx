@@ -804,6 +804,10 @@ const SearchOverlay = memo(function SearchOverlay({
     });
     
     const finalQuestion = replacePlaceholders(question.text, valuesWithDefaults);
+    
+    // Clear editing state before submitting to close any open dropdowns
+    setEditingPlaceholder(null);
+    
     onQuestionSelect?.(finalQuestion);
     onClose?.();
   };
