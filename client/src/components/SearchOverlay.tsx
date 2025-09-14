@@ -423,7 +423,7 @@ const InlinePlaceholderDropdown = ({
   return (
     <div 
       ref={dropdownRef}
-      className={`absolute ${positionClasses} z-50 w-72 bg-background border border-border/50 rounded-xl shadow-xl ring-1 ring-primary/10 overflow-hidden backdrop-blur-sm`}
+      className={`absolute ${positionClasses} z-[90] w-72 bg-background border border-border/50 rounded-xl shadow-xl ring-1 ring-primary/10 overflow-hidden backdrop-blur-sm`}
     >
       <div className="p-3">
         <div className="text-xs font-medium text-muted-foreground mb-3 px-1">
