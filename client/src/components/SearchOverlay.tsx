@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef, memo } from "react";
+import { createPortal } from "react-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -335,22 +336,24 @@ const getDisplayText = (question: Question): string => {
   return replacePlaceholders(question.text, defaultValues);
 };
 
-// Smart positioned inline placeholder dropdown component with search
+// Portal-based dropdown that renders outside constrained containers
 const InlinePlaceholderDropdown = ({ 
   placeholderId, 
   currentValue, 
   onValueChange, 
-  onClose 
+  onClose,
+  triggerElement 
 }: { 
   placeholderId: string; 
   currentValue: string; 
   onValueChange: (value: string) => void; 
-  onClose: () => void; 
+  onClose: () => void;
+  triggerElement: HTMLElement | null;
 }) => {
   const config = placeholderConfigs[placeholderId];
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const [position, setPosition] = useState<'below' | 'above'>('below');
+  const [position, setPosition] = useState({ top: 0, left: 0, placement: 'below' as 'below' | 'above' });
   const [searchTerm, setSearchTerm] = useState('');
 
   // Filter options based on search term
@@ -365,27 +368,41 @@ const InlinePlaceholderDropdown = ({
   }, [config?.options, searchTerm]);
 
   useEffect(() => {
-    if (!dropdownRef.current) return;
+    if (!triggerElement) return;
 
     const updatePosition = () => {
-      const dropdown = dropdownRef.current;
-      const parent = dropdown?.parentElement;
-      if (!dropdown || !parent) return;
-
-      const parentRect = parent.getBoundingClientRect();
+      const triggerRect = triggerElement.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const dropdownHeight = 280; // Slightly larger to account for search input
+      const viewportWidth = window.innerWidth;
+      const dropdownHeight = 280;
+      const dropdownWidth = 288; // w-72 = 18rem = 288px
 
       // Check if there's enough space below
-      const spaceBelow = viewportHeight - parentRect.bottom;
-      const spaceAbove = parentRect.top;
+      const spaceBelow = viewportHeight - triggerRect.bottom;
+      const spaceAbove = triggerRect.top;
 
+      let top: number;
+      let placement: 'below' | 'above';
+      
       // Position above if not enough space below AND there's more space above
       if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
-        setPosition('above');
+        top = triggerRect.top - dropdownHeight - 8; // 8px gap
+        placement = 'above';
       } else {
-        setPosition('below');
+        top = triggerRect.bottom + 8; // 8px gap
+        placement = 'below';
       }
+
+      // Ensure dropdown doesn't go off-screen horizontally
+      let left = triggerRect.left;
+      if (left + dropdownWidth > viewportWidth) {
+        left = viewportWidth - dropdownWidth - 16; // 16px margin
+      }
+      if (left < 16) {
+        left = 16; // 16px margin
+      }
+
+      setPosition({ top, left, placement });
     };
 
     // Initial position calculation
@@ -400,30 +417,27 @@ const InlinePlaceholderDropdown = ({
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
-    
-    // Also listen to parent scroll events
-    const scrollableParent = dropdownRef.current?.closest('[data-search-overlay-desktop], [data-search-overlay-mobile]');
-    scrollableParent?.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
-      scrollableParent?.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [triggerElement]);
 
-  if (!config?.options) return null;
+  if (!config?.options || !triggerElement) return null;
 
-  const positionClasses = position === 'above' 
-    ? 'bottom-full left-0 mb-2' 
-    : 'top-full left-0 mt-2';
+  const shouldShowSearch = config.options.length > 4;
 
-  const shouldShowSearch = config.options.length > 4; // Show search if more than 4 options
-
-  return (
+  const dropdownContent = (
     <div 
       ref={dropdownRef}
-      className={`absolute ${positionClasses} z-[90] w-72 bg-background border border-border/50 rounded-xl shadow-xl ring-1 ring-primary/10 overflow-hidden backdrop-blur-sm`}
+      className="fixed z-[9999] w-72 bg-background border border-border/50 rounded-xl shadow-xl ring-1 ring-primary/10 overflow-hidden backdrop-blur-sm"
+      style={{
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+      }}
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
     >
       <div className="p-3">
         <div className="text-xs font-medium text-muted-foreground mb-3 px-1">
@@ -484,6 +498,9 @@ const InlinePlaceholderDropdown = ({
       </div>
     </div>
   );
+
+  // Render dropdown as portal to document.body to escape container constraints
+  return typeof document !== 'undefined' ? createPortal(dropdownContent, document.body) : null;
 };
 
 // New function to render interactive question text with subtle link-style placeholders
@@ -523,6 +540,12 @@ const renderInteractiveQuestion = (
     parts.push(
       <span key={`${placeholderId}-${startIndex}`} className="relative inline-block mx-0.5">
         <button
+          ref={(el) => {
+            if (el && isEditing) {
+              // Store reference for dropdown positioning
+              el.dataset.triggerRef = 'true';
+            }
+          }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation(); // ALWAYS stop propagation for placeholder button clicks
@@ -550,6 +573,7 @@ const renderInteractiveQuestion = (
             currentValue={currentValue}
             onValueChange={(value) => onPlaceholderChange?.(placeholderId, value)}
             onClose={() => onPlaceholderClick?.('')} // Close by clearing editing state
+            triggerElement={document.querySelector(`[data-trigger-ref="true"]`) as HTMLElement}
           />
         )}
       </span>
