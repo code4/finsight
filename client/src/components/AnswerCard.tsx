@@ -1,9 +1,15 @@
 import { memo, useState, useMemo } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, RefreshCw, Download, User, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Calendar, RefreshCw, Download, User, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, ThumbsUp, ThumbsDown, Send } from "lucide-react";
 import FinancialChart from "@/components/FinancialChart";
 import FollowUpChips from "@/components/FollowUpChips";
 
@@ -18,7 +24,7 @@ const cleanQuestionText = (question: string): string => {
     // Clean up any remaining placeholders by removing braces
     .replace(/\{(\w+)\}/g, (match, placeholder) => {
       // Convert camelCase to Title Case
-      return placeholder.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+      return placeholder.replace(/([A-Z])/g, ' $1').replace(/^./, (str: string) => str.toUpperCase());
     });
 };
 
@@ -41,6 +47,7 @@ interface AnswerCardProps {
   accounts: string[];
   timeframe: string;
   isUnmatched?: boolean;
+  answerId?: string;
   content?: {
     paragraph?: string;
     kpis?: KPI[];
@@ -57,6 +64,7 @@ interface AnswerCardProps {
   onRefresh?: () => void;
   onExport?: () => void;
   onFollowUpClick?: (question: string) => void;
+  onFeedbackSubmit?: (feedback: { type: 'positive' | 'negative', reasoning: string }) => void;
 }
 
 const mockKPIs: KPI[] = [
@@ -74,6 +82,186 @@ const mockChartData = [
   { month: "May", portfolio: 4600, benchmark: 4300 },
   { month: "Jun", portfolio: 4800, benchmark: 4400 }
 ];
+
+// Feedback Section Component
+const FeedbackSection = memo(function FeedbackSection({ 
+  answerId, 
+  onFeedbackSubmit 
+}: { 
+  answerId?: string, 
+  onFeedbackSubmit?: (feedback: { type: 'positive' | 'negative', reasoning: string }) => void 
+}) {
+  const [feedbackType, setFeedbackType] = useState<'positive' | 'negative' | null>(null);
+  const [reasoning, setReasoning] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const { toast } = useToast();
+
+  const feedbackMutation = useMutation({
+    mutationFn: async (feedback: { answerId: string, type: 'positive' | 'negative', reasoning: string }) => {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(feedback)
+      });
+      if (!response.ok) throw new Error('Failed to submit feedback');
+      return response.json();
+    },
+    onSuccess: () => {
+      setIsSubmitted(true);
+      setIsOpen(false);
+      toast({
+        title: "Feedback submitted",
+        description: "Thank you for helping us improve our analysis quality.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/feedback', answerId] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to submit feedback. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleFeedbackClick = (type: 'positive' | 'negative') => {
+    if (isSubmitted) return;
+    
+    setFeedbackType(type);
+    setIsOpen(true);
+  };
+
+  const handleSubmitFeedback = () => {
+    if (!feedbackType || !answerId) return;
+    
+    const feedbackData = { type: feedbackType, reasoning: reasoning.trim() };
+    
+    // Call parent callback if provided
+    onFeedbackSubmit?.(feedbackData);
+    
+    // Submit via API
+    feedbackMutation.mutate({
+      answerId,
+      ...feedbackData
+    });
+  };
+
+  return (
+    <div className="flex items-center justify-between p-4 border-t border-border/50 bg-muted/20">
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-muted-foreground">Was this analysis helpful?</span>
+        
+        <div className="flex items-center gap-1">
+          <Button
+            variant={feedbackType === 'positive' && isSubmitted ? "default" : "ghost"}
+            size="sm"
+            onClick={() => handleFeedbackClick('positive')}
+            disabled={isSubmitted}
+            className={`h-8 px-3 gap-1.5 transition-all duration-200 hover:scale-105 ${
+              feedbackType === 'positive' && isSubmitted 
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                : 'hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20'
+            }`}
+            data-testid="button-thumbs-up"
+          >
+            <ThumbsUp className="h-3.5 w-3.5" />
+            Helpful
+          </Button>
+          
+          <Button
+            variant={feedbackType === 'negative' && isSubmitted ? "default" : "ghost"}
+            size="sm"
+            onClick={() => handleFeedbackClick('negative')}
+            disabled={isSubmitted}
+            className={`h-8 px-3 gap-1.5 transition-all duration-200 hover:scale-105 ${
+              feedbackType === 'negative' && isSubmitted 
+                ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
+                : 'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20'
+            }`}
+            data-testid="button-thumbs-down"
+          >
+            <ThumbsDown className="h-3.5 w-3.5" />
+            Not helpful
+          </Button>
+        </div>
+      </div>
+
+      {isSubmitted && (
+        <Badge variant="outline" className="text-xs text-green-600 dark:text-green-400">
+          Feedback submitted
+        </Badge>
+      )}
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {feedbackType === 'positive' ? (
+                <ThumbsUp className="h-5 w-5 text-green-600" />
+              ) : (
+                <ThumbsDown className="h-5 w-5 text-red-600" />
+              )}
+              {feedbackType === 'positive' ? 'Positive Feedback' : 'Improvement Feedback'}
+            </DialogTitle>
+            <DialogDescription>
+              {feedbackType === 'positive' 
+                ? "What made this analysis particularly helpful? Your feedback helps us improve."
+                : "How can we make this analysis better? Your feedback is valuable for improvement."
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="reasoning">
+                {feedbackType === 'positive' 
+                  ? "What worked well?"
+                  : "What could be improved?"
+                }
+              </Label>
+              <Textarea
+                id="reasoning"
+                placeholder={feedbackType === 'positive' 
+                  ? "e.g., Clear metrics, good visualizations, actionable insights..."
+                  : "e.g., Missing data, unclear explanations, need more details..."
+                }
+                value={reasoning}
+                onChange={(e) => setReasoning(e.target.value)}
+                className="min-h-[100px] resize-none"
+                data-testid="textarea-feedback-reasoning"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmitFeedback}
+              disabled={feedbackMutation.isPending || !reasoning.trim()}
+              className="gap-2"
+              data-testid="button-submit-feedback"
+            >
+              {feedbackMutation.isPending ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Submit Feedback
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+});
 
 // Enhanced Table Component with Sorting and Filtering
 const EnhancedTable = memo(function EnhancedTable({ 
@@ -258,6 +446,7 @@ const AnswerCard = memo(function AnswerCard({
   accounts = ["Growth Portfolio", "Conservative Fund"],
   timeframe = "YTD",
   isUnmatched = false,
+  answerId,
   content = {
     paragraph: "Your portfolio has outperformed the S&P 500 by 3.2% year-to-date, driven primarily by strong performance in technology and healthcare sectors. The portfolio's risk-adjusted returns show a Sharpe ratio of 1.24, indicating efficient risk management.",
     kpis: mockKPIs,
@@ -270,7 +459,8 @@ const AnswerCard = memo(function AnswerCard({
   ],
   onRefresh,
   onExport,
-  onFollowUpClick
+  onFollowUpClick,
+  onFeedbackSubmit
 }: AnswerCardProps) {
   
   const handleRefresh = () => {
@@ -481,6 +671,14 @@ const AnswerCard = memo(function AnswerCard({
           </>
         )}
       </CardContent>
+      
+      {/* Feedback Section - only show for matched questions with answerId */}
+      {!isUnmatched && !content?.isUnmatched && answerId && (
+        <FeedbackSection 
+          answerId={answerId} 
+          onFeedbackSubmit={onFeedbackSubmit}
+        />
+      )}
     </Card>
   );
 });
