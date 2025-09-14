@@ -66,19 +66,9 @@ interface TopNavigationProps {
   searchValue?: string
   onMenuClick?: () => void
   hideSearch?: boolean
-  // Account selector props
+  // Account data props (still needed for dropdown options)
   allAccounts: Account[]
   accountGroups: AccountGroup[]
-  selectedAccounts: Account[]
-  selectionMode: 'accounts' | 'group'
-  selectedAccountIds: Set<string>
-  selectedGroupId: string | null
-  onSelectionModeChange: (mode: 'accounts' | 'group') => void
-  onAccountSelection: (accountIds: Set<string>) => void
-  onGroupSelection: (groupId: string) => void
-  // Timeframe props
-  timeframe: string
-  onTimeframeChange: (timeframe: string) => void
   // Theme props
   theme?: Theme
   onThemeChange?: (theme: Theme) => void
@@ -103,18 +93,20 @@ const TopNavigation = memo(function TopNavigation({
   hideSearch = false,
   allAccounts,
   accountGroups,
-  selectedAccounts,
-  selectionMode,
-  selectedAccountIds,
-  selectedGroupId,
-  onSelectionModeChange,
-  onAccountSelection,
-  onGroupSelection,
-  timeframe,
-  onTimeframeChange,
   theme,
   onThemeChange,
 }: TopNavigationProps) {
+  // Use selection context instead of props
+  const {
+    selectionMode,
+    selectedAccountIds,
+    selectedGroupId,
+    timeframe,
+    setSelectionMode,
+    setSelectedAccountIds,
+    setSelectedGroupId,
+    setTimeframe,
+  } = useSelection()
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [isAccountSelectorOpen, setIsAccountSelectorOpen] = useState(false)
 
@@ -171,6 +163,13 @@ const TopNavigation = memo(function TopNavigation({
     useState(selectedGroupId)
   const [hasUnappliedChanges, setHasUnappliedChanges] = useState(false)
 
+  // Update pending state when context changes
+  useEffect(() => {
+    setPendingSelectionMode(selectionMode)
+    setPendingSelectedAccountIds(selectedAccountIds)
+    setPendingSelectedGroupId(selectedGroupId)
+  }, [selectionMode, selectedAccountIds, selectedGroupId])
+
   // Account selection handlers for local state
   const handleAccountToggle = (accountId: string) => {
     const newSelection = new Set(pendingSelectedAccountIds)
@@ -180,7 +179,6 @@ const TopNavigation = memo(function TopNavigation({
       if (newSelection.size > 1) {
         newSelection.delete(accountId)
       } else {
-        console.warn('Cannot deselect the last account')
         return
       }
     } else {
@@ -192,8 +190,8 @@ const TopNavigation = memo(function TopNavigation({
     
     // Auto-apply for immediate reactivity
     setTimeout(() => {
-      onSelectionModeChange(pendingSelectionMode)
-      onAccountSelection(newSelection)
+      setSelectionMode(pendingSelectionMode)
+      setSelectedAccountIds(newSelection)
       setHasUnappliedChanges(false)
     }, 0)
   }
@@ -204,8 +202,8 @@ const TopNavigation = memo(function TopNavigation({
     
     // Auto-apply for immediate reactivity
     setTimeout(() => {
-      onSelectionModeChange('group')
-      onGroupSelection(groupId)
+      setSelectionMode('group')
+      setSelectedGroupId(groupId)
       setHasUnappliedChanges(false)
     }, 0)
   }
@@ -236,11 +234,11 @@ const TopNavigation = memo(function TopNavigation({
     
     // Auto-apply for immediate reactivity
     setTimeout(() => {
-      onSelectionModeChange(mode)
+      setSelectionMode(mode)
       if (mode === 'accounts') {
-        onAccountSelection(newAccountIds)
+        setSelectedAccountIds(newAccountIds)
       } else {
-        onGroupSelection(newGroupId!)
+        setSelectedGroupId(newGroupId!)
       }
       setHasUnappliedChanges(false)
     }, 0)
@@ -248,11 +246,12 @@ const TopNavigation = memo(function TopNavigation({
 
   // Apply changes
   const handleApplyChanges = () => {
-    onSelectionModeChange(pendingSelectionMode)
+
+    setSelectionMode(pendingSelectionMode)
     if (pendingSelectionMode === 'accounts') {
-      onAccountSelection(pendingSelectedAccountIds)
+      setSelectedAccountIds(pendingSelectedAccountIds)
     } else if (pendingSelectedGroupId) {
-      onGroupSelection(pendingSelectedGroupId)
+      setSelectedGroupId(pendingSelectedGroupId)
     }
     setHasUnappliedChanges(false)
     setIsAccountSelectorOpen(false)
@@ -290,7 +289,6 @@ const TopNavigation = memo(function TopNavigation({
         document.activeElement.blur()
       }
     }, 50)
-    console.log('Search focused')
   }
 
   const handleSearchClick = () => {
@@ -305,7 +303,6 @@ const TopNavigation = memo(function TopNavigation({
         document.activeElement.blur()
       }
     }, 50)
-    console.log('Search clicked')
   }
 
   const handleSearchBlur = () => {
@@ -385,8 +382,11 @@ const TopNavigation = memo(function TopNavigation({
         <div className="flex items-center gap-1 sm:gap-2 justify-end whitespace-nowrap shrink-0">
           {/* Timeframe selector — visible on mobile too */}
           <div className="flex items-center gap-1 shrink-0">
-            <Select value={timeframe} onValueChange={onTimeframeChange}>
-              <SelectTrigger className="h-8 w-14 md:w-16 text-xs border-none bg-muted/50 hover:bg-muted px-2">
+            <Select value={timeframe} onValueChange={setTimeframe}>
+              <SelectTrigger 
+                className="h-8 w-14 md:w-16 text-xs border-none bg-muted/50 hover:bg-muted px-2"
+                data-timeframe-selector
+              >
                 <SelectValue>
                   {timeframes.find(tf => tf.value === timeframe)?.short || timeframe}
                 </SelectValue>
@@ -453,24 +453,22 @@ const TopNavigation = memo(function TopNavigation({
                 variant="multi"
                 showTabs={true}
                 onApply={(selection) => {
-                  // Update selection mode if changed
-                  if (selection.mode !== pendingSelectionMode) {
-                    handleSelectionModeToggle(selection.mode);
-                  }
-                  
-                  // Directly set the account selection instead of toggling individual accounts
+                  // Apply the selection directly to context instead of using pending state
+                  setSelectionMode(selection.mode);
                   if (selection.mode === 'accounts') {
-                    setPendingSelectedAccountIds(new Set(selection.accountIds));
+                    setSelectedAccountIds(selection.accountIds);
+                  } else if (selection.mode === 'group') {
+                    setSelectedGroupId(selection.groupId);
                   }
                   
-                  // Update group selection if changed
-                  if (selection.mode === 'group') {
-                    setPendingSelectedGroupId(selection.groupId);
-                  }
+                  // Update pending state for UI consistency
+                  setPendingSelectionMode(selection.mode);
+                  setPendingSelectedAccountIds(selection.accountIds);
+                  setPendingSelectedGroupId(selection.groupId);
                   
-                  // Mark changes as applied and trigger the save
-                  setHasUnappliedChanges(true);
-                  handleApplyChanges();
+                  // Close the popover and reset flags
+                  setHasUnappliedChanges(false);
+                  setIsAccountSelectorOpen(false);
                 }}
                 onCancel={handleCancelChanges}
                 onHasChanges={setHasUnappliedChanges}

@@ -3,7 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Search } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +19,8 @@ import { useTypingAnimation } from "@/hooks/useTypingAnimation";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { apiService } from "@/lib/api";
 import { ContentGenerator } from "@/lib/contentGenerator";
+import { questionCatalog, type Category, type Question } from '@/lib/questionCatalog';
+import EmptyStateLanding from './components/EmptyStateLanding';
 
 
 // Timeframe options for display mapping
@@ -133,7 +135,10 @@ function FinSightDashboard() {
   const [loadingStage, setLoadingStage] = useState<string>("");
   const [estimatedTime, setEstimatedTime] = useState<number>(0);
   const [isSearchTransitioning, setIsSearchTransitioning] = useState(false);
+  const [forceAccountSelectorOpen, setForceAccountSelectorOpen] = useState(false);
+  const [forceTimeframeSelectorOpen, setForceTimeframeSelectorOpen] = useState(false);
   const newAnswerRef = useRef<HTMLDivElement>(null);
+  const topNavigationRef = useRef<any>(null);
 
   // Mock data - todo: replace with real data
   const mockAccountGroups = [
@@ -197,6 +202,17 @@ function FinSightDashboard() {
     return [];
   }, [selectionMode, selectedAccountIds, selectedGroupId]);
 
+  // Generate display text for empty state based on selection mode
+  const getAnalysisDisplayText = useMemo(() => {
+    if (selectionMode === 'group' && selectedGroupId) {
+      const group = mockAccountGroups.find(g => g.id === selectedGroupId);
+      if (group) {
+        return `${group.name} (${selectedAccounts.length} account${selectedAccounts.length !== 1 ? 's' : ''})`;
+      }
+    }
+    return `${selectedAccounts.length} account${selectedAccounts.length !== 1 ? 's' : ''}`;
+  }, [selectionMode, selectedGroupId, selectedAccounts.length]);
+
 
 
   // Selection handlers
@@ -216,23 +232,19 @@ function FinSightDashboard() {
       setSelectedAccountIds(new Set());
     }
     setSelectionMode(mode);
-    console.log('Selection mode changed to:', mode, 'cleared other mode');
   };
 
   const handleAccountSelection = (accountIds: Set<string>) => {
     // Ensure at least one account is selected
     if (accountIds.size === 0) {
-      console.warn('Cannot deselect all accounts');
       return;
     }
     setSelectedAccountIds(accountIds);
-    console.log('Account selection changed:', Array.from(accountIds));
   };
 
   const handleGroupSelection = (groupId: string) => {
     setSelectionMode('group'); // Set mode to group when group is selected
     setSelectedGroupId(groupId);
-    console.log('Group selection changed:', groupId);
   };
 
   // Smooth scroll to new answer when created - but skip if skeleton already scrolled
@@ -344,6 +356,7 @@ function FinSightDashboard() {
           year: 'numeric',
           hour: 'numeric',
           minute: '2-digit',
+          second: '2-digit',
           hour12: true
         }),
         accounts: selectedAccounts.map(acc => `${acc.alias || acc.name} (${acc.accountNumber})`),
@@ -402,10 +415,8 @@ function FinSightDashboard() {
       }
 
       setNewAnswerId(answerId);
-      console.log('Question processed by backend:', response);
 
     } catch (error) {
-      console.error('Error submitting question:', error);
       
       // Categorize the error type
       let errorType: 'network' | 'server' | 'timeout' | 'unknown' = 'unknown';
@@ -434,6 +445,7 @@ function FinSightDashboard() {
           year: 'numeric',
           hour: 'numeric',
           minute: '2-digit',
+          second: '2-digit',
           hour12: true
         }),
         accounts: selectedAccounts.map(acc => `${acc.alias || acc.name} (${acc.accountNumber})`),
@@ -469,6 +481,28 @@ function FinSightDashboard() {
   // Close search overlay handler
   const handleCloseSearch = useCallback(() => {
     setIsSearchFocused(false);
+  }, []);
+
+  // Handler to open account selector
+  const handleOpenAccountSelector = useCallback(() => {
+    // Trigger account selector by clicking the button
+    setTimeout(() => {
+      const accountSelectorButton = document.querySelector('[data-testid="button-account-selector"]');
+      if (accountSelectorButton) {
+        (accountSelectorButton as HTMLElement).click();
+      }
+    }, 100);
+  }, []);
+
+  // Handler to open timeframe selector
+  const handleOpenTimeframeSelector = useCallback(() => {
+    // Trigger timeframe selector by clicking the trigger
+    setTimeout(() => {
+      const timeframeSelectorTrigger = document.querySelector('[data-timeframe-selector]');
+      if (timeframeSelectorTrigger) {
+        (timeframeSelectorTrigger as HTMLElement).click();
+      }
+    }, 100);
   }, []);
 
   // Portfolio summary data that updates with account selection
@@ -536,15 +570,6 @@ function FinSightDashboard() {
           onSearchFocus={() => setIsSearchFocused(true)}
           allAccounts={mockAllAccounts}
           accountGroups={mockAccountGroups}
-          selectedAccounts={selectedAccounts}
-          selectionMode={selectionMode}
-          selectedAccountIds={selectedAccountIds}
-          selectedGroupId={selectedGroupId}
-          onSelectionModeChange={handleSelectionModeChange}
-          onAccountSelection={handleAccountSelection}
-          onGroupSelection={handleGroupSelection}
-          timeframe={timeframe}
-          onTimeframeChange={setTimeframe}
           theme={theme}
           onThemeChange={setTheme}
           hideSearch={(answers.length === 0 && !isSearchTransitioning) || isSearchFocused}
@@ -559,7 +584,7 @@ function FinSightDashboard() {
             searchValue={searchValue}
             onSearchChange={setSearchValue}
             onQuestionSelect={handleSearchSubmit}
-            onCategorySelect={(category) => console.log('Category:', category)}
+            onCategorySelect={(category) => {}}
             onClose={handleCloseSearch}
           />
         </div>
@@ -567,199 +592,105 @@ function FinSightDashboard() {
 
 
       {/* Main Content */}
-      <main className={`flex-1 ${isSearchFocused ? 'overflow-hidden' : 'overflow-hidden'}`}>
-        <div className="h-full flex flex-col">
-          {/* Main Content Area - Full width utilization */}
-          <div className={`flex-1 min-w-0 px-2 sm:px-4 py-4 sm:py-6 ${isSearchFocused ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-            <div className="max-w-none mx-auto">
-              {/* Show skeleton immediately when first answer is loading */}
-              {isGeneratingAnswer && answers.length === 0 && (
-                <div 
-                  data-loading-skeleton-first 
+<main className="flex-1 overflow-hidden relative">
+  <div className="h-full flex flex-col">
+    {/* Scroll container (single source of truth for scrolling) */}
+    {(() => {
+      const isEmpty = answers.length === 0 && !isGeneratingAnswer
+    ;return (
+      <div
+        className={[
+          "flex-1 min-w-0",
+          // make this the scroll root
+          "overflow-y-auto overscroll-contain scroll-smooth",
+          // anchor jumps (rail dots) won't hide under header
+          "scroll-pt-[var(--nav-h,64px)]",
+          // enable scroll snap only for empty state
+          isEmpty ? "scroll-snap-container" : "",
+          // avoid double padding when the empty state supplies its own spacing
+          isEmpty ? "px-0 py-0" : "px-2 sm:px-4 py-4 sm:py-6",
+        ].join(" ")}
+      >
+        <div className="max-w-none mx-auto">
+          {/* Show skeleton immediately when first answer is loading */}
+          {isGeneratingAnswer && answers.length === 0 && (
+            <div
+              data-loading-skeleton-first
+              className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500"
+            >
+              <AnswerCardSkeleton
+                loadingStage={loadingStage}
+                loadingProgress={loadingProgress}
+                estimatedTime={estimatedTime}
+                allAccounts={mockAllAccounts}
+                accountGroups={mockAccountGroups}
+              />
+            </div>
+          )}
+
+          {isEmpty ? (
+            <EmptyStateLanding
+              isSearchTransitioning={isSearchTransitioning}
+              displayedText={displayedText}
+              getAnalysisDisplayText={getAnalysisDisplayText}
+              timeframeLabel={timeframes.find(tf => tf.value === timeframe)?.label || timeframe}
+              questionCatalog={questionCatalog as any}
+              onOpenSearch={() => setIsSearchFocused(true)}
+              onAsk={(q) => handleSearchSubmit(q)}
+              onOpenAccountSelector={handleOpenAccountSelector}
+              onOpenTimeframeSelector={handleOpenTimeframeSelector}
+            />
+          ) : (
+            <div className="space-y-6">
+              {/* skeleton while generating subsequent answers */}
+              {isGeneratingAnswer && answers.length > 0 && (
+                <div
+                  data-loading-skeleton
                   className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500"
                 >
-                  <AnswerCardSkeleton 
+                  <AnswerCardSkeleton
                     loadingStage={loadingStage}
                     loadingProgress={loadingProgress}
                     estimatedTime={estimatedTime}
-                    selectedAccounts={selectedAccounts}
-                    timeframe={timeframe}
+                    allAccounts={mockAllAccounts}
+                    accountGroups={mockAccountGroups}
                   />
                 </div>
               )}
-              
-              {answers.length === 0 && !isGeneratingAnswer ? (
-                <div className="max-w-4xl mx-auto py-6 lg:py-12">
-                  {/* Above-the-fold Hero - Compact & Essential */}
-                  <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-2xl mb-6">
-                      <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    
-                    <h1 className="text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-                      AI-Powered Portfolio Intelligence
-                    </h1>
-                    <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-                      Ask questions in plain English • Get institutional insights instantly
-                    </p>
-                    
-                    {/* Prominent Search Input */}
-                    <div className={`max-w-2xl mx-auto mb-4 transition-all duration-1000 ease-out ${
-                      isSearchTransitioning ? 'transform -translate-y-[calc(100vh-8rem)] scale-50 opacity-0' : ''
-                    }`}>
-                      <div className="relative">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <div className="relative w-full">
-                          <input
-                            type="text"
-                            placeholder=""
-                            className="w-full h-14 pl-12 pr-4 text-lg rounded-xl border-2 border-primary/30 bg-background/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-200 shadow-sm focus:shadow-md cursor-pointer"
-                            value=""
-                            readOnly
-                            onFocus={() => setIsSearchFocused(true)}
-                            onClick={() => setIsSearchFocused(true)}
-                          />
-                          {!searchValue && !isSearchFocused && (
-                            <div className="absolute inset-0 pl-12 pr-4 h-14 flex items-center pointer-events-none">
-                              <span className="text-lg text-muted-foreground/70 font-normal">
-                                {displayedText}
-                                <span className="animate-pulse ml-1 opacity-70">|</span>
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Currently analyzing <span className="font-medium">{selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}</span> • <span className="font-medium">{timeframes.find(tf => tf.value === timeframe)?.label || timeframe}</span> timeframe
-                      </p>
-                    </div>
-                    
-                    {/* Essential Quick Actions - Above the Fold */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-                      {[
-                        { label: 'Performance vs S&P', question: "What's the YTD performance vs S&P 500?", icon: "📈", color: "from-green-500/10 to-green-600/10" },
-                        { label: 'Risk Analysis', question: "What's the portfolio's beta and volatility?", icon: "⚖️", color: "from-orange-500/10 to-red-600/10" },
-                        { label: 'Top Holdings', question: "Show me the top 10 holdings by weight", icon: "🏆", color: "from-blue-500/10 to-blue-600/10" },
-                        { label: 'Sector Allocation', question: "How is the portfolio allocated by sector?", icon: "🏢", color: "from-purple-500/10 to-purple-600/10" }
-                      ].map((item) => (
-                        <button
-                          key={item.label}
-                          onClick={() => handleSearchSubmit(item.question)}
-                          className={`group p-4 rounded-xl border bg-gradient-to-br ${item.color} hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 text-left`}
-                          data-testid={`quick-action-${item.label.toLowerCase().replace(' ', '-')}`}
-                        >
-                          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{item.icon}</div>
-                          <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {item.label}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
 
-                    {/* Current Analysis Context - Prominent */}
-                    <div className="bg-gradient-to-r from-primary/5 to-blue-500/5 border border-primary/20 rounded-xl p-4 mb-8">
-                      <div className="flex items-center justify-center gap-6 text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-primary rounded-full"></div>
-                          <span className="text-muted-foreground">Analyzing</span>
-                          <span className="font-semibold text-primary">
-                            {selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}
-                          </span>
-                        </div>
-                        <div className="h-4 w-px bg-border"></div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="text-muted-foreground">Timeframe</span>
-                          <span className="font-semibold text-blue-600">
-                            {timeframes.find(tf => tf.value === timeframe)?.label || timeframe}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Sample Insight Preview - Shows Value Immediately */}
-                  <div className="bg-gradient-to-br from-background/80 to-primary/5 border border-primary/10 rounded-xl p-6 mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">Example: What you'll get</h3>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        Real-time data
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600 mb-1">+14.7%</div>
-                        <div className="text-xs text-muted-foreground">YTD Return</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary mb-1">1.34</div>
-                        <div className="text-xs text-muted-foreground">Sharpe Ratio</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600 mb-1">+3.5%</div>
-                        <div className="text-xs text-muted-foreground">vs S&P 500</div>
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground text-center">
-                      <span className="text-primary font-medium">Key Insight:</span> Your portfolio outperformed by 3.5%, driven primarily by tech sector allocation and superior risk management.
-                    </p>
-                  </div>
-
+              {answers.map((answer) => (
+                <div
+                  key={answer.id}
+                  ref={answer.id === newAnswerId ? newAnswerRef : null}
+                  data-answer-card
+                  data-answer-id={answer.id}
+                  className={`transition-all duration-1000 ${
+                    answer.id === newAnswerId ? "ring-2 ring-primary/30 shadow-lg rounded-lg" : ""
+                  }`}
+                >
+                  <AnswerCard
+                    question={answer.question}
+                    asOfDate={answer.asOfDate}
+                    accounts={answer.accounts}
+                    timeframe={answer.timeframe}
+                    isUnmatched={answer.isUnmatched || answer.isReview || answer.isError}
+                    content={answer.content}
+                    answerId={answer.matchedAnswer?.id}
+                    onFollowUpClick={handleFollowUpClick}
+                    onRefresh={() => {}}
+                    onExport={() => {}}
+                    onQuestionSubmit={handleSearchSubmit}
+                  />
                 </div>
-              ) : (
-                <div className="space-y-6">
-
-                  {/* Show skeleton while generating subsequent answers */}
-                  {isGeneratingAnswer && answers.length > 0 && (
-                    <div data-loading-skeleton className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-                      <AnswerCardSkeleton 
-                        loadingStage={loadingStage}
-                        loadingProgress={loadingProgress}
-                        estimatedTime={estimatedTime}
-                        selectedAccounts={selectedAccounts}
-                        timeframe={timeframe}
-                      />
-                    </div>
-                  )}
-                  
-                  {answers.map((answer, index) => (
-                    <div
-                      key={answer.id}
-                      ref={answer.id === newAnswerId ? newAnswerRef : null}
-                      data-answer-card
-                      data-answer-id={answer.id}
-                      className={`transition-all duration-1000 ${
-                        answer.id === newAnswerId 
-                          ? 'ring-2 ring-primary/30 shadow-lg rounded-lg' 
-                          : ''
-                      }`}
-                    >
-                      <AnswerCard
-                        question={answer.question}
-                        asOfDate={answer.asOfDate}
-                        accounts={answer.accounts}
-                        timeframe={answer.timeframe}
-                        isUnmatched={answer.isUnmatched || answer.isReview || answer.isError}
-                        content={answer.content}
-                        answerId={answer.matchedAnswer?.id}
-                        onFollowUpClick={handleFollowUpClick}
-                        onRefresh={() => console.log('Refresh answer:', answer.id)}
-                        onExport={() => console.log('Export answer:', answer.id)}
-                        onQuestionSubmit={handleSearchSubmit}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+              ))}
             </div>
-          </div>
+          )}
         </div>
-      </main>
+      </div>
+    )})()}
+  </div>
+</main>
+
     </div>
   );
 }
