@@ -652,10 +652,10 @@ const SearchOverlay = memo(function SearchOverlay({
     setEditingPlaceholder(null);
     // Mark this question as recently modified to prevent auto-submission
     setRecentlyModifiedQuestion(questionId);
-    // Clear the flag after a longer delay to be safe
+    // Clear the flag after a shorter delay to allow immediate submission
     setTimeout(() => {
       setRecentlyModifiedQuestion(null);
-    }, 300);
+    }, 100);
   };
 
   const getInlineValues = (question: Question): Record<string, string> => {
@@ -914,9 +914,8 @@ const SearchOverlay = memo(function SearchOverlay({
                       key={index}
                       value={question.text}
                       onSelect={() => {
-                        // Don't auto-submit if this question was just modified or is being edited
-                        if (recentlyModifiedQuestion === question.text || 
-                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                        // Don't auto-submit if actively editing a placeholder dropdown
+                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
                           return;
                         }
                         
@@ -972,15 +971,14 @@ const SearchOverlay = memo(function SearchOverlay({
                 }>
                   {filteredQuestions.length > 0 ? (
                     filteredQuestions.map((question, index) => {
-                      const categoryInfo = getCategoryInfo(question.category);
+                      const categoryInfo = getCategoryInfo(question.categories[0]);
                       return (
                         <CommandItem
                           key={index}
                           value={question.text}
                           onSelect={() => {
-                        // Don't auto-submit if this question was just modified or is being edited
-                        if (recentlyModifiedQuestion === question.text || 
-                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                        // Don't auto-submit if actively editing a placeholder dropdown
+                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
                           return;
                         }
                         
@@ -1094,15 +1092,14 @@ const SearchOverlay = memo(function SearchOverlay({
                   </div>
                 }>
                   {allQuestions.slice(0, 6).map((question, index) => {
-                    const categoryInfo = getCategoryInfo(question.category);
+                    const categoryInfo = getCategoryInfo(question.categories[0]);
                     return (
                       <CommandItem
                         key={index}
                         value={question.text}
                         onSelect={() => {
-                        // Don't auto-submit if this question was just modified or is being edited
-                        if (recentlyModifiedQuestion === question.text || 
-                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                        // Don't auto-submit if actively editing a placeholder dropdown
+                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
                           return;
                         }
                         
@@ -1288,15 +1285,14 @@ const SearchOverlay = memo(function SearchOverlay({
                 }>
                   {filteredQuestions.length > 0 ? (
                     filteredQuestions.map((question, index) => {
-                      const categoryInfo = getCategoryInfo(question.category);
+                      const categoryInfo = getCategoryInfo(question.categories[0]);
                       return (
                         <CommandItem
                           key={index}
                           value={question.text}
                           onSelect={() => {
-                        // Don't auto-submit if this question was just modified or is being edited
-                        if (recentlyModifiedQuestion === question.text || 
-                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                        // Don't auto-submit if actively editing a placeholder dropdown
+                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
                           return;
                         }
                         
@@ -1329,7 +1325,7 @@ const SearchOverlay = memo(function SearchOverlay({
                             {categoryInfo && (
                               <div className="flex items-center gap-1.5">
                                 <div className={`w-2 h-2 rounded-full ${categoryInfo.color}`} />
-                                <span className="text-xs text-muted-foreground">{question.category}</span>
+                                <span className="text-xs text-muted-foreground">{question.categories[0]}</span>
                               </div>
                             )}
                           </div>
@@ -1390,15 +1386,14 @@ const SearchOverlay = memo(function SearchOverlay({
                     </div>
                   }>
                     {allQuestions.slice(0, 5).map((question, index) => {
-                      const categoryInfo = getCategoryInfo(question.category);
+                      const categoryInfo = getCategoryInfo(question.categories[0]);
                       return (
                         <CommandItem
                           key={index}
                           value={question.text}
                           onSelect={() => {
-                        // Don't auto-submit if this question was just modified or is being edited
-                        if (recentlyModifiedQuestion === question.text || 
-                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                        // Don't auto-submit if actively editing a placeholder dropdown
+                        if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
                           return;
                         }
                         
@@ -1431,7 +1426,7 @@ const SearchOverlay = memo(function SearchOverlay({
                             {categoryInfo && (
                               <div className="flex items-center gap-1.5">
                                 <div className={`w-2 h-2 rounded-full ${categoryInfo.color}`} />
-                                <span className="text-xs text-muted-foreground">{question.category}</span>
+                                <span className="text-xs text-muted-foreground">{question.categories[0]}</span>
                               </div>
                             )}
                           </div>
