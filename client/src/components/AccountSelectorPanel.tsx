@@ -80,19 +80,7 @@ export function AccountSelectorPanel({
   // Handle mode toggle between accounts and group
   const handleModeToggle = (mode: 'accounts' | 'group') => {
     setPendingMode(mode);
-    
-    // Ensure we have a valid selection when switching modes
-    if (mode === 'accounts' && pendingSelectedAccountIds.size === 0) {
-      // If switching to accounts but no accounts selected, select the first account
-      if (allAccounts.length > 0) {
-        setPendingSelectedAccountIds(new Set([allAccounts[0].id]));
-      }
-    } else if (mode === 'group' && !pendingSelectedGroupId) {
-      // If switching to groups but no group selected, select the first group
-      if (accountGroups.length > 0) {
-        setPendingSelectedGroupId(accountGroups[0].id);
-      }
-    }
+    // Don't auto-select anything - let user explicitly choose
   };
 
   // Handle individual account toggle (multi-select)
