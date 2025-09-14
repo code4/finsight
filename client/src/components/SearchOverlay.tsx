@@ -101,7 +101,7 @@ const allQuestions: Question[] = [
   // Multi-category questions with placeholders
   { 
     text: "Compare YTD performance vs {benchmark} over {timeperiod}", 
-    categories: ["Comparison", "Attribution"], 
+    categories: ["Comparison", "Performance Analysis"], 
     tags: ["performance", "benchmark"] 
   },
   { 
@@ -111,7 +111,7 @@ const allQuestions: Question[] = [
   },
   { 
     text: "How does performance compare to sector peers?", 
-    categories: ["Comparison", "Attribution"], 
+    categories: ["Comparison", "Performance Analysis"], 
     tags: ["sector", "peers"] 
   },
   { 
@@ -121,174 +121,206 @@ const allQuestions: Question[] = [
   },
   { 
     text: "Compare Sharpe ratio to industry average", 
-    categories: ["Comparison", "Risk"], 
+    categories: ["Comparison", "Risk Assessment"], 
     tags: ["sharpe", "risk"] 
   },
   { 
     text: "Performance vs similar risk profiles over {timeperiod}", 
-    categories: ["Comparison", "Risk"], 
+    categories: ["Comparison", "Risk Assessment"], 
     tags: ["performance", "risk"] 
   },
   
   // Holdings questions
   { 
     text: "Show me the top 10 holdings by weight", 
-    categories: ["Holdings"], 
+    categories: ["Holdings Analysis"], 
     tags: ["positions", "weight"] 
   },
   { 
     text: "What are the largest position changes over {timeperiod}?", 
-    categories: ["Holdings", "Activity"], 
+    categories: ["Holdings Analysis", "Activity & Trading"], 
     tags: ["positions", "changes"] 
   },
   { 
     text: "Holdings concentration analysis for {account}", 
-    categories: ["Holdings", "Risk"], 
+    categories: ["Holdings Analysis", "Risk Assessment"], 
     tags: ["concentration", "risk"] 
   },
   { 
     text: "Show positions by market cap", 
-    categories: ["Holdings"], 
+    categories: ["Holdings Analysis"], 
     tags: ["positions", "market-cap"] 
   },
   { 
     text: "Recent additions and reductions", 
-    categories: ["Holdings", "Activity"], 
+    categories: ["Holdings Analysis", "Activity & Trading"], 
     tags: ["changes", "trades"] 
   },
   { 
     text: "Holdings overlap across accounts", 
-    categories: ["Holdings", "Allocation"], 
+    categories: ["Holdings Analysis", "Allocation Analysis"], 
     tags: ["overlap", "accounts"] 
   },
   
   // Risk questions
   { 
     text: "What's the portfolio's beta and volatility vs {benchmark}?", 
-    categories: ["Risk", "Comparison"], 
+    categories: ["Risk Assessment", "Comparison"], 
     tags: ["beta", "volatility"] 
   },
   { 
     text: "Show risk metrics dashboard", 
-    categories: ["Risk"], 
+    categories: ["Risk Assessment"], 
     tags: ["metrics", "dashboard"] 
   },
   { 
     text: "Downside risk and max drawdown over {timeperiod}", 
-    categories: ["Risk"], 
+    categories: ["Risk Assessment"], 
     tags: ["downside", "drawdown"] 
   },
   { 
     text: "Risk contribution by holding", 
-    categories: ["Risk", "Holdings"], 
+    categories: ["Risk Assessment", "Holdings Analysis"], 
     tags: ["risk", "contribution"] 
   },
   { 
     text: "Portfolio correlation analysis", 
-    categories: ["Risk"], 
+    categories: ["Risk Assessment"], 
     tags: ["correlation", "analysis"] 
   },
   { 
     text: "Stress test against scenarios", 
-    categories: ["Risk"], 
+    categories: ["Risk Assessment"], 
     tags: ["stress", "scenarios"] 
   },
   
   // Attribution questions
   { 
     text: "What's driving current performance attribution?", 
-    categories: ["Attribution"], 
+    categories: ["Performance Analysis"], 
     tags: ["performance", "drivers"] 
   },
   { 
     text: "How is my {sector} allocation performing vs {benchmark} over {timeperiod}?", 
-    categories: ["Attribution", "Allocation", "Comparison"], 
+    categories: ["Performance Analysis", "Allocation Analysis", "Comparison"], 
     tags: ["sector", "performance"] 
   },
   { 
     text: "Attribution breakdown by {timeperiod}", 
-    categories: ["Attribution"], 
+    categories: ["Performance Analysis"], 
     tags: ["breakdown", "analysis"] 
   },
   { 
     text: "Top contributing and detracting positions", 
-    categories: ["Attribution", "Holdings"], 
+    categories: ["Performance Analysis", "Holdings Analysis"], 
     tags: ["performance", "positions"] 
   },
   { 
     text: "Factor-based attribution analysis", 
-    categories: ["Attribution", "Risk"], 
+    categories: ["Performance Analysis", "Risk Assessment"], 
     tags: ["factors", "analysis"] 
   },
   { 
     text: "Geographic attribution breakdown", 
-    categories: ["Attribution", "Allocation"], 
+    categories: ["Performance Analysis", "Allocation Analysis"], 
     tags: ["geography", "breakdown"] 
   },
   
   // Activity questions
   { 
     text: "What were the largest trades over {timeperiod}?", 
-    categories: ["Activity"], 
+    categories: ["Activity & Trading"], 
     tags: ["trades", "large"] 
   },
   { 
     text: "Show me recent portfolio activity summary", 
-    categories: ["Activity"], 
+    categories: ["Activity & Trading"], 
     tags: ["summary", "recent"] 
   },
   { 
     text: "Cash flow and dividend activity for {account}", 
-    categories: ["Activity", "Holdings"], 
+    categories: ["Activity & Trading", "Holdings Analysis"], 
     tags: ["cash-flow", "dividends"] 
   },
   { 
     text: "Recent rebalancing actions", 
-    categories: ["Activity", "Allocation"], 
+    categories: ["Activity & Trading", "Allocation Analysis"], 
     tags: ["rebalancing", "actions"] 
   },
   { 
     text: "Trading volume by {account} over {timeperiod}", 
-    categories: ["Activity"], 
+    categories: ["Activity & Trading"], 
     tags: ["volume", "trading"] 
   },
   { 
     text: "Fee and expense breakdown", 
-    categories: ["Activity"], 
+    categories: ["Activity & Trading"], 
     tags: ["fees", "expenses"] 
   },
   
   // Allocation questions
   { 
     text: "Show {sector} allocation breakdown", 
-    categories: ["Allocation"], 
+    categories: ["Allocation Analysis"], 
     tags: ["sector", "breakdown"] 
   },
   { 
     text: "How is the portfolio allocated by asset class?", 
-    categories: ["Allocation"], 
+    categories: ["Allocation Analysis"], 
     tags: ["asset-class", "allocation"] 
   },
   { 
     text: "Geographic allocation analysis", 
-    categories: ["Allocation"], 
+    categories: ["Allocation Analysis"], 
     tags: ["geography", "allocation"] 
   },
   { 
     text: "Style allocation (growth vs value)", 
-    categories: ["Allocation"], 
+    categories: ["Allocation Analysis"], 
     tags: ["style", "growth", "value"] 
   },
   { 
     text: "Target vs actual allocation drift", 
-    categories: ["Allocation", "Risk"], 
+    categories: ["Allocation Analysis", "Risk Assessment"], 
     tags: ["drift", "target"] 
   },
   { 
     text: "Rebalancing recommendations for {account}", 
-    categories: ["Allocation", "Activity"], 
+    categories: ["Allocation Analysis", "Activity & Trading"], 
     tags: ["rebalancing", "recommendations"] 
   },
+
+  // Income & Dividends questions
+  { 
+    text: "Show dividend income for {timeperiod}", 
+    categories: ["Income & Dividends"], 
+    tags: ["dividends", "income"] 
+  },
+  { 
+    text: "Portfolio dividend yield vs {benchmark}", 
+    categories: ["Income & Dividends", "Comparison"], 
+    tags: ["yield", "benchmark"] 
+  },
+  { 
+    text: "Dividend growth analysis over {timeperiod}", 
+    categories: ["Income & Dividends", "Performance Analysis"], 
+    tags: ["growth", "trends"] 
+  },
+  { 
+    text: "Income distribution and tax efficiency", 
+    categories: ["Income & Dividends", "Activity & Trading"], 
+    tags: ["distribution", "taxes"] 
+  },
+  { 
+    text: "Top dividend-paying holdings", 
+    categories: ["Income & Dividends", "Holdings Analysis"], 
+    tags: ["holdings", "dividends"] 
+  },
+  { 
+    text: "Dividend payout calendar and timing", 
+    categories: ["Income & Dividends"], 
+    tags: ["schedule", "calendar"] 
+  }
 ];
 
 // Helper function to get category info
