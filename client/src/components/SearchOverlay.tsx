@@ -919,18 +919,23 @@ const SearchOverlay = memo(function SearchOverlay({
                       onSelect={() => {
                         // Don't auto-submit if actively editing a placeholder dropdown
                         if (editingPlaceholder && editingPlaceholder.questionId === question.text) {
+                          console.log('🚫 Question click blocked - actively editing placeholder');
                           return;
                         }
                         
                         if (hasPlaceholders(question.text)) {
                           const values = getInlineValues(question);
-                          // Auto-submit if any placeholders have been configured, otherwise go to config mode
-                          if (Object.keys(values).length > 0 || !hasMultiplePlaceholders(question)) {
-                            handleInlineQuestionSubmit(question);
-                          } else {
-                            handleQuestionClick(question.text);
-                          }
+                          console.log('🎯 Question click:', question.text);
+                          console.log('🎯 Retrieved values:', values, 'keys length:', Object.keys(values).length);
+                          console.log('🎯 Has multiple placeholders:', hasMultiplePlaceholders(question));
+                          console.log('🎯 All placeholder values:', inlinePlaceholderValues);
+                          
+                          // Always submit - user clicked to submit the question
+                          // Use configured values if available, otherwise use defaults
+                          console.log('🚀 Submitting question with values:', values);
+                          handleInlineQuestionSubmit(question);
                         } else {
+                          console.log('🔤 Submitting plain question (no placeholders)');
                           handleQuestionClick(question.text);
                         }
                       }}
