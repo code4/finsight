@@ -9,7 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Calendar, RefreshCw, Download, User, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, ThumbsUp, ThumbsDown, Send } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar, RefreshCw, Download, User, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, ThumbsUp, ThumbsDown, Send, Edit2, Check, X, ChevronDown } from "lucide-react";
 import FinancialChart from "@/components/FinancialChart";
 import FollowUpChips from "@/components/FollowUpChips";
 
@@ -48,6 +52,8 @@ interface AnswerCardProps {
   timeframe: string;
   isUnmatched?: boolean;
   answerId?: string;
+  availableAccounts?: string[];
+  availableTimeframes?: string[];
   content?: {
     paragraph?: string;
     kpis?: KPI[];
@@ -65,6 +71,9 @@ interface AnswerCardProps {
   onExport?: () => void;
   onFollowUpClick?: (question: string) => void;
   onFeedbackSubmit?: (feedback: { type: 'positive' | 'negative', reasoning: string }) => void;
+  onAccountsChange?: (newAccounts: string[]) => void;
+  onTimeframeChange?: (newTimeframe: string) => void;
+  onResubmit?: () => void;
 }
 
 const mockKPIs: KPI[] = [
@@ -263,6 +272,216 @@ const FeedbackSection = memo(function FeedbackSection({
   );
 });
 
+// Editable Badge Section Component
+const EditableBadgeSection = memo(function EditableBadgeSection({
+  accounts,
+  timeframe,
+  availableAccounts = ["Growth Portfolio", "Conservative Fund", "Aggressive Growth", "Income Focus", "All Accounts"],
+  availableTimeframes = ["1D", "1W", "1M", "3M", "6M", "YTD", "1Y", "2Y", "3Y", "5Y"],
+  onAccountsChange,
+  onTimeframeChange,
+  onResubmit
+}: {
+  accounts: string[];
+  timeframe: string;
+  availableAccounts?: string[];
+  availableTimeframes?: string[];
+  onAccountsChange?: (newAccounts: string[]) => void;
+  onTimeframeChange?: (newTimeframe: string) => void;
+  onResubmit?: () => void;
+}) {
+  const [isEditingAccounts, setIsEditingAccounts] = useState(false);
+  const [isEditingTimeframe, setIsEditingTimeframe] = useState(false);
+  const [tempAccounts, setTempAccounts] = useState<string[]>(accounts);
+  const [tempTimeframe, setTempTimeframe] = useState(timeframe);
+
+  // Reset temp values when props change
+  useMemo(() => {
+    setTempAccounts(accounts);
+    setTempTimeframe(timeframe);
+  }, [accounts, timeframe]);
+
+  const handleAccountToggle = (account: string) => {
+    setTempAccounts(prev => 
+      prev.includes(account)
+        ? prev.filter(a => a !== account)
+        : [...prev, account]
+    );
+  };
+
+  const handleSaveAccounts = () => {
+    if (tempAccounts.length === 0) return; // Prevent empty selection
+    
+    onAccountsChange?.(tempAccounts);
+    setIsEditingAccounts(false);
+    
+    // Trigger resubmission if accounts changed
+    if (JSON.stringify(tempAccounts.sort()) !== JSON.stringify(accounts.sort())) {
+      setTimeout(() => onResubmit?.(), 100);
+    }
+  };
+
+  const handleSaveTimeframe = () => {
+    onTimeframeChange?.(tempTimeframe);
+    setIsEditingTimeframe(false);
+    
+    // Trigger resubmission if timeframe changed
+    if (tempTimeframe !== timeframe) {
+      setTimeout(() => onResubmit?.(), 100);
+    }
+  };
+
+  const handleCancelAccounts = () => {
+    setTempAccounts(accounts);
+    setIsEditingAccounts(false);
+  };
+
+  const handleCancelTimeframe = () => {
+    setTempTimeframe(timeframe);
+    setIsEditingTimeframe(false);
+  };
+
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      {/* Editable Accounts */}
+      {isEditingAccounts ? (
+        <Popover open={isEditingAccounts} onOpenChange={setIsEditingAccounts}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-6 px-2 text-xs gap-1 border-primary/50"
+              data-testid="button-edit-accounts"
+            >
+              <Edit2 className="h-3 w-3" />
+              Editing accounts...
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-3" align="start">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-medium">Select Accounts</Label>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleSaveAccounts}
+                    disabled={tempAccounts.length === 0}
+                    className="h-6 px-2 gap-1"
+                    data-testid="button-save-accounts"
+                  >
+                    <Check className="h-3 w-3" />
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleCancelAccounts}
+                    className="h-6 px-2 gap-1"
+                    data-testid="button-cancel-accounts"
+                  >
+                    <X className="h-3 w-3" />
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {availableAccounts.map((account) => (
+                  <div key={account} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={account}
+                      checked={tempAccounts.includes(account)}
+                      onCheckedChange={() => handleAccountToggle(account)}
+                      data-testid={`checkbox-account-${account.toLowerCase().replace(/\s+/g, '-')}`}
+                    />
+                    <Label
+                      htmlFor={account}
+                      className="text-xs cursor-pointer flex-1"
+                    >
+                      {account}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="text-xs text-muted-foreground">
+                {tempAccounts.length} account{tempAccounts.length !== 1 ? 's' : ''} selected
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <div className="flex items-center gap-1">
+          {accounts.map((account, index) => (
+            <Badge
+              key={index}
+              variant="outline"
+              className="text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative"
+              onClick={() => setIsEditingAccounts(true)}
+              style={{ animationDelay: `${index * 100}ms` }}
+              data-testid={`badge-account-${index}`}
+            >
+              {account}
+              <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {/* Editable Timeframe */}
+      {isEditingTimeframe ? (
+        <div className="flex items-center gap-1">
+          <Select
+            value={tempTimeframe}
+            onValueChange={setTempTimeframe}
+            data-testid="select-timeframe"
+          >
+            <SelectTrigger className="h-6 w-20 px-2 text-xs border-primary/50">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {availableTimeframes.map((tf) => (
+                <SelectItem key={tf} value={tf} className="text-xs">
+                  {tf}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleSaveTimeframe}
+            className="h-6 px-1.5"
+            data-testid="button-save-timeframe"
+          >
+            <Check className="h-3 w-3" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleCancelTimeframe}
+            className="h-6 px-1.5"
+            data-testid="button-cancel-timeframe"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      ) : (
+        <Badge
+          variant="secondary"
+          className="text-xs transition-all duration-200 hover:scale-105 cursor-pointer group relative"
+          onClick={() => setIsEditingTimeframe(true)}
+          data-testid="badge-timeframe"
+        >
+          {timeframe}
+          <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
+        </Badge>
+      )}
+    </div>
+  );
+});
+
 // Enhanced Table Component with Sorting and Filtering
 const EnhancedTable = memo(function EnhancedTable({ 
   data, 
@@ -447,6 +666,8 @@ const AnswerCard = memo(function AnswerCard({
   timeframe = "YTD",
   isUnmatched = false,
   answerId,
+  availableAccounts,
+  availableTimeframes,
   content = {
     paragraph: "Your portfolio has outperformed the S&P 500 by 3.2% year-to-date, driven primarily by strong performance in technology and healthcare sectors. The portfolio's risk-adjusted returns show a Sharpe ratio of 1.24, indicating efficient risk management.",
     kpis: mockKPIs,
@@ -460,7 +681,10 @@ const AnswerCard = memo(function AnswerCard({
   onRefresh,
   onExport,
   onFollowUpClick,
-  onFeedbackSubmit
+  onFeedbackSubmit,
+  onAccountsChange,
+  onTimeframeChange,
+  onResubmit
 }: AnswerCardProps) {
   
   const handleRefresh = () => {
@@ -482,19 +706,15 @@ const AnswerCard = memo(function AnswerCard({
               {cleanQuestionText(question)}
             </h3>
             <div className="flex items-center gap-2 flex-wrap">
-              {accounts.map((account, index) => (
-                <Badge 
-                  key={index} 
-                  variant="outline" 
-                  className="text-xs transition-all duration-200 hover:scale-105"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  {account}
-                </Badge>
-              ))}
-              <Badge variant="secondary" className="text-xs transition-all duration-200 hover:scale-105">
-                {timeframe}
-              </Badge>
+              <EditableBadgeSection
+                accounts={accounts}
+                timeframe={timeframe}
+                availableAccounts={availableAccounts}
+                availableTimeframes={availableTimeframes}
+                onAccountsChange={onAccountsChange}
+                onTimeframeChange={onTimeframeChange}
+                onResubmit={onResubmit}
+              />
               <Badge variant="outline" className="text-xs gap-1 transition-all duration-200 hover:scale-105">
                 <Calendar className="h-3 w-3" />
                 As of {asOfDate}
