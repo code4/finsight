@@ -354,6 +354,7 @@ const InlinePlaceholderDropdown = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0, placement: 'below' as 'below' | 'above' });
+  const [isPositioned, setIsPositioned] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Filter options based on search term
@@ -403,6 +404,7 @@ const InlinePlaceholderDropdown = ({
       }
 
       setPosition({ top, left, placement });
+      setIsPositioned(true);
     };
 
     // Initial position calculation
@@ -431,7 +433,9 @@ const InlinePlaceholderDropdown = ({
   const dropdownContent = (
     <div 
       ref={dropdownRef}
-      className="fixed z-[9999] w-72 bg-background border border-border/50 rounded-xl shadow-xl ring-1 ring-primary/10 overflow-hidden backdrop-blur-sm"
+      className={`fixed z-[9999] w-72 bg-background border border-border/50 rounded-xl shadow-xl ring-1 ring-primary/10 overflow-hidden backdrop-blur-sm transition-opacity duration-150 ${
+        isPositioned ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
