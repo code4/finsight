@@ -1092,12 +1092,9 @@ const SearchOverlay = memo(function SearchOverlay({
                       key={index}
                       value={question.text}
                       className="px-4 py-3 text-sm hover:bg-accent/50 cursor-pointer transition-all duration-200 rounded-md mx-2 my-0.5 border-l-2 border-transparent hover:border-primary/30"
-                      onClick={(e) => {
-                        console.log('🎯 Direct click handler triggered for:', question.text);
-                        console.log('🎯 editingPlaceholder state:', editingPlaceholder);
-                        console.log('🎯 recentlyModifiedQuestion:', recentlyModifiedQuestion);
+                      onSelect={() => {
+                        console.log('🎯 Category view question selected:', question.text);
                         
-                        // Don't block question clicks - always allow question submission
                         // Clear any open placeholder dropdowns first
                         if (editingPlaceholder) {
                           console.log('🔄 Clearing placeholder dropdown before question submission');
