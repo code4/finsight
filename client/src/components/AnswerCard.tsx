@@ -12,9 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 // Import all necessary icons including Users for account summary display  
-import { Calendar, RefreshCw, Download, User, Users, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, ThumbsUp, ThumbsDown, Send, Edit2, Check, X, ChevronDown } from "lucide-react";
+import { Calendar, RefreshCw, Download, User, Users, TrendingUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, ThumbsUp, ThumbsDown, Send, Edit2, Check, X, ChevronDown, Settings2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import FinancialChart from "@/components/FinancialChart";
 import FollowUpChips from "@/components/FollowUpChips";
@@ -189,6 +191,7 @@ interface AnswerCardProps {
   question: string;
   asOfDate: string;
   accounts: string[];
+  account?: { id: string; accountNumber: string; name: string; alias?: string; type: string; balance: number; color: string } | string; // Single account for new system
   timeframe: string;
   isUnmatched?: boolean;
   isError?: boolean;
@@ -197,7 +200,7 @@ interface AnswerCardProps {
   message?: string;
   answerId?: string;
   availableAccounts?: string[];
-  availableTimeframes?: string[];
+  availableTimeframes?: { value: string; label: string }[];
   content?: {
     paragraph?: string;
     kpis?: KPI[];
@@ -500,10 +503,10 @@ const FeedbackSection = memo(function FeedbackSection({
 
 // Enhanced Interactive Placeholder System for Single Account/Timeframe Selection
 const EditableBadgeSection = memo(function EditableBadgeSection({
-  account, // Single account instead of array
+  account, // Single account object with proper structure
   timeframe,
-  availableAccounts = ["Growth Portfolio", "Conservative Fund", "Aggressive Growth", "Income Focus", "All Accounts"],
-  availableTimeframes = ["Month to date", "One month", "One year", "Previous calendar year", "Previous month", "Previous quarter", "Year to date"],
+  availableAccounts = [], // Now expects Account objects with proper structure
+  availableTimeframes = [{ value: '1d', label: '1D' }, { value: '1w', label: '1W' }, { value: '1m', label: '1M' }, { value: 'ytd', label: 'YTD' }, { value: '1y', label: '1Y' }], // Same as TopNavigation
   onAccountChange, // Single account change
   onTimeframeChange,
   onPlaceholderEdit, // Called when placeholder is clicked (triggers blur)
@@ -511,11 +514,11 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
   hasChanges, // Whether there are unsaved changes
   isBlurred // Whether answer should be blurred
 }: {
-  account: string; // Single account
+  account: { id: string; accountNumber: string; name: string; alias?: string; type: string; balance: number; color: string } | string; // Support both formats for backward compatibility
   timeframe: string;
-  availableAccounts?: string[];
-  availableTimeframes?: string[];
-  onAccountChange?: (newAccount: string) => void;
+  availableAccounts?: { id: string; accountNumber: string; name: string; alias?: string; type: string; balance: number; color: string }[];
+  availableTimeframes?: { value: string; label: string }[];
+  onAccountChange?: (newAccount: any) => void;
   onTimeframeChange?: (newTimeframe: string) => void;
   onPlaceholderEdit?: () => void; // Triggers blur state
   onSubmitChanges?: () => void; // Submits with new parameters
@@ -526,6 +529,17 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
   const [isEditingTimeframe, setIsEditingTimeframe] = useState(false);
   const [tempAccount, setTempAccount] = useState(account);
   const [tempTimeframe, setTempTimeframe] = useState(timeframe);
+  
+  // Handle both string and object account formats
+  const getAccountDisplay = (acc: any) => {
+    if (typeof acc === 'string') return acc;
+    return acc?.alias || acc?.name || 'Unknown Account';
+  };
+  
+  const getAccountId = (acc: any) => {
+    if (typeof acc === 'string') return acc;
+    return acc?.id || acc?.accountNumber || acc;
+  };
 
   // Reset temp values when props change
   useEffect(() => {
@@ -565,7 +579,7 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      {/* Single Account Pill - Using same Popover as top navigation */}
+      {/* Complete Account Selector - Identical to TopNavigation with Accounts and Group tabs */}
       {isEditingAccount ? (
         <Popover open={isEditingAccount} onOpenChange={setIsEditingAccount}>
           <PopoverTrigger asChild>
@@ -580,39 +594,111 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
               <Settings2 className="h-3 w-3" />
               <span className="text-xs">Selecting...</span>
               <ChevronDown className="h-3 w-3 opacity-50" />
+              {hasLocalChanges && (
+                <div className="w-2 h-2 rounded-full bg-primary" />
+              )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-72 p-0" align="start">
-            <div className="p-3 border-b">
-              <h4 className="font-medium text-sm">Select Account</h4>
-              <p className="text-xs text-muted-foreground mt-1">Choose a single account for this analysis</p>
-            </div>
-            <div className="p-3">
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {availableAccounts.map((acc) => (
-                  <div 
-                    key={acc} 
-                    className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 p-2 rounded-md transition-colors" 
-                    onClick={() => {
-                      handleAccountSelect(acc);
-                      handleSaveAccount();
-                    }}
-                  >
-                    <div className={`w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center ${
-                      tempAccount === acc 
-                        ? 'bg-primary border-primary' 
-                        : 'border-border hover:border-primary/50'
-                    }`}>
-                      {tempAccount === acc && (
-                        <div className="w-2 h-2 bg-primary-foreground rounded-full" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium">{acc}</div>
-                    </div>
-                  </div>
-                ))}
+          <PopoverContent className="w-96 p-0" align="start">
+            <Tabs value="accounts" className="w-full">
+              {/* Mode Switcher */}
+              <div className="p-3 border-b">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="accounts">Accounts</TabsTrigger>
+                  <TabsTrigger value="group">Group</TabsTrigger>
+                </TabsList>
               </div>
+
+              {/* Accounts Tab */}
+              <TabsContent value="accounts" className="mt-0">
+                <Command>
+                  <div className="flex items-center border-b px-3">
+                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                    <CommandInput
+                      placeholder="Search accounts..."
+                      className="flex h-10 w-full"
+                    />
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    <CommandEmpty>No accounts found.</CommandEmpty>
+                    <CommandGroup>
+                      {availableAccounts.map((acc) => {
+                        const accId = getAccountId(acc);
+                        const accDisplay = getAccountDisplay(acc);
+                        const isSelected = getAccountId(tempAccount) === accId;
+                        return (
+                          <CommandItem
+                            key={accId}
+                            value={`${typeof acc === 'object' ? acc.accountNumber : ''} ${accDisplay}`}
+                            onSelect={() => handleAccountSelect(acc)}
+                            className="flex items-center space-x-2 p-2 hover-elevate transition-all duration-200"
+                            data-testid={`command-item-${accId}`}
+                          >
+                            <div className={`w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center ${
+                              isSelected
+                                ? 'bg-primary border-primary' 
+                                : 'border-border hover:border-primary/50'
+                            }`}>
+                              {isSelected && (
+                                <div className="w-2 h-2 bg-primary-foreground rounded-full" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium truncate">{accDisplay}</div>
+                              {typeof acc === 'object' && acc.accountNumber && (
+                                <div className="text-xs text-muted-foreground truncate">
+                                  {acc.accountNumber} • {acc.type}
+                                </div>
+                              )}
+                            </div>
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  </div>
+                </Command>
+              </TabsContent>
+
+              {/* Groups Tab */}
+              <TabsContent value="group" className="mt-0">
+                <Command>
+                  <div className="flex items-center border-b px-3">
+                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                    <CommandInput
+                      placeholder="Search groups..."
+                      className="flex h-10 w-full"
+                    />
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    <CommandEmpty>No groups found.</CommandEmpty>
+                    <CommandGroup>
+                      <div className="p-2 text-xs text-muted-foreground">
+                        Group selection functionality will be available when connected to app state.
+                      </div>
+                    </CommandGroup>
+                  </div>
+                </Command>
+              </TabsContent>
+            </Tabs>
+
+            {/* Apply/Cancel buttons */}
+            <div className="flex items-center justify-between p-3 border-t">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCancelAccount}
+                data-testid="button-cancel-selection"
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSaveAccount}
+                disabled={!hasLocalChanges}
+                data-testid="button-apply-selection"
+              >
+                Apply Changes
+              </Button>
             </div>
           </PopoverContent>
         </Popover>
@@ -630,7 +716,7 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
           data-testid="badge-account-single"
         >
           <User className="h-3 w-3 mr-1" />
-          {account}
+          {getAccountDisplay(account)}
           <Edit2 className="h-2 w-2 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
           <ChevronDown className="h-2 w-2 ml-0.5 opacity-60 group-hover:opacity-80 transition-opacity" />
         </Badge>
@@ -652,8 +738,8 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
             </SelectTrigger>
             <SelectContent>
               {availableTimeframes.map((tf) => (
-                <SelectItem key={tf} value={tf} className="text-xs">
-                  {tf}
+                <SelectItem key={tf.value} value={tf.value} className="text-xs">
+                  {tf.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -1303,7 +1389,11 @@ const AnswerCard = memo(function AnswerCard({
               <EditableBadgeSection
                 account={account || accounts?.[0] || "Growth Portfolio"}
                 timeframe={timeframe}
-                availableAccounts={availableAccounts}
+                availableAccounts={availableAccounts || [
+                  { id: "ACC001", accountNumber: "DU0123456", name: "Johnson Family Trust", alias: "Johnson Family", type: "Trust", balance: 2450000, color: "bg-chart-1" },
+                  { id: "ACC002", accountNumber: "DU0234567", name: "Smith Retirement IRA", alias: "Smith Retirement", type: "IRA", balance: 1850000, color: "bg-chart-2" },
+                  { id: "ACC003", accountNumber: "DU0345678", name: "Wilson Tech Holdings", alias: "Wilson Tech", type: "Individual", balance: 980000, color: "bg-chart-4" }
+                ]}
                 availableTimeframes={availableTimeframes}
                 onAccountChange={(newAccount) => console.log('Account changed:', newAccount)}
                 onTimeframeChange={onTimeframeChange}

@@ -138,16 +138,16 @@ function FinSightDashboard() {
   ];
 
   const mockAllAccounts = [
-    { id: "ACC001", accountNumber: "10001", name: "Johnson Family Trust", alias: "Growth Portfolio", type: "Trust", balance: 2450000, color: "bg-chart-1" },
-    { id: "ACC002", accountNumber: "10002", name: "Smith Retirement IRA", alias: "Conservative Fund", type: "IRA", balance: 1850000, color: "bg-chart-2" },
-    { id: "ACC003", accountNumber: "10003", name: "Wilson Tech Holdings", alias: "Tech Allocation", type: "Individual", balance: 980000, color: "bg-chart-4" },
-    { id: "ACC004", accountNumber: "10004", name: "Davis Income Fund", alias: "Income Portfolio", type: "Joint", balance: 1200000, color: "bg-chart-3" },
-    { id: "ACC005", accountNumber: "10005", name: "Miller International", alias: "Global Fund", type: "Trust", balance: 750000, color: "bg-chart-5" },
-    { id: "ACC006", accountNumber: "10006", name: "Brown Healthcare", alias: "Health Sector", type: "Individual", balance: 650000, color: "bg-chart-1" },
-    { id: "ACC007", accountNumber: "10007", name: "Garcia Energy LLC", alias: "Energy Investment", type: "LLC", balance: 420000, color: "bg-chart-2" },
-    { id: "ACC008", accountNumber: "10008", name: "Anderson REIT", alias: "Real Estate Fund", type: "REIT", balance: 890000, color: "bg-chart-4" },
-    { id: "ACC009", accountNumber: "10009", name: "Thompson Emerging", type: "Individual", balance: 540000, color: "bg-chart-3" },
-    { id: "ACC010", accountNumber: "10010", name: "Lee Family 529", alias: "Education Fund", type: "529 Plan", balance: 320000, color: "bg-chart-5" }
+    { id: "ACC001", accountNumber: "DU0123456", name: "Johnson Family Trust", alias: "Johnson Family", type: "Trust", balance: 2450000, color: "bg-chart-1" },
+    { id: "ACC002", accountNumber: "DU0234567", name: "Smith Retirement IRA", alias: "Smith Retirement", type: "IRA", balance: 1850000, color: "bg-chart-2" },
+    { id: "ACC003", accountNumber: "DU0345678", name: "Wilson Tech Holdings", alias: "Wilson Tech", type: "Individual", balance: 980000, color: "bg-chart-4" },
+    { id: "ACC004", accountNumber: "DU0456789", name: "Davis Income Fund", alias: "Davis Income", type: "Joint", balance: 1200000, color: "bg-chart-3" },
+    { id: "ACC005", accountNumber: "DU0567890", name: "Miller International", alias: "Miller International", type: "Trust", balance: 750000, color: "bg-chart-5" },
+    { id: "ACC006", accountNumber: "DU0678901", name: "Brown Healthcare", alias: "Brown Healthcare", type: "Individual", balance: 650000, color: "bg-chart-1" },
+    { id: "ACC007", accountNumber: "DU0789012", name: "Garcia Energy LLC", alias: "Garcia Energy", type: "LLC", balance: 420000, color: "bg-chart-2" },
+    { id: "ACC008", accountNumber: "DU0890123", name: "Anderson REIT", alias: "Anderson REIT", type: "REIT", balance: 890000, color: "bg-chart-4" },
+    { id: "ACC009", accountNumber: "DU0901234", name: "Thompson Emerging", alias: "Thompson Emerging", type: "Individual", balance: 540000, color: "bg-chart-3" },
+    { id: "ACC010", accountNumber: "DU1012345", name: "Lee Family 529", alias: "Lee Family", type: "529 Plan", balance: 320000, color: "bg-chart-5" }
   ];
 
   // Derived state: compute selectedAccounts from current selection mode
