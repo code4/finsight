@@ -189,29 +189,61 @@ const TopNavigation = memo(function TopNavigation({
 
     setPendingSelectedAccountIds(newSelection)
     setHasUnappliedChanges(true)
+    
+    // Auto-apply for immediate reactivity
+    setTimeout(() => {
+      onSelectionModeChange(pendingSelectionMode)
+      onAccountSelection(newSelection)
+      setHasUnappliedChanges(false)
+    }, 0)
   }
 
   const handleGroupSelect = (groupId: string) => {
     setPendingSelectedGroupId(groupId)
     setHasUnappliedChanges(true)
+    
+    // Auto-apply for immediate reactivity
+    setTimeout(() => {
+      onSelectionModeChange('group')
+      onGroupSelection(groupId)
+      setHasUnappliedChanges(false)
+    }, 0)
   }
 
   const handleSelectionModeToggle = (mode: 'accounts' | 'group') => {
     if (mode === pendingSelectionMode) return
 
+    let newAccountIds = pendingSelectedAccountIds
+    let newGroupId = pendingSelectedGroupId
+
     if (mode === 'accounts') {
       // Switch to accounts mode: clear group selection and keep current accounts
       if (pendingSelectedAccountIds.size === 0) {
-        setPendingSelectedAccountIds(new Set([allAccounts[0].id]))
+        newAccountIds = new Set([allAccounts[0].id])
+        setPendingSelectedAccountIds(newAccountIds)
       }
+      newGroupId = null
       setPendingSelectedGroupId(null)
     } else {
       // Switch to group mode: select first group
-      setPendingSelectedGroupId(accountGroups[0].id)
-      setPendingSelectedAccountIds(new Set())
+      newGroupId = accountGroups[0].id
+      setPendingSelectedGroupId(newGroupId)
+      newAccountIds = new Set()
+      setPendingSelectedAccountIds(newAccountIds)
     }
     setPendingSelectionMode(mode)
     setHasUnappliedChanges(true)
+    
+    // Auto-apply for immediate reactivity
+    setTimeout(() => {
+      onSelectionModeChange(mode)
+      if (mode === 'accounts') {
+        onAccountSelection(newAccountIds)
+      } else {
+        onGroupSelection(newGroupId!)
+      }
+      setHasUnappliedChanges(false)
+    }, 0)
   }
 
   // Apply changes
