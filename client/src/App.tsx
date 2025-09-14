@@ -230,6 +230,7 @@ function FinSightDashboard() {
   };
 
   const handleGroupSelection = (groupId: string) => {
+    setSelectionMode('group'); // Set mode to group when group is selected
     setSelectedGroupId(groupId);
     console.log('Group selection changed:', groupId);
   };
