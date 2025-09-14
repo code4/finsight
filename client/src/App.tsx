@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { SelectionProvider } from "@/components/SelectionContext";
+import { SelectionProvider, useSelection } from "@/components/SelectionContext";
 import TopNavigation from "@/components/TopNavigation";
 import SearchOverlay from "@/components/SearchOverlay";
 import AnswerCard from "@/components/AnswerCard";
@@ -23,6 +23,20 @@ import { ContentGenerator } from "@/lib/contentGenerator";
 
 function FinSightDashboard() {
   const { theme, setTheme } = useTheme();
+  
+  // Use SelectionContext instead of local state
+  const {
+    selectionMode,
+    selectedAccountIds,
+    selectedGroupId,
+    timeframe,
+    setSelectionMode,
+    setSelectedAccountIds,
+    setSelectedGroupId,
+    setTimeframe,
+    updateSelection,
+    resetSelection,
+  } = useSelection();
   const [searchValue, setSearchValue] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   
@@ -74,10 +88,7 @@ function FinSightDashboard() {
       }
     ]
   });
-  const [selectionMode, setSelectionMode] = useState<'accounts' | 'group'>('accounts');
-  const [selectedAccountIds, setSelectedAccountIds] = useState(new Set(['ACC001', 'ACC002']));
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-  const [timeframe, setTimeframe] = useState("ytd");
+  
   const [answers, setAnswers] = useState<Array<{
     id: string;
     question: string;

@@ -86,13 +86,13 @@ interface TopNavigationProps {
 
 // Timeframe options for financial analysis
 const timeframes = [
-  { value: 'mtd', label: 'MTD' },
-  { value: 'ytd', label: 'YTD' },
-  { value: 'prev_month', label: 'Prev M' },
-  { value: 'prev_quarter', label: 'Prev Q' },
-  { value: 'prev_year', label: 'Prev Y' },
-  { value: '1m', label: '1M' },
-  { value: '1y', label: '1Y' },
+  { value: 'mtd', short: 'MTD', label: 'Month to Date' },
+  { value: 'ytd', short: 'YTD', label: 'Year to Date' },
+  { value: 'prev_month', short: 'PM', label: 'Previous Month' },
+  { value: 'prev_quarter', short: 'PQ', label: 'Previous Quarter' },
+  { value: 'prev_year', short: 'PY', label: 'Previous Year' },
+  { value: '1m', short: '1M', label: 'One Month' },
+  { value: '1y', short: '1Y', label: 'One Year' },
 ]
 
 const TopNavigation = memo(function TopNavigation({
@@ -355,7 +355,9 @@ const TopNavigation = memo(function TopNavigation({
           <div className="flex items-center gap-1 shrink-0">
             <Select value={timeframe} onValueChange={onTimeframeChange}>
               <SelectTrigger className="h-8 w-14 md:w-16 text-xs border-none bg-muted/50 hover:bg-muted px-2">
-                <SelectValue />
+                <SelectValue>
+                  {timeframes.find(tf => tf.value === timeframe)?.short || timeframe}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {timeframes.map(tf => (
