@@ -1,0 +1,2421 @@
+[
+    {
+        "label": "intro-paragraph-1",
+        "isIntroText": true,
+        "introText": "You can ask anything — from general finance to help with IBKR platforms.",
+        "disabled": true,
+        "class": "intro-text-item"
+    },
+    {
+        "label": "intro-paragraph-2",
+        "isIntroText": true,
+        "introText": "Portfolio questions you can try today:",
+        "disabled": true,
+        "class": "intro-text-item"
+    },
+    {
+        "label": "Portfolio metrics",
+        "items": [
+            {
+                "label": "Calculate tracking error vs S&P 500 TR Index (SPXTR)",
+                "questionId": "6851ac6829f4b634a3ff1774",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Calculate tracking error vs "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "BENCHMARK_CONTRACT_ID",
+                            "name": "BENCHMARK_CONTRACT_ID_1",
+                            "value": "70703934",
+                            "label": "S&P 500 TR Index (SPXTR)"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Can you show the portfolio concentration by symbol, sector and financial instrument?",
+                "questionId": "6851ac6829f4b634a3ff1752",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Can you show the portfolio concentration by symbol, sector and financial instrument?"
+                    }
+                ]
+            },
+            {
+                "label": "How did the portfolio do between 2025-09-07 and 2025-09-13?",
+                "questionId": "6851ac6829f4b634a3ff175e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How did the portfolio do between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "How do the dividend yields of my positions compare to their payout ratios?",
+                "questionId": "6851ac6829f4b634a3ff175c",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How do the dividend yields of my positions compare to their payout ratios?"
+                    }
+                ]
+            },
+            {
+                "label": "How does portfolio performance compare to benchmark S&P 500 TR Index (SPXTR)?",
+                "questionId": "6851ac6829f4b634a3ff1747",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How does portfolio performance compare to benchmark "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "BENCHMARK_CONTRACT_ID",
+                            "name": "BENCHMARK_CONTRACT_ID_1",
+                            "value": "70703934",
+                            "label": "S&P 500 TR Index (SPXTR)"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "How has the portfolio valuation changed?",
+                "questionId": "6851ac6829f4b634a3ff176b",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How has the portfolio valuation changed?"
+                    }
+                ]
+            },
+            {
+                "label": "How is the portfolio doing?",
+                "questionId": "6851ac6829f4b634a3ff177b",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How is the portfolio doing?"
+                    }
+                ]
+            },
+            {
+                "label": "How many days did the portfolio outperform, match, or underperform the benchmark S&P 500 TR Index (SPXTR)?",
+                "questionId": "6851ac6829f4b634a3ff17ad",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How many days did the portfolio outperform, match, or underperform the benchmark "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "BENCHMARK_CONTRACT_ID",
+                            "name": "BENCHMARK_CONTRACT_ID_1",
+                            "value": "70703934",
+                            "label": "S&P 500 TR Index (SPXTR)"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "How much of the portfolio is sitting in idle cash?",
+                "questionId": "6851ac6829f4b634a3ff1775",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How much of the portfolio is sitting in idle cash?"
+                    }
+                ]
+            },
+            {
+                "label": "List all dividend paying securities in my portfolio",
+                "questionId": "685dc518bb59f218efa72b09",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List all dividend paying securities in my portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "Show longest outperformance streak vs benchmark S&P 500 TR Index (SPXTR)",
+                "questionId": "6851ac6829f4b634a3ff17a2",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show longest outperformance streak vs benchmark "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "BENCHMARK_CONTRACT_ID",
+                            "name": "BENCHMARK_CONTRACT_ID_1",
+                            "value": "70703934",
+                            "label": "S&P 500 TR Index (SPXTR)"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Specify dates when the portfolio had returns less than -1%?",
+                "questionId": "6851ac6829f4b634a3ff1748",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Specify dates when the portfolio had returns less than -"
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "%?"
+                    }
+                ]
+            },
+            {
+                "label": "Specify dates when the portfolio outperformed the S&P 500 TR Index (SPXTR) benchmark  by more than 1%?",
+                "questionId": "6851ac6829f4b634a3ff1793",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Specify dates when the portfolio outperformed the "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "BENCHMARK_CONTRACT_ID",
+                            "name": "BENCHMARK_CONTRACT_ID_1",
+                            "value": "70703934",
+                            "label": "S&P 500 TR Index (SPXTR)"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " benchmark  by more than "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "%?"
+                    }
+                ]
+            },
+            {
+                "label": "What is the current dividend yield for my portfolio positions?",
+                "questionId": "685dc44ebb59f218efa72b07",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What is the current dividend yield for my portfolio positions?"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Allocation",
+        "items": [
+            {
+                "label": "Calculate sector averages for the field  12-Month Total Return",
+                "questionId": "6851ac6829f4b634a3ff178e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Calculate sector averages for the field  "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "List the smallest 1 holdings within each Sector",
+                "questionId": "6851ac6829f4b634a3ff177e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the smallest "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " holdings within each Sector"
+                    }
+                ]
+            },
+            {
+                "label": "List the 1 sectors with the lowest return",
+                "questionId": "6851ac6829f4b634a3ff1768",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " sectors with the lowest return"
+                    }
+                ]
+            },
+            {
+                "label": "Show top 1 sectors by return",
+                "questionId": "6895bd0b16e0e1684725adfa",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show top "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " sectors by return"
+                    }
+                ]
+            },
+            {
+                "label": "What is allocation to the top 1 long positions?",
+                "questionId": "6851ac6829f4b634a3ff175b",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What is allocation to the top "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " long positions?"
+                    }
+                ]
+            },
+            {
+                "label": "What is distribution of values for the field Contribution to Returns?",
+                "questionId": "6851ac6829f4b634a3ff1761",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What is distribution of values for the field "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "PORTFOLIO_POSITION_DATA_FIELD",
+                            "name": "PORTFOLIO_POSITION_DATA_FIELD_1",
+                            "value": "contribution_to_returns",
+                            "label": "Contribution to Returns"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "What is the distribution of  12-Month Total Return within the portfolio?",
+                "questionId": "6851ac6829f4b634a3ff1779",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What is the distribution of  "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " within the portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "What is the portfolio allocation to various sectors?",
+                "questionId": "6851ac6829f4b634a3ff17a6",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What is the portfolio allocation to various sectors?"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Comparison",
+        "items": [
+            {
+                "label": "Across the multiple selected accounts, compare performance",
+                "questionId": "6851ac6829f4b634a3ff1795",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Across the multiple selected accounts, compare performance"
+                    }
+                ]
+            },
+            {
+                "label": "Across the multiple selected accounts, compare risk metrics ",
+                "questionId": "6851ac6829f4b634a3ff17a0",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Across the multiple selected accounts, compare risk metrics "
+                    }
+                ]
+            },
+            {
+                "label": "Across the multiple selected accounts, compare the top 1 securities with the highest unrealized losses",
+                "questionId": "6851ac6829f4b634a3ff1797",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Across the multiple selected accounts, compare the top "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " securities with the highest unrealized losses"
+                    }
+                ]
+            },
+            {
+                "label": "Across the multiple selected accounts, display accounts with deposits or withdrawals above $1",
+                "questionId": "6874f69ca15922434a31802e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Across the multiple selected accounts, display accounts with deposits or withdrawals above $"
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Across the multiple selected accounts, show cash flow (deposits and withdrawal) activity",
+                "questionId": "6851ac6829f4b634a3ff179f",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Across the multiple selected accounts, show cash flow (deposits and withdrawal) activity"
+                    }
+                ]
+            },
+            {
+                "label": "Across the multiple selected accounts, show correlations",
+                "questionId": "6851ac6829f4b634a3ff1758",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Across the multiple selected accounts, show correlations"
+                    }
+                ]
+            },
+            {
+                "label": "Across the multiple selected accounts, show the security overlap",
+                "questionId": "6851ac6829f4b634a3ff1767",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Across the multiple selected accounts, show the security overlap"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Holdings",
+        "items": [
+            {
+                "label": "Does the portfolio hold Interactive Brokers?",
+                "questionId": "6851ac6829f4b634a3ff1751",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Does the portfolio hold "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_CONTRACT_ID",
+                            "name": "SECURITY_CONTRACT_ID_1",
+                            "value": "43645865",
+                            "label": "Interactive Brokers"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "How are the portfolio holdings distributed across Country?",
+                "questionId": "6851ac6829f4b634a3ff1799",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How are the portfolio holdings distributed across Country?"
+                    }
+                ]
+            },
+            {
+                "label": "How do the dividend yields of my positions compare to their payout ratios?",
+                "questionId": "6851ac6829f4b634a3ff175c",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How do the dividend yields of my positions compare to their payout ratios?"
+                    }
+                ]
+            },
+            {
+                "label": "List Holdings in Basic Materials that have 12-Month Total Return > 1?",
+                "questionId": "6851ac6829f4b634a3ff177c",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List Holdings in "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECTOR",
+                            "name": "SECTOR_1",
+                            "value": "BASIC_MATERIALS",
+                            "label": "Basic Materials"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " that have "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " > "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "List all dividend paying securities in my portfolio",
+                "questionId": "685dc518bb59f218efa72b09",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List all dividend paying securities in my portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "List all holdings in the portfolio",
+                "questionId": "68790d48257a2538b37a4f10",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List all holdings in the portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "List all long positions in my portfolio",
+                "questionId": "68a84db0f96a9719bdca86ca",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List all long positions in my portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "List all short positions in my portfolio",
+                "questionId": "689a32170e93667501a76ff9",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List all short positions in my portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "List holdings that have 12-Month Total Return < 1",
+                "questionId": "6851ac6829f4b634a3ff174e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List holdings that have "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " < "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "List the biggest 1 holdings within each Sector",
+                "questionId": "6851ac6829f4b634a3ff17ae",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the biggest "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " holdings within each Sector"
+                    }
+                ]
+            },
+            {
+                "label": "List the securities with the highest 1 Contribution to Returns in the portfolio between 2025-09-07 and 2025-09-13?",
+                "questionId": "6851ac6829f4b634a3ff17a7",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the securities with the highest "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "PORTFOLIO_POSITION_DATA_FIELD",
+                            "name": "PORTFOLIO_POSITION_DATA_FIELD_1",
+                            "value": "contribution_to_returns",
+                            "label": "Contribution to Returns"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " in the portfolio between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "List the securities with the highest 1 Contribution to Returns in the portfolio?",
+                "questionId": "6851ac6829f4b634a3ff1790",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the securities with the highest "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "PORTFOLIO_POSITION_DATA_FIELD",
+                            "name": "PORTFOLIO_POSITION_DATA_FIELD_1",
+                            "value": "contribution_to_returns",
+                            "label": "Contribution to Returns"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " in the portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "List the securities with the lowest 1 Contribution to Returns in portfolio from 2025-09-07 to 2025-09-13?",
+                "questionId": "6851ac6829f4b634a3ff176e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the securities with the lowest "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "PORTFOLIO_POSITION_DATA_FIELD",
+                            "name": "PORTFOLIO_POSITION_DATA_FIELD_1",
+                            "value": "contribution_to_returns",
+                            "label": "Contribution to Returns"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " in portfolio from "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " to "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "List the securities with the lowest 1 Contribution to Returns in the portfolio?",
+                "questionId": "6851ac6829f4b634a3ff17a3",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the securities with the lowest "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "PORTFOLIO_POSITION_DATA_FIELD",
+                            "name": "PORTFOLIO_POSITION_DATA_FIELD_1",
+                            "value": "contribution_to_returns",
+                            "label": "Contribution to Returns"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " in the portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "List the securities with the 1 highest 12-Month Total Return values in portfolio",
+                "questionId": "6851ac6829f4b634a3ff177a",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the securities with the "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " highest "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " values in portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "List the securities with the 1 smallest 12-Month Total Return values in portfolio",
+                "questionId": "6851ac6829f4b634a3ff1754",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the securities with the "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " smallest "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " values in portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "Portfolio holdings where 12-Month Total Return value > 1?",
+                "questionId": "6851ac6829f4b634a3ff1757",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Portfolio holdings where "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " value > "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "Provide a detailed breakdown of the portfolio by longs and shorts?",
+                "questionId": "6851ac6829f4b634a3ff178a",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Provide a detailed breakdown of the portfolio by longs and shorts?"
+                    }
+                ]
+            },
+            {
+                "label": "Top 1 12-Month Total Return securities in my portfolio?",
+                "questionId": "6851ac6829f4b634a3ff1792",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Top "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " securities in my portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "Top 1 12-Month Total Return securities in Basic Materials?",
+                "questionId": "6851ac6829f4b634a3ff175d",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Top "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " securities in "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECTOR",
+                            "name": "SECTOR_1",
+                            "value": "BASIC_MATERIALS",
+                            "label": "Basic Materials"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "What are the smallest 1 holdings in the portfolio?",
+                "questionId": "6895ca2616e0e1684725b0c2",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What are the smallest "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " holdings in the portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "What are the top 1 holdings in the portfolio?",
+                "questionId": "6851ac6829f4b634a3ff1798",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What are the top "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " holdings in the portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "What are the top 1 Stocks holdings in the portfolio?",
+                "questionId": "68652fac35142a15ba28f6a6",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What are the top "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "FINANCIAL_INSTRUMENT",
+                            "name": "FINANCIAL_INSTRUMENT_1",
+                            "value": "STK",
+                            "label": "Stocks"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " holdings in the portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "What are the Stocks holdings?",
+                "questionId": "689a45480e93667501a770ac",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What are the "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "FINANCIAL_INSTRUMENT",
+                            "name": "FINANCIAL_INSTRUMENT_1",
+                            "value": "STK",
+                            "label": "Stocks"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " holdings?"
+                    }
+                ]
+            },
+            {
+                "label": "What are top options positions that are currently or previously held in the  portfolio?",
+                "questionId": "6851ac6829f4b634a3ff17a1",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What are top options positions that are currently or previously held in the  portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "What expired option positions did I own?",
+                "questionId": "689a3a6e0e93667501a77064",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What expired option positions did I own?"
+                    }
+                ]
+            },
+            {
+                "label": "What is Contribution to Returns for Interactive Brokers?",
+                "questionId": "6851ac6829f4b634a3ff1759",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What is "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "PORTFOLIO_POSITION_DATA_FIELD",
+                            "name": "PORTFOLIO_POSITION_DATA_FIELD_1",
+                            "value": "contribution_to_returns",
+                            "label": "Contribution to Returns"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " for "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_CONTRACT_ID",
+                            "name": "SECURITY_CONTRACT_ID_1",
+                            "value": "43645865",
+                            "label": "Interactive Brokers"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "What is 12-Month Total Return for Interactive Brokers?",
+                "questionId": "6851ac6829f4b634a3ff1780",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What is "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+                            "name": "SECURITY_FUNDAMENTAL_DATA_FIELD_1",
+                            "value": "price_return_12month",
+                            "label": "12-Month Total Return"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " for "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_CONTRACT_ID",
+                            "name": "SECURITY_CONTRACT_ID_1",
+                            "value": "43645865",
+                            "label": "Interactive Brokers"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Security performance",
+        "items": [
+            {
+                "label": "How much did the various financial instruments like ETFs, options, stocks contribute to return?",
+                "questionId": "6851ac6829f4b634a3ff1777",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How much did the various financial instruments like ETFs, options, stocks contribute to return?"
+                    }
+                ]
+            },
+            {
+                "label": "List best 1 performing trades",
+                "questionId": "6864269e1a4a905562de5801",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List best "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " performing trades"
+                    }
+                ]
+            },
+            {
+                "label": "List the bottom 1 contributors to portfolio performance?",
+                "questionId": "6851ac6829f4b634a3ff1769",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List the bottom "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " contributors to portfolio performance?"
+                    }
+                ]
+            },
+            {
+                "label": "Show me gains and losses for Interactive Brokers",
+                "questionId": "6893c13c00ea07377b79686b",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me gains and losses for "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_CONTRACT_ID",
+                            "name": "SECURITY_CONTRACT_ID_1",
+                            "value": "43645865",
+                            "label": "Interactive Brokers"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "What are the key metrics for Interactive Brokers?",
+                "questionId": "6893c1c200ea07377b79686e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What are the key metrics for "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_CONTRACT_ID",
+                            "name": "SECURITY_CONTRACT_ID_1",
+                            "value": "43645865",
+                            "label": "Interactive Brokers"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Activity",
+        "items": [
+            {
+                "label": "Calculate total dividends earned",
+                "questionId": "687a542d6c18415dcf4d79d8",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Calculate total dividends earned"
+                    }
+                ]
+            },
+            {
+                "label": "Calculate total dividends earned between 2025-09-07 and 2025-09-13",
+                "questionId": "6893bd9500ea07377b796826",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Calculate total dividends earned between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Calculate total fees paid",
+                "questionId": "6851ac6829f4b634a3ff1770",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Calculate total fees paid"
+                    }
+                ]
+            },
+            {
+                "label": "Calculate total interest and dividends earned",
+                "questionId": "68bedca4f9e5db452b8ef50f",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Calculate total interest and dividends earned"
+                    }
+                ]
+            },
+            {
+                "label": "Calculate total interest earned",
+                "questionId": "687a519a6c18415dcf4d78fa",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Calculate total interest earned"
+                    }
+                ]
+            },
+            {
+                "label": "Calculate total interest earned between 2025-09-07 and 2025-09-13",
+                "questionId": "6893be8000ea07377b79683a",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Calculate total interest earned between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "How do the interest earned and fees charged compare to the portfolio's total returns?",
+                "questionId": "68529bfa29f4b634a3ff180d",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How do the interest earned and fees charged compare to the portfolio's total returns?"
+                    }
+                ]
+            },
+            {
+                "label": "List all dividends paid",
+                "questionId": "68a369080e93667501a78aed",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List all dividends paid"
+                    }
+                ]
+            },
+            {
+                "label": "List all dividends paid between 2025-09-07 and 2025-09-13",
+                "questionId": "68a72d2ff96a9719bdca8170",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List all dividends paid between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "List best 1 performing trades between 2025-09-07 and 2025-09-13",
+                "questionId": "6895c6dd16e0e1684725af91",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List best "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " performing trades between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "List worst 1 performing trades",
+                "questionId": "6851ac6829f4b634a3ff17ac",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List worst "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " performing trades"
+                    }
+                ]
+            },
+            {
+                "label": "List worst 1 performing trades between 2025-09-07 and 2025-09-13",
+                "questionId": "6893bec800ea07377b796840",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List worst "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " performing trades between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Provide a list of  recent trades",
+                "questionId": "6851ac6829f4b634a3ff1786",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Provide a list of  recent trades"
+                    }
+                ]
+            },
+            {
+                "label": "Provide detail about any interest earned and fees charged by the portfolio?",
+                "questionId": "6851ac6829f4b634a3ff1781",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Provide detail about any interest earned and fees charged by the portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "Provide details about last 1 trades?",
+                "questionId": "6851ac6829f4b634a3ff177f",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Provide details about last "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " trades?"
+                    }
+                ]
+            },
+            {
+                "label": "Provide stats for trading activity between 2025-09-07 and 2025-09-13?",
+                "questionId": "6893bf4e00ea07377b796855",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Provide stats for trading activity between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "Provide trade summary of all the buy and sell transactions",
+                "questionId": "6851ac6829f4b634a3ff175f",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Provide trade summary of all the buy and sell transactions"
+                    }
+                ]
+            },
+            {
+                "label": "Provide trading activity stats",
+                "questionId": "6851ac6829f4b634a3ff1749",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Provide trading activity stats"
+                    }
+                ]
+            },
+            {
+                "label": "Show me all buy trades in the portfolio",
+                "questionId": "68bef518f9e5db452b8ef540",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me all buy trades in the portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "Show me all buy trades in the portfolio from 2025-09-07 to 2025-09-13",
+                "questionId": "68bef6e5f9e5db452b8ef547",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me all buy trades in the portfolio from "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " to "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Show me all sell trades in the portfolio",
+                "questionId": "68befa79f9e5db452b8ef56d",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me all sell trades in the portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "Show me all sell trades in the portfolio between 2025-09-07 and 2025-09-13",
+                "questionId": "68befb6cf9e5db452b8ef577",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me all sell trades in the portfolio between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Show me deposits and withdrawals greater than 1",
+                "questionId": "68628e1fbb59f218efa732aa",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me deposits and withdrawals greater than "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Show me deposits and withdrawals greater than 1 between 2025-09-07 and 2025-09-13",
+                "questionId": "6893bf1a00ea07377b79684d",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me deposits and withdrawals greater than "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Show me gains and losses for Interactive Brokers",
+                "questionId": "6893c13c00ea07377b79686b",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me gains and losses for "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_CONTRACT_ID",
+                            "name": "SECURITY_CONTRACT_ID_1",
+                            "value": "43645865",
+                            "label": "Interactive Brokers"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Show me realized gains and losses",
+                "questionId": "6879127978b6dd2b5a118c84",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me realized gains and losses"
+                    }
+                ]
+            },
+            {
+                "label": "Show me trading history for Interactive Brokers",
+                "questionId": "6893c27000ea07377b79687f",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me trading history for "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_CONTRACT_ID",
+                            "name": "SECURITY_CONTRACT_ID_1",
+                            "value": "43645865",
+                            "label": "Interactive Brokers"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Show me trading history for Interactive Brokers between 2025-09-07 and 2025-09-13",
+                "questionId": "6893c2b500ea07377b796883",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me trading history for "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_CONTRACT_ID",
+                            "name": "SECURITY_CONTRACT_ID_1",
+                            "value": "43645865",
+                            "label": "Interactive Brokers"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "Show monthly net cash flow summary",
+                "questionId": "68529bdb29f4b634a3ff1808",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show monthly net cash flow summary"
+                    }
+                ]
+            },
+            {
+                "label": "What are my short trades?",
+                "questionId": "6851ac6829f4b634a3ff1783",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What are my short trades?"
+                    }
+                ]
+            },
+            {
+                "label": "What dividends have I received from Interactive Brokers?",
+                "questionId": "68a6da85abdc622555a7bfa8",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What dividends have I received from "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "SECURITY_CONTRACT_ID",
+                            "name": "SECURITY_CONTRACT_ID_1",
+                            "value": "43645865",
+                            "label": "Interactive Brokers"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "What is the interest earned net of margin?",
+                "questionId": "6851ac6829f4b634a3ff174b",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What is the interest earned net of margin?"
+                    }
+                ]
+            },
+            {
+                "label": "What were the deposits in the portfolio between 2025-09-07 and 2025-09-13?",
+                "questionId": "68bebe91f9e5db452b8ef461",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What were the deposits in the portfolio between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "What were the deposits to the portfolio?",
+                "questionId": "68beb0c1f9e5db452b8ef43e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What were the deposits to the portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "What were the withdrawals in the portfolio between 2025-09-07 and 2025-09-13?",
+                "questionId": "68bed162f9e5db452b8ef4df",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What were the withdrawals in the portfolio between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "What were the withdrawals or deposits in the portfolio between 2025-09-07 and 2025-09-13?",
+                "questionId": "6851ac6829f4b634a3ff1771",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What were the withdrawals or deposits in the portfolio between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "What were the withdrawals or deposits to the portfolio",
+                "questionId": "6851ac6829f4b634a3ff17a9",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What were the withdrawals or deposits to the portfolio"
+                    }
+                ]
+            },
+            {
+                "label": "What were the withdrawals to the portfolio",
+                "questionId": "68beca00f9e5db452b8ef4c5",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "What were the withdrawals to the portfolio"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Attribution v sp500",
+        "items": [
+            {
+                "label": "Compared to the S&P 500, which sectors  in the portfolio had the highest over-weights?",
+                "questionId": "6851ac6829f4b634a3ff178c",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Compared to the S&P 500, which sectors  in the portfolio had the highest over-weights?"
+                    }
+                ]
+            },
+            {
+                "label": "Compared to the S&P 500, which sectors in the portfolio had the most underweights?",
+                "questionId": "6851ac6829f4b634a3ff179e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Compared to the S&P 500, which sectors in the portfolio had the most underweights?"
+                    }
+                ]
+            },
+            {
+                "label": "Which sectors contributed the most to the S&P 500 return?",
+                "questionId": "6851ac6829f4b634a3ff179b",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Which sectors contributed the most to the S&P 500 return?"
+                    }
+                ]
+            },
+            {
+                "label": "Which sectors detracted the most from the S&P 500 return?",
+                "questionId": "68529c5729f4b634a3ff1817",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Which sectors detracted the most from the S&P 500 return?"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Performance",
+        "items": [
+            {
+                "label": "Across the multiple selected accounts, show a summary of performance, positions and activity",
+                "questionId": "6851ac6829f4b634a3ff17a4",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Across the multiple selected accounts, show a summary of performance, positions and activity"
+                    }
+                ]
+            },
+            {
+                "label": "Calculate risk-adjusted performance metrics vs S&P 500 TR Index (SPXTR)",
+                "questionId": "6851ac6829f4b634a3ff1794",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Calculate risk-adjusted performance metrics vs "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "BENCHMARK_CONTRACT_ID",
+                            "name": "BENCHMARK_CONTRACT_ID_1",
+                            "value": "70703934",
+                            "label": "S&P 500 TR Index (SPXTR)"
+                        }
+                    }
+                ]
+            },
+            {
+                "label": "How did the portfolio do between 2025-09-07 and 2025-09-13?",
+                "questionId": "6851ac6829f4b634a3ff175e",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "How did the portfolio do between "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "START_DATE",
+                            "name": "START_DATE_1",
+                            "value": "20250907",
+                            "label": "2025-09-07"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " and "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "END_DATE",
+                            "name": "END_DATE_1",
+                            "value": "20250913",
+                            "label": "2025-09-13"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            },
+            {
+                "label": "List top  1 performing days",
+                "questionId": "6851ac6829f4b634a3ff1782",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "List top  "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "COUNT",
+                            "name": "COUNT_1",
+                            "value": "1",
+                            "label": "1"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": " performing days"
+                    }
+                ]
+            },
+            {
+                "label": "Show me realized gains and losses",
+                "questionId": "6879127978b6dd2b5a118c84",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Show me realized gains and losses"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Risk measures",
+        "items": [
+            {
+                "label": "Can you provide a drawdown analysis of the portfolio?",
+                "questionId": "6851ac6829f4b634a3ff17af",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Can you provide a drawdown analysis of the portfolio?"
+                    }
+                ]
+            },
+            {
+                "label": "Compare risk profile of portfolio versus a comparison index like S&P 500 TR Index (SPXTR)?",
+                "questionId": "6851ac6829f4b634a3ff175a",
+                "questionParts": [
+                    {
+                        "type": "text",
+                        "content": "Compare risk profile of portfolio versus a comparison index like "
+                    },
+                    {
+                        "type": "placeholder",
+                        "content": {
+                            "type": "BENCHMARK_CONTRACT_ID",
+                            "name": "BENCHMARK_CONTRACT_ID_1",
+                            "value": "70703934",
+                            "label": "S&P 500 TR Index (SPXTR)"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "content": "?"
+                    }
+                ]
+            }
+        ]
+    }
+]

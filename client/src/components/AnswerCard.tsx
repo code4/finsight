@@ -503,6 +503,323 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
   );
 });
 
+// Function to render specialized content layouts based on analysis type
+const renderSpecializedContent = (content: any) => {
+  // Detect analysis type based on content structure
+  const isPerformanceAnalysis = content.kpis && content.chartData && content.highlights && !content.tableData && !content.metrics;
+  const isHoldingsAnalysis = content.kpis && content.tableData && content.highlights && !content.chartData;
+  const isRiskAnalysis = content.kpis && content.metrics && !content.tableData && !content.chartData;
+  const isAllocationAnalysis = content.kpis && content.chartData && content.tableData;
+
+  if (isPerformanceAnalysis) {
+    return renderPerformanceLayout(content);
+  } else if (isRiskAnalysis) {
+    return renderRiskLayout(content);
+  } else if (isHoldingsAnalysis) {
+    return renderHoldingsLayout(content);
+  } else if (isAllocationAnalysis) {
+    return renderAllocationLayout(content);
+  } else {
+    // Fallback to generic layout
+    return renderGenericLayout(content);
+  }
+};
+
+// Performance Analysis Layout - Emphasizes returns and charts
+const renderPerformanceLayout = (content: any) => (
+  <>
+    {/* Hero KPIs - Larger for performance metrics */}
+    {content.kpis && (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {content.kpis.slice(0, 4).map((kpi: any, index: number) => (
+          <div 
+            key={index} 
+            className={`rounded-lg p-5 text-center hover-elevate button-smooth group animate-in fade-in-50 slide-in-from-bottom-2 ${
+              index === 0 || index === 1 
+                ? 'bg-gradient-to-br from-chart-2/20 to-chart-2/5 border border-chart-2/20' 
+                : 'bg-muted/50'
+            }`}
+            style={{ animationDelay: `${index * 100 + 200}ms` }}
+          >
+            <div className={`text-3xl lg:text-4xl font-mono font-bold mb-2 group-hover:scale-110 content-transition ${
+              index === 0 || index === 1 ? 'text-chart-2' : ''
+            }`} data-testid={`text-kpi-value-${index}`}>
+              {kpi.value}
+            </div>
+            <div className="text-sm text-muted-foreground mb-1 font-medium">{kpi.label}</div>
+            <div className={`text-xs font-medium content-transition ${
+              kpi.isPositive ? 'text-chart-2' : 'text-chart-3'
+            }`}>
+              {kpi.change}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Prominent Chart */}
+    {content.chartData && (
+      <div className="mb-6 animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: '600ms' }}>
+        <h4 className="text-base font-semibold mb-4 text-foreground">Performance Comparison</h4>
+        <div className="rounded-lg border border-border/50 p-6 bg-gradient-to-br from-muted/30 to-muted/10 hover-elevate card-smooth">
+          <FinancialChart data={content.chartData} />
+        </div>
+      </div>
+    )}
+
+    {/* Key Insights */}
+    {content.highlights && (
+      <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: '800ms' }}>
+        <h4 className="text-base font-semibold mb-4 text-foreground">Key Performance Insights</h4>
+        <div className="space-y-3">
+          {content.highlights.map((highlight: string, index: number) => (
+            <div key={index} className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4 border-l-4 border-primary/50 hover-elevate button-smooth">
+              <p className="text-sm leading-relaxed font-medium">{highlight}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </>
+);
+
+// Risk Analysis Layout - Warning colors and risk indicators
+const renderRiskLayout = (content: any) => (
+  <>
+    {/* Risk KPIs with warning colors */}
+    {content.kpis && (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        {content.kpis.map((kpi: any, index: number) => (
+          <div 
+            key={index} 
+            className={`rounded-lg p-4 text-center hover-elevate button-smooth group animate-in fade-in-50 slide-in-from-bottom-2 ${
+              !kpi.isPositive 
+                ? 'bg-gradient-to-br from-chart-3/20 to-chart-3/5 border border-chart-3/20' 
+                : 'bg-gradient-to-br from-chart-2/20 to-chart-2/5 border border-chart-2/20'
+            }`}
+            style={{ animationDelay: `${index * 100 + 200}ms` }}
+          >
+            <div className={`text-2xl lg:text-3xl font-mono font-bold mb-1 group-hover:scale-110 content-transition ${
+              !kpi.isPositive ? 'text-chart-3' : 'text-chart-2'
+            }`} data-testid={`text-kpi-value-${index}`}>
+              {kpi.value}
+            </div>
+            <div className="text-xs text-muted-foreground mb-1">{kpi.label}</div>
+            <div className={`text-xs font-medium content-transition ${
+              kpi.isPositive ? 'text-chart-2' : 'text-chart-3'
+            }`}>
+              {kpi.change}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Risk Metrics with special styling */}
+    {content.metrics && (
+      <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: '500ms' }}>
+        <h4 className="text-base font-semibold mb-4 text-foreground">Additional Risk Metrics</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {content.metrics.map((metric: any, index: number) => (
+            <div key={index} className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-lg p-4 hover-elevate button-smooth border border-muted-foreground/10">
+              <div className="text-xl font-mono font-bold mb-1 text-foreground">{metric.value}</div>
+              <div className="text-sm font-medium mb-1">{metric.label}</div>
+              {metric.subtext && (
+                <div className="text-xs text-muted-foreground">{metric.subtext}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </>
+);
+
+// Holdings Analysis Layout - Table-first design
+const renderHoldingsLayout = (content: any) => (
+  <>
+    {/* Compact KPIs */}
+    {content.kpis && (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {content.kpis.map((kpi: any, index: number) => (
+          <div 
+            key={index} 
+            className="bg-muted/50 rounded-lg p-4 text-center hover-elevate button-smooth group animate-in fade-in-50 slide-in-from-bottom-2"
+            style={{ animationDelay: `${index * 100 + 200}ms` }}
+          >
+            <div className="text-2xl font-mono font-bold mb-1 group-hover:scale-110 content-transition" data-testid={`text-kpi-value-${index}`}>
+              {kpi.value}
+            </div>
+            <div className="text-xs text-muted-foreground mb-1">{kpi.label}</div>
+            <div className={`text-xs font-medium content-transition ${
+              kpi.isPositive ? 'text-chart-2' : 'text-chart-3'
+            }`}>
+              {kpi.change}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Prominent Table */}
+    {content.tableData && (
+      <div className="mb-6">
+        <h4 className="text-base font-semibold mb-4 text-foreground">Portfolio Holdings</h4>
+        <EnhancedTable 
+          data={content.tableData} 
+          animationDelay="400ms"
+        />
+      </div>
+    )}
+
+    {/* Holdings Insights */}
+    {content.highlights && (
+      <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: '600ms' }}>
+        <h4 className="text-base font-semibold mb-4 text-foreground">Portfolio Insights</h4>
+        <div className="space-y-3">
+          {content.highlights.map((highlight: string, index: number) => (
+            <div key={index} className="bg-muted/30 rounded-lg p-3 border-l-4 border-primary/30 hover-elevate button-smooth">
+              <p className="text-sm leading-relaxed">{highlight}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </>
+);
+
+// Allocation Analysis Layout - Side-by-side comparisons
+const renderAllocationLayout = (content: any) => (
+  <>
+    {/* KPIs */}
+    {content.kpis && (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {content.kpis.map((kpi: any, index: number) => (
+          <div 
+            key={index} 
+            className="bg-muted/50 rounded-lg p-4 text-center hover-elevate button-smooth group animate-in fade-in-50 slide-in-from-bottom-2"
+            style={{ animationDelay: `${index * 100 + 200}ms` }}
+          >
+            <div className="text-2xl font-mono font-bold mb-1 group-hover:scale-110 content-transition" data-testid={`text-kpi-value-${index}`}>
+              {kpi.value}
+            </div>
+            <div className="text-xs text-muted-foreground mb-1">{kpi.label}</div>
+            <div className={`text-xs font-medium content-transition ${
+              kpi.isPositive ? 'text-chart-2' : 'text-chart-3'
+            }`}>
+              {kpi.change}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Side-by-side Chart and Table */}
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+      {/* Chart */}
+      {content.chartData && (
+        <div className="animate-in fade-in-50 slide-in-from-left-4 duration-700" style={{ animationDelay: '400ms' }}>
+          <h4 className="text-base font-semibold mb-4 text-foreground">Sector Allocation</h4>
+          <div className="rounded-lg border border-border/50 p-4 bg-muted/30 hover-elevate card-smooth">
+            <FinancialChart data={content.chartData} />
+          </div>
+        </div>
+      )}
+
+      {/* Table */}
+      {content.tableData && (
+        <div className="animate-in fade-in-50 slide-in-from-right-4 duration-700" style={{ animationDelay: '500ms' }}>
+          <h4 className="text-base font-semibold mb-4 text-foreground">Allocation Details</h4>
+          <div className="rounded-lg border border-border/50 bg-muted/30">
+            <EnhancedTable 
+              data={content.tableData} 
+              animationDelay="0ms"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  </>
+);
+
+// Generic Layout - Fallback for other content types
+const renderGenericLayout = (content: any) => (
+  <>
+    {/* KPIs */}
+    {content.kpis && (
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-6">
+        {content.kpis.map((kpi: any, index: number) => (
+          <div 
+            key={index} 
+            className="bg-muted/50 rounded-lg p-4 text-center hover-elevate button-smooth group animate-in fade-in-50 slide-in-from-bottom-2"
+            style={{ animationDelay: `${index * 150 + 200}ms` }}
+          >
+            <div className="text-2xl lg:text-3xl font-mono font-bold mb-1 group-hover:scale-110 content-transition" data-testid={`text-kpi-value-${index}`}>
+              {kpi.value}
+            </div>
+            <div className="text-xs text-muted-foreground mb-1">{kpi.label}</div>
+            <div className={`text-xs font-medium content-transition ${
+              kpi.isPositive ? 'text-chart-2' : 'text-chart-3'
+            }`}>
+              {kpi.change}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Enhanced Table Data with Sorting & Filtering */}
+    {content.tableData && (
+      <EnhancedTable 
+        data={content.tableData} 
+        animationDelay={`${(content.kpis?.length || 0) * 150 + 300}ms`}
+      />
+    )}
+
+    {/* Chart */}
+    {content.chartData && (
+      <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700 mb-6" style={{ animationDelay: `${(content.kpis?.length || 0) * 150 + 400}ms` }}>
+        <h4 className="text-sm font-medium mb-3 text-muted-foreground">Performance Comparison</h4>
+        <div className="rounded-lg border border-border/50 p-4 bg-muted/30 hover-elevate card-smooth">
+          <FinancialChart data={content.chartData} />
+        </div>
+      </div>
+    )}
+
+    {/* Metrics */}
+    {content.metrics && (
+      <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700 mb-6" style={{ animationDelay: `${(content.kpis?.length || 0) * 150 + 500}ms` }}>
+        <h4 className="text-sm font-medium mb-3 text-muted-foreground">Additional Metrics</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {content.metrics.map((metric: any, index: number) => (
+            <div key={index} className="bg-muted/50 rounded-lg p-4 hover-elevate button-smooth">
+              <div className="text-lg font-mono font-bold mb-1">{metric.value}</div>
+              <div className="text-sm font-medium mb-1">{metric.label}</div>
+              {metric.subtext && (
+                <div className="text-xs text-muted-foreground">{metric.subtext}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Highlights */}
+    {content.highlights && (
+      <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${(content.kpis?.length || 0) * 150 + 600}ms` }}>
+        <h4 className="text-sm font-medium mb-3 text-muted-foreground">Key Insights</h4>
+        <div className="space-y-2">
+          {content.highlights.map((highlight: string, index: number) => (
+            <div key={index} className="bg-muted/30 rounded-lg p-3 border-l-4 border-primary/30 hover-elevate button-smooth">
+              <p className="text-sm leading-relaxed">{highlight}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </>
+);
+
 // Enhanced Table Component with Sorting and Filtering
 const EnhancedTable = memo(function EnhancedTable({ 
   data, 
@@ -838,7 +1155,7 @@ const AnswerCard = memo(function AnswerCard({
             </Badge>
           </div>
         ) : (
-          /* Regular content for matched questions */
+          /* Regular content for matched questions with specialized layouts */
           <>
             {/* Paragraph */}
             {content.paragraph && (
@@ -847,78 +1164,8 @@ const AnswerCard = memo(function AnswerCard({
               </p>
             )}
 
-            {/* KPIs */}
-            {content.kpis && (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                {content.kpis.map((kpi, index) => (
-                  <div 
-                    key={index} 
-                    className="bg-muted/50 rounded-lg p-4 text-center hover-elevate transition-all duration-300 hover:scale-105 group animate-in fade-in-50 slide-in-from-bottom-2"
-                    style={{ animationDelay: `${index * 150 + 200}ms` }}
-                  >
-                    <div className="text-2xl lg:text-3xl font-mono font-bold mb-1 group-hover:scale-110 transition-transform duration-200" data-testid={`text-kpi-value-${index}`}>
-                      {kpi.value}
-                    </div>
-                    <div className="text-xs text-muted-foreground mb-1">{kpi.label}</div>
-                    <div className={`text-xs font-medium transition-all duration-200 ${
-                      kpi.isPositive ? 'text-chart-2' : 'text-chart-3'
-                    }`}>
-                      {kpi.change}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Enhanced Table Data with Sorting & Filtering */}
-            {content.tableData && (
-              <EnhancedTable 
-                data={content.tableData} 
-                animationDelay={`${(content.kpis?.length || 0) * 150 + 300}ms`}
-              />
-            )}
-
-            {/* Chart */}
-            {content.chartData && (
-              <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${(content.kpis?.length || 0) * 150 + 400}ms` }}>
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Performance Comparison</h4>
-                <div className="rounded-lg border border-border/50 p-4 bg-muted/30 hover-elevate transition-all duration-300">
-                  <FinancialChart data={content.chartData} />
-                </div>
-              </div>
-            )}
-
-            {/* Metrics */}
-            {content.metrics && (
-              <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${(content.kpis?.length || 0) * 150 + 500}ms` }}>
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Additional Metrics</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {content.metrics.map((metric, index) => (
-                    <div key={index} className="bg-muted/50 rounded-lg p-4 hover-elevate transition-all duration-300 hover:scale-105">
-                      <div className="text-lg font-mono font-bold mb-1">{metric.value}</div>
-                      <div className="text-sm font-medium mb-1">{metric.label}</div>
-                      {metric.subtext && (
-                        <div className="text-xs text-muted-foreground">{metric.subtext}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Highlights */}
-            {content.highlights && (
-              <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${(content.kpis?.length || 0) * 150 + 600}ms` }}>
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Key Insights</h4>
-                <div className="space-y-2">
-                  {content.highlights.map((highlight, index) => (
-                    <div key={index} className="bg-muted/30 rounded-lg p-3 border-l-4 border-primary/30 hover-elevate transition-all duration-300">
-                      <p className="text-sm leading-relaxed">{highlight}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Render specialized layouts based on analysis type */}
+            {renderSpecializedContent(content)}
 
             {/* Follow-up Questions */}
             <FollowUpChips 

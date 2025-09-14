@@ -1,0 +1,876 @@
+{
+    "questionsByCategory": {
+        "Portfolio metrics": [
+            {
+                "id": "6851ac6829f4b634a3ff1747",
+                "sentence": "How does portfolio performance compare to benchmark {{BENCHMARK_CONTRACT_ID_1}}?",
+                "placeholders": [
+                    {
+                        "type": "BENCHMARK_CONTRACT_ID",
+                        "name": "BENCHMARK_CONTRACT_ID_1",
+                        "value": "70703934",
+                        "label": "S&P 500 TR Index (SPXTR)"
+                    }
+                ]
+            },
+            {
+                "id": "6851ac6829f4b634a3ff17ad",
+                "sentence": "How many days did the portfolio outperform, match, or underperform the benchmark {{BENCHMARK_CONTRACT_ID_1}}?",
+                "placeholders": [
+                    {
+                        "type": "BENCHMARK_CONTRACT_ID",
+                        "name": "BENCHMARK_CONTRACT_ID_1",
+                        "value": "70703934",
+                        "label": "S&P 500 TR Index (SPXTR)"
+                    }
+                ]
+            }
+        ],
+        "Security performance": [
+            {
+                "id": "6851ac6829f4b634a3ff1777",
+                "sentence": "How much did the various financial instruments like ETFs, options, stocks contribute to return?",
+                "placeholders": []
+            }
+        ],
+        "Activity": [
+            {
+                "id": "6851ac6829f4b634a3ff17ac",
+                "sentence": "List worst {{COUNT_1}} performing trades",
+                "placeholders": [
+                    {
+                        "type": "COUNT",
+                        "name": "COUNT_1",
+                        "value": "1",
+                        "label": "1"
+                    }
+                ]
+            },
+            {
+                "id": "6851ac6829f4b634a3ff1781",
+                "sentence": "Provide detail about any interest earned and fees charged by the portfolio?",
+                "placeholders": []
+            },
+            {
+                "id": "6851ac6829f4b634a3ff175f",
+                "sentence": "Provide trade summary of all the buy and sell transactions",
+                "placeholders": []
+            },
+            {
+                "id": "68529bdb29f4b634a3ff1808",
+                "sentence": "Show monthly net cash flow summary",
+                "placeholders": []
+            }
+        ],
+        "Risk measures": [
+            {
+                "id": "6851ac6829f4b634a3ff17af",
+                "sentence": "Can you provide a drawdown analysis of the portfolio?",
+                "placeholders": []
+            }
+        ]
+    },
+    "questions": [
+        {
+            "id": "6851ac6829f4b634a3ff17ac",
+            "sentence": "List worst {{COUNT_1}} performing trades",
+            "placeholders": [
+                {
+                    "type": "COUNT",
+                    "name": "COUNT_1",
+                    "value": "1",
+                    "label": "1"
+                }
+            ]
+        },
+        {
+            "id": "6851ac6829f4b634a3ff1781",
+            "sentence": "Provide detail about any interest earned and fees charged by the portfolio?",
+            "placeholders": []
+        },
+        {
+            "id": "6851ac6829f4b634a3ff1777",
+            "sentence": "How much did the various financial instruments like ETFs, options, stocks contribute to return?",
+            "placeholders": []
+        },
+        {
+            "id": "6851ac6829f4b634a3ff17af",
+            "sentence": "Can you provide a drawdown analysis of the portfolio?",
+            "placeholders": []
+        },
+        {
+            "id": "6851ac6829f4b634a3ff175f",
+            "sentence": "Provide trade summary of all the buy and sell transactions",
+            "placeholders": []
+        },
+        {
+            "id": "6851ac6829f4b634a3ff17ad",
+            "sentence": "How many days did the portfolio outperform, match, or underperform the benchmark {{BENCHMARK_CONTRACT_ID_1}}?",
+            "placeholders": [
+                {
+                    "type": "BENCHMARK_CONTRACT_ID",
+                    "name": "BENCHMARK_CONTRACT_ID_1",
+                    "value": "70703934",
+                    "label": "S&P 500 TR Index (SPXTR)"
+                }
+            ]
+        },
+        {
+            "id": "6851ac6829f4b634a3ff1747",
+            "sentence": "How does portfolio performance compare to benchmark {{BENCHMARK_CONTRACT_ID_1}}?",
+            "placeholders": [
+                {
+                    "type": "BENCHMARK_CONTRACT_ID",
+                    "name": "BENCHMARK_CONTRACT_ID_1",
+                    "value": "70703934",
+                    "label": "S&P 500 TR Index (SPXTR)"
+                }
+            ]
+        },
+        {
+            "id": "68529bdb29f4b634a3ff1808",
+            "sentence": "Show monthly net cash flow summary",
+            "placeholders": []
+        }
+    ],
+    "placeholderDefinitions": {
+        "FINANCIAL_INSTRUMENT": {
+            "type": "FINANCIAL_INSTRUMENT",
+            "label": "Financial instrument type",
+            "description": "The name of a financial instrument",
+            "examples": "ETF, FUT, CRYPTO, CASH",
+            "editorType": "OPTIONS",
+            "isName": false,
+            "options": [
+                {
+                    "value": "FSFOP",
+                    "label": " Future -Style Future Options"
+                },
+                {
+                    "value": "BOND",
+                    "label": "Bonds"
+                },
+                {
+                    "value": "CFD",
+                    "label": "CFDs"
+                },
+                {
+                    "value": "CASH",
+                    "label": "Cash"
+                },
+                {
+                    "value": "CASH_BALANCE",
+                    "label": "Cash Balance"
+                },
+                {
+                    "value": "CMDTY",
+                    "label": "Commodities"
+                },
+                {
+                    "value": "CRYPTO",
+                    "label": "Crypto"
+                },
+                {
+                    "value": "ETF",
+                    "label": "Exchange Traded Fund"
+                },
+                {
+                    "value": "FCASH",
+                    "label": "Fund cash"
+                },
+                {
+                    "value": "FUND",
+                    "label": "Funds"
+                },
+                {
+                    "value": "FSOPT",
+                    "label": "Future -Style Options"
+                },
+                {
+                    "value": "FUT",
+                    "label": "Futures"
+                },
+                {
+                    "value": "FOP",
+                    "label": "Futures Options"
+                },
+                {
+                    "value": "IBGNOTE",
+                    "label": "IBG Notes"
+                },
+                {
+                    "value": "IND",
+                    "label": "Index"
+                },
+                {
+                    "value": "OPT",
+                    "label": "Options"
+                },
+                {
+                    "value": "PHYSI",
+                    "label": "Physical Delivery"
+                },
+                {
+                    "value": "STK",
+                    "label": "Stocks"
+                },
+                {
+                    "value": "IOPT",
+                    "label": "Structured Products"
+                },
+                {
+                    "value": "BILL",
+                    "label": "Treasury Bills"
+                },
+                {
+                    "value": "WAR",
+                    "label": "Warrants"
+                }
+            ],
+            "defaultOption": {
+                "value": "STK",
+                "label": "Stocks"
+            }
+        },
+        "SECTOR": {
+            "type": "SECTOR",
+            "label": "Sector",
+            "description": "The name of a sector",
+            "examples": "TECHNOLOGY, INDUSTRIALS",
+            "editorType": "OPTIONS",
+            "isName": false,
+            "options": [
+                {
+                    "value": "BASIC_MATERIALS",
+                    "label": "Basic Materials"
+                },
+                {
+                    "value": "BROAD",
+                    "label": "Broad"
+                },
+                {
+                    "value": "CASH",
+                    "label": "Cash"
+                },
+                {
+                    "value": "CONSUMER_CYCLICALS",
+                    "label": "Consumer Cyclicals"
+                },
+                {
+                    "value": "CONSUMER_NON_CYC",
+                    "label": "Consumer Non-Cyclicals"
+                },
+                {
+                    "value": "EDUCATION",
+                    "label": "Education"
+                },
+                {
+                    "value": "ENERGY",
+                    "label": "Energy"
+                },
+                {
+                    "value": "FINANCIALS",
+                    "label": "Financials"
+                },
+                {
+                    "value": "FUND_CASH",
+                    "label": "Fund Cash"
+                },
+                {
+                    "value": "GOVERNMENT",
+                    "label": "Government"
+                },
+                {
+                    "value": "HEALTHCARE",
+                    "label": "Healthcare"
+                },
+                {
+                    "value": "INDUSTRIALS",
+                    "label": "Industrials"
+                },
+                {
+                    "value": "INSTITUTIONS",
+                    "label": "Institutions"
+                },
+                {
+                    "value": "REAL_ESTATE",
+                    "label": "Real Estate"
+                },
+                {
+                    "value": "TECHNOLOGY",
+                    "label": "Technology"
+                },
+                {
+                    "value": "TELECOMM",
+                    "label": "Telecom"
+                },
+                {
+                    "value": "UNCLASSIFIED",
+                    "label": "Unclassified"
+                },
+                {
+                    "value": "UTILITIES",
+                    "label": "Utilities"
+                }
+            ],
+            "defaultOption": {
+                "value": "BASIC_MATERIALS",
+                "label": "Basic Materials"
+            }
+        },
+        "END_DATE": {
+            "type": "END_DATE",
+            "label": "End date",
+            "description": "A date value indicating the end of a date range in format YYYYMMDD",
+            "examples": "20240130, 20250315",
+            "editorType": "DATE",
+            "isName": false,
+            "options": [],
+            "defaultOption": {
+                "value": "20250913",
+                "label": "2025-09-13"
+            }
+        },
+        "START_DATE": {
+            "type": "START_DATE",
+            "label": "Start date",
+            "description": "A date value indicating the start of a date range in format YYYYMMDD",
+            "examples": "20240130, 20250315",
+            "editorType": "DATE",
+            "isName": false,
+            "options": [],
+            "defaultOption": {
+                "value": "20250907",
+                "label": "2025-09-07"
+            }
+        },
+        "REGION": {
+            "type": "REGION",
+            "label": "Region",
+            "description": "The name of a region",
+            "examples": "NORTHA, EUROPE, ASIA",
+            "editorType": "OPTIONS",
+            "isName": false,
+            "options": [
+                {
+                    "value": "AFRICA",
+                    "label": "Africa"
+                },
+                {
+                    "value": "ASIA",
+                    "label": "Asia"
+                },
+                {
+                    "value": "EUROPE",
+                    "label": "Europe"
+                },
+                {
+                    "value": "NORTHA",
+                    "label": "North America"
+                },
+                {
+                    "value": "N/A",
+                    "label": "Not Available"
+                },
+                {
+                    "value": "OCEANIA",
+                    "label": "Oceania"
+                },
+                {
+                    "value": "SOUTHA",
+                    "label": "South America"
+                }
+            ],
+            "defaultOption": {
+                "value": "AFRICA",
+                "label": "Africa"
+            }
+        },
+        "SECURITY_CONTRACT_ID": {
+            "type": "SECURITY_CONTRACT_ID",
+            "label": "Security",
+            "description": "The contract id of a security",
+            "examples": "1252245, 543466, 8765675",
+            "editorType": "SECURITY",
+            "isName": false,
+            "options": [
+                {
+                    "value": "43645865",
+                    "label": "Interactive Brokers"
+                },
+                {
+                    "value": "8314",
+                    "label": "IBM"
+                }
+            ],
+            "defaultOption": {
+                "value": "43645865",
+                "label": "Interactive Brokers"
+            }
+        },
+        "TOP_BOTTOM": {
+            "type": "TOP_BOTTOM",
+            "label": "Top or bottom",
+            "description": "Level indicating either top or bottom. If no count is specified default to 5",
+            "examples": "TOP, BOTTOM",
+            "editorType": "OPTIONS",
+            "isName": false,
+            "options": [
+                {
+                    "value": "TOP",
+                    "label": "Top"
+                },
+                {
+                    "value": "BOTTOM",
+                    "label": "Bottom"
+                }
+            ],
+            "defaultOption": {
+                "value": "TOP",
+                "label": "Top"
+            }
+        },
+        "ASSET_CLASS": {
+            "type": "ASSET_CLASS",
+            "label": "Asset class type",
+            "description": "The name of an asset class",
+            "examples": "EQUITIES, FIXED_INCOME, COMMODITIES",
+            "editorType": "OPTIONS",
+            "isName": false,
+            "options": [
+                {
+                    "value": "CASH",
+                    "label": "Cash"
+                },
+                {
+                    "value": "COMMODITIES",
+                    "label": "Commodities"
+                },
+                {
+                    "value": "EQUITIES",
+                    "label": "Equities"
+                },
+                {
+                    "value": "FIXED_INCOME",
+                    "label": "Fixed Income"
+                },
+                {
+                    "value": "FUND_CASH",
+                    "label": "Fund Cash"
+                },
+                {
+                    "value": "LIABILITIES",
+                    "label": "Liabilities"
+                },
+                {
+                    "value": "OTHER",
+                    "label": "Other"
+                },
+                {
+                    "value": "REAL_ESTATE",
+                    "label": "Real Estate"
+                }
+            ],
+            "defaultOption": {
+                "value": "CASH",
+                "label": "Cash"
+            }
+        },
+        "COMPARE": {
+            "type": "COMPARE",
+            "label": "Compare",
+            "description": "Comparison operators",
+            "examples": "< = >",
+            "editorType": "OPTIONS",
+            "isName": false,
+            "options": [
+                {
+                    "value": "=",
+                    "label": "Equals"
+                },
+                {
+                    "value": ">",
+                    "label": "Greater than"
+                },
+                {
+                    "value": "<",
+                    "label": "Less than"
+                }
+            ],
+            "defaultOption": {
+                "value": "=",
+                "label": "Equals"
+            }
+        },
+        "BENCHMARK_CONTRACT_ID": {
+            "type": "BENCHMARK_CONTRACT_ID",
+            "label": "Benchmark contract id",
+            "description": "The contract id of a benchmark",
+            "examples": "70703934, 70703934",
+            "editorType": "BENCHMARK",
+            "isName": false,
+            "options": [
+                {
+                    "value": "320227571",
+                    "label": "Invesco QQQ Trust Series 1 (QQQ)"
+                },
+                {
+                    "value": "18073406",
+                    "label": "Russell 1000 Growth Index (RLG)"
+                },
+                {
+                    "value": "416888",
+                    "label": "Russell 2000 Index (RUT)"
+                },
+                {
+                    "value": "70703934",
+                    "label": "S&P 500 TR Index (SPXTR)"
+                },
+                {
+                    "value": "296457239",
+                    "label": "SPDR Bloomberg 1-3 Month T-Bill ETF (BIL)"
+                },
+                {
+                    "value": "27684033",
+                    "label": "Vanguard Emerging Markets Stock ETF (VWO)"
+                },
+                {
+                    "value": "43645828",
+                    "label": "Vanguard Total Bond Market ETF (BND)"
+                },
+                {
+                    "value": "52197301",
+                    "label": "Vanguard Total World Stock Index ETF (VT)"
+                },
+                {
+                    "value": "332783962",
+                    "label": "iBoxx iShares High Yield Corporate Bond Index TR (IBXXIBHY)"
+                },
+                {
+                    "value": "15547841",
+                    "label": "iShares Barclays 20+ Year Treasury Bond (TLT)"
+                },
+                {
+                    "value": "15547844",
+                    "label": "iShares Barclays 7-10 Year Treasury (IEF)"
+                },
+                {
+                    "value": "55734164",
+                    "label": "iShares Core Aggressive Allocation (AOA)"
+                },
+                {
+                    "value": "55734161",
+                    "label": "iShares Core Growth Allocation (AOR)"
+                },
+                {
+                    "value": "55734159",
+                    "label": "iShares Core Moderate Allocation (AOM)"
+                },
+                {
+                    "value": "13002510",
+                    "label": "iShares MSCI EAFE Index (EFA)"
+                },
+                {
+                    "value": "8991562",
+                    "label": "iShares Russell 1000 Value ETF (IWD)"
+                }
+            ],
+            "defaultOption": {
+                "value": "70703934",
+                "label": "S&P 500 TR Index (SPXTR)"
+            }
+        },
+        "COUNT": {
+            "type": "COUNT",
+            "label": "Count",
+            "description": "Numeric number",
+            "examples": "0.5, 1, 10, 100",
+            "editorType": "NUMBER",
+            "isName": false,
+            "options": [
+                {
+                    "value": "0",
+                    "label": "0"
+                },
+                {
+                    "value": "1",
+                    "label": "1"
+                },
+                {
+                    "value": "2",
+                    "label": "2"
+                },
+                {
+                    "value": "3",
+                    "label": "3"
+                },
+                {
+                    "value": "4",
+                    "label": "4"
+                },
+                {
+                    "value": "5",
+                    "label": "5"
+                },
+                {
+                    "value": "6",
+                    "label": "6"
+                },
+                {
+                    "value": "7",
+                    "label": "7"
+                },
+                {
+                    "value": "8",
+                    "label": "8"
+                },
+                {
+                    "value": "9",
+                    "label": "9"
+                },
+                {
+                    "value": "10",
+                    "label": "10"
+                }
+            ],
+            "defaultOption": {
+                "value": "1",
+                "label": "1"
+            }
+        },
+        "TIME_PERIOD": {
+            "type": "TIME_PERIOD",
+            "label": "Time period",
+            "description": "A period of time",
+            "examples": "MONTH_TO_DATE, YEAR_TO_DATE, ONE_MONTH, ONE_YEAR",
+            "editorType": "OPTIONS",
+            "isName": false,
+            "options": [
+                {
+                    "value": "MONTH_TO_DATE",
+                    "label": "Month to date"
+                },
+                {
+                    "value": "ONE_MONTH",
+                    "label": "One month"
+                },
+                {
+                    "value": "ONE_YEAR",
+                    "label": "One year"
+                },
+                {
+                    "value": "PREVIOUS_CALENDAR_YEAR",
+                    "label": "Previous calendar year"
+                },
+                {
+                    "value": "PREVIOUS_MONTH",
+                    "label": "Previous month"
+                },
+                {
+                    "value": "PREVIOUS_QUARTER",
+                    "label": "Previous quarter"
+                },
+                {
+                    "value": "YEAR_TO_DATE",
+                    "label": "Year to date"
+                }
+            ],
+            "defaultOption": {
+                "value": "ONE_YEAR",
+                "label": "One year"
+            }
+        },
+        "PORTFOLIO_POSITION_DATA_FIELD": {
+            "type": "PORTFOLIO_POSITION_DATA_FIELD",
+            "label": "Portfolio position field",
+            "description": "A numeric field in the PORTFOLIO_POSITION data source",
+            "examples": "close_price, current_quantity, realized_profit_loss",
+            "editorType": "OPTIONS",
+            "isName": false,
+            "options": [
+                {
+                    "value": "average_weight",
+                    "label": "Average Weight"
+                },
+                {
+                    "value": "average_buy_price",
+                    "label": "Avg. Buy Price"
+                },
+                {
+                    "value": "average_sell_price",
+                    "label": "Avg. Sell Price"
+                },
+                {
+                    "value": "close_price",
+                    "label": "Close Price"
+                },
+                {
+                    "value": "contribution_to_returns",
+                    "label": "Contribution to Returns"
+                },
+                {
+                    "value": "current_quantity",
+                    "label": "Current Position"
+                },
+                {
+                    "value": "current_valuation",
+                    "label": "Current Valuation"
+                },
+                {
+                    "value": "current_weight",
+                    "label": "Current Weight"
+                },
+                {
+                    "value": "realized_profit_loss",
+                    "label": "Realized PnL"
+                },
+                {
+                    "value": "period_returns",
+                    "label": "Time Period Returns"
+                },
+                {
+                    "value": "total_buy_cost",
+                    "label": "Total Buy Cost"
+                },
+                {
+                    "value": "total_buy_quantity",
+                    "label": "Total Buy Quantity"
+                },
+                {
+                    "value": "total_sell_proceeds",
+                    "label": "Total Sell Proceeds"
+                },
+                {
+                    "value": "total_sell_quantity",
+                    "label": "Total Sell Quantity"
+                },
+                {
+                    "value": "unrealized_profit_loss",
+                    "label": "Unrealized PnL"
+                }
+            ],
+            "defaultOption": {
+                "value": "contribution_to_returns",
+                "label": "Contribution to Returns"
+            }
+        },
+        "SECURITY_FUNDAMENTAL_DATA_FIELD": {
+            "type": "SECURITY_FUNDAMENTAL_DATA_FIELD",
+            "label": "Security fundamental field",
+            "description": "A field in the SECURITY_FUNDAMENTAL_DATA data source",
+            "examples": "contract_id, dividend_yield_ttm, price_to_book_ttm",
+            "editorType": "OPTIONS",
+            "isName": false,
+            "options": [
+                {
+                    "value": "price_return_12month",
+                    "label": "12-Month Total Return"
+                },
+                {
+                    "value": "price_return_3month",
+                    "label": "3-Month Total Return"
+                },
+                {
+                    "value": "price_return_6month",
+                    "label": "6-Month Total Return"
+                },
+                {
+                    "value": "consensus_rank",
+                    "label": "Analyst Consensus"
+                },
+                {
+                    "value": "beta",
+                    "label": "Beta"
+                },
+                {
+                    "value": "dividend_yield_ttm",
+                    "label": "Dividend Yield (TTM)"
+                },
+                {
+                    "value": "ebit_growth_rate_5y",
+                    "label": "EBITD Growth Rate 5Y (TTM)"
+                },
+                {
+                    "value": "eps_change",
+                    "label": "EPS Change (TTM)"
+                },
+                {
+                    "value": "lt_debt_equity_lfi_ttm",
+                    "label": "LT Debt/Equity - LFI (TTM)"
+                },
+                {
+                    "value": "leverage",
+                    "label": "Leverage - Total Assets/Total Equity (LFY)"
+                },
+                {
+                    "value": "liquidity",
+                    "label": "Liquidity - Monthly Volume/Shares Outstanding (LFY)"
+                },
+                {
+                    "value": "market_cap_usd",
+                    "label": "Market Capitalisation (USD)"
+                },
+                {
+                    "value": "net_profit_margin_ttm",
+                    "label": "Net Profit Margin (TTM)"
+                },
+                {
+                    "value": "operating_margin_ttm",
+                    "label": "Operating Margin (TTM)"
+                },
+                {
+                    "value": "price_to_normalised_earnings_ttm",
+                    "label": "P/E Normalized (TTM)"
+                },
+                {
+                    "value": "payout_ratio_ttm",
+                    "label": "Payout Ratio (TTM)"
+                },
+                {
+                    "value": "price_to_book_ttm",
+                    "label": "Price to Book (TTM)"
+                },
+                {
+                    "value": "price_to_cash_flow_per_share_ttm",
+                    "label": "Price to FCF Per Share (TTM)"
+                },
+                {
+                    "value": "price_to_sales_ttm",
+                    "label": "Price to Sales (TTM)"
+                },
+                {
+                    "value": "quick_ratio_lfi_ttm",
+                    "label": "Quick Ratio - LFI (TTM)"
+                },
+                {
+                    "value": "return_on_avg_equity_ttm",
+                    "label": "Return On Avg Equity (TTM)"
+                },
+                {
+                    "value": "return_on_investment_ttm",
+                    "label": "Return On Investment (TTM)"
+                },
+                {
+                    "value": "revenue_change",
+                    "label": "Revenue Change (TTM)"
+                },
+                {
+                    "value": "total_debt_total_assets_lfy",
+                    "label": "Total Debt/Total Assets - LFY (TTM)"
+                },
+                {
+                    "value": "revenue_growth_rate_5y_ttm",
+                    "label": "Total Revenue Growth Rate 5Y (TTM)"
+                },
+                {
+                    "value": "volatility",
+                    "label": "Volatility (12-Month)"
+                }
+            ],
+            "defaultOption": {
+                "value": "price_return_12month",
+                "label": "12-Month Total Return"
+            }
+        }
+    }
+}
