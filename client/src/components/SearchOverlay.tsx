@@ -726,6 +726,9 @@ const SearchOverlay = memo(function SearchOverlay({
   };
 
   const handleQuestionClick = (questionText: string) => {
+    // Clear any open placeholder dropdowns when clicking on any question
+    setEditingPlaceholder(null);
+    
     // Check if this question has placeholders
     const questionObj = allQuestions.find(q => getDisplayText(q) === questionText);
     
