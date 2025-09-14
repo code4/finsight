@@ -84,13 +84,15 @@ interface TopNavigationProps {
   onThemeChange?: (theme: Theme) => void
 }
 
-// Timeframe options
+// Timeframe options for financial analysis
 const timeframes = [
-  { value: '1d', label: '1D' },
-  { value: '1w', label: '1W' },
-  { value: '1m', label: '1M' },
+  { value: 'mtd', label: 'MTD' },
   { value: 'ytd', label: 'YTD' },
-  { value: '1y', label: '1Y' },
+  { value: 'prev_month', label: 'Prev Month' },
+  { value: 'prev_quarter', label: 'Prev Quarter' },
+  { value: 'prev_year', label: 'Prev Year' },
+  { value: '1m', label: '1 Month' },
+  { value: '1y', label: '1 Year' },
 ]
 
 const TopNavigation = memo(function TopNavigation({

@@ -506,7 +506,15 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
   account, // Single account object with proper structure
   timeframe,
   availableAccounts = [], // Now expects Account objects with proper structure
-  availableTimeframes = [{ value: '1d', label: '1D' }, { value: '1w', label: '1W' }, { value: '1m', label: '1M' }, { value: 'ytd', label: 'YTD' }, { value: '1y', label: '1Y' }], // Same as TopNavigation
+  availableTimeframes = [
+    { value: 'mtd', label: 'MTD' },
+    { value: 'ytd', label: 'YTD' },
+    { value: 'prev_month', label: 'Prev Month' },
+    { value: 'prev_quarter', label: 'Prev Quarter' },
+    { value: 'prev_year', label: 'Prev Year' },
+    { value: '1m', label: '1 Month' },
+    { value: '1y', label: '1 Year' },
+  ], // Same as TopNavigation
   onAccountChange, // Single account change
   onTimeframeChange,
   onPlaceholderEdit, // Called when placeholder is clicked (triggers blur)
