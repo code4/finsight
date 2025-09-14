@@ -765,7 +765,17 @@ const SearchOverlay = memo(function SearchOverlay({
 
   const handleInlineQuestionSubmit = (question: Question) => {
     const values = getInlineValues(question);
-    const finalQuestion = replacePlaceholders(question.text, values);
+    const placeholders = extractPlaceholders(question.text);
+    
+    // Merge inline values with defaults to ensure all placeholders are resolved
+    const valuesWithDefaults: Record<string, string> = {};
+    placeholders.forEach(placeholder => {
+      const value = values[placeholder];
+      const config = placeholderConfigs[placeholder];
+      valuesWithDefaults[placeholder] = value || config?.defaultValue || placeholder;
+    });
+    
+    const finalQuestion = replacePlaceholders(question.text, valuesWithDefaults);
     onQuestionSelect?.(finalQuestion);
     onClose?.();
   };
@@ -1027,15 +1037,14 @@ const SearchOverlay = memo(function SearchOverlay({
                         }
                         
                         if (hasPlaceholders(question.text)) {
-                          const values = getInlineValues(question);
-                          console.log('🎯 Question click:', question.text);
-                          console.log('🎯 Retrieved values:', values, 'keys length:', Object.keys(values).length);
-                          console.log('🎯 Has multiple placeholders:', hasMultiplePlaceholders(question));
-                          console.log('🎯 All placeholder values:', inlinePlaceholderValues);
-                          
-                          // Always submit - user clicked to submit the question
-                          console.log('🚀 Submitting question with values:', values);
-                          handleInlineQuestionSubmit(question);
+                          // Use the proper readiness check that considers defaults
+                          if (isQuestionReadyToSubmit(question)) {
+                            console.log('🚀 Question is ready - submitting with all placeholders resolved');
+                            handleInlineQuestionSubmit(question);
+                          } else {
+                            console.log('🔧 Question not ready - going to config mode');
+                            handleQuestionClick(question.text);
+                          }
                         } else {
                           console.log('🔤 Submitting plain question (no placeholders)');
                           handleQuestionClick(question.text);
