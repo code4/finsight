@@ -2,11 +2,11 @@
 
 ## 📋 Overview
 
-**FinSight** is a Bloomberg Terminal-inspired financial advisor dashboard application that provides professional portfolio analytics, account management, and financial data visualization. The application emphasizes structured Q&A functionality over chatbot interactions, featuring sophisticated account selection capabilities and comprehensive financial insights.
+**FinSight** is a professional financial advisor dashboard application that provides comprehensive portfolio analytics, account management, and financial data visualization. The application emphasizes structured Q&A functionality over chatbot interactions, featuring sophisticated account selection capabilities and comprehensive financial insights.
 
 ### Key Features
 - ✅ **Account/Group Selection System** - Mutually exclusive selection with business rule enforcement
-- ✅ **Search Interface** - Perplexity-style search with category-based exploration
+- ✅ **Search Interface** - Advanced search with category-based exploration
 - ✅ **Answer Cards** - Rich financial data presentation with charts and KPIs
 - ✅ **Dark Mode** - Professional financial terminal aesthetic
 - ✅ **Responsive Design** - Desktop-optimized, mobile-responsive
@@ -98,7 +98,7 @@ const [answers, setAnswers] = useState([...]); // Answer cards history
 
 **Key Features**:
 - FinSight logo and branding
-- Perplexity-style search input with focus animations
+- Advanced search input with focus animations
 - Mobile-responsive menu trigger
 - Search state management with visual feedback
 
@@ -433,7 +433,7 @@ test('account selector maintains position during selection', () => {
 
 1. **Business Rules**: Strict enforcement of account selection exclusivity
 2. **Layout Stability**: Prevent UI jumping during user interactions
-3. **Professional Design**: Bloomberg Terminal-inspired aesthetic
+3. **Professional Design**: Professional financial terminal aesthetic
 4. **Performance**: Fast, responsive user experience
 5. **Extensibility**: Clean architecture for future enhancements
 6. **Type Safety**: Comprehensive TypeScript coverage

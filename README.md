@@ -1,6 +1,6 @@
 # FinSight - Financial Advisory Platform
 
-A professional financial advisory platform designed to provide portfolio analytics, risk assessment, and performance insights. Built with React, TypeScript, and modern web technologies, featuring a Bloomberg Terminal-inspired design.
+A professional financial advisory platform designed to provide portfolio analytics, risk assessment, and performance insights. Built with React, TypeScript, and modern web technologies, featuring a professional financial terminal design.
 
 ## 🚀 Quick Start
 
@@ -20,11 +20,11 @@ npm run start
 
 ## ✨ Features
 
-- **Search-Centric Interface**: Perplexity-style search with category-based discovery
+- **Search-Centric Interface**: Advanced search with category-based discovery
 - **Portfolio Analytics**: Comprehensive portfolio performance analysis and risk metrics
 - **Account Management**: Flexible account and group selection with business rule enforcement
 - **Answer Cards**: Rich financial data presentation with interactive charts and KPIs
-- **Dark Mode**: Bloomberg Terminal-inspired professional design
+- **Dark Mode**: Professional financial terminal design
 - **Responsive Design**: Mobile-optimized with desktop-first approach
 
 ## 🏗️ Tech Stack

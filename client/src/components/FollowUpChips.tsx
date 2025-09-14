@@ -68,7 +68,6 @@ export default function FollowUpChips({
 
   const handleQuestionClick = (question: FollowUpQuestion) => {
     onQuestionClick?.(question.text);
-    console.log('Follow-up question clicked:', question.text);
   };
 
   const truncateText = (text: string, maxLength: number) => {

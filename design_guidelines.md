@@ -1,7 +1,7 @@
 # FinSight Design Guidelines
 
 ## Design Approach
-**Reference-Based Approach**: Drawing inspiration from Bloomberg Terminal and professional financial platforms, emphasizing data density, precision, and institutional credibility. Dark mode priority with sophisticated color coding for financial data visualization.
+**Reference-Based Approach**: Drawing inspiration from professional financial platforms and terminals, emphasizing data density, precision, and institutional credibility. Dark mode priority with sophisticated color coding for financial data visualization.
 
 ## Core Design Elements
 
@@ -29,7 +29,7 @@
 ### D. Component Library
 
 **Core Navigation**:
-- Top bar with FinSight logo, Perplexity-style search (rounded-full with subtle glow)
+- Top bar with FinSight logo, advanced search interface (rounded-full with subtle glow)
 - Expandable search overlay with category pills
 - Context bar with account chips (color-coded) and timeframe selectors
 
@@ -61,7 +61,7 @@
 2. **Professional Hierarchy**: Clear visual distinction between data types
 3. **Contextual Clarity**: Always visible account/timeframe context
 4. **Audit Trail**: Timestamps and data source transparency
-5. **Bloomberg Inspiration**: Sophisticated, terminal-like information architecture with modern web polish
+5. **Professional Terminal Inspiration**: Sophisticated, terminal-like information architecture with modern web polish
 
 ## Layout Priority
 Mobile-responsive but desktop-optimized for professional financial advisor workflows. Dense information layouts with expandable/collapsible sections for different screen sizes.

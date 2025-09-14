@@ -2,27 +2,69 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Clock } from "lucide-react";
+import { useSelection } from "@/components/SelectionContext";
 
 interface AnswerCardSkeletonProps {
   loadingStage?: string;
   loadingProgress?: number;
   estimatedTime?: number;
-  selectedAccounts?: Array<{
+  allAccounts?: Array<{
     id: string;
     name: string;
     alias?: string;
     accountNumber: string;
   }>;
-  timeframe?: string;
+  accountGroups?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    accountIds: string[];
+    color: string;
+  }>;
 }
 
 export default function AnswerCardSkeleton({ 
   loadingStage = "Analyzing portfolio data...",
   loadingProgress = 0,
   estimatedTime = 0,
-  selectedAccounts = [],
-  timeframe = "YTD"
+  allAccounts = [],
+  accountGroups = []
 }: AnswerCardSkeletonProps) {
+  // Use selection context for real-time updates
+  const { selectionMode, selectedGroupId, selectedAccountIds, timeframe } = useSelection();
+  
+  // Compute current accounts based on selection mode and context
+  const getCurrentAccounts = () => {
+    if (selectionMode === 'accounts') {
+      return allAccounts.filter(acc => selectedAccountIds.has(acc.id));
+    } else if (selectionMode === 'group' && selectedGroupId) {
+      const group = accountGroups.find(g => g.id === selectedGroupId);
+      if (group) {
+        return allAccounts.filter(acc => group.accountIds.includes(acc.id));
+      }
+    }
+    return allAccounts;
+  };
+  
+  const currentAccounts = getCurrentAccounts();
+  
+  
+  // Generate display text for selection based on mode
+  const getSelectionDisplayText = () => {
+    let displayText;
+    if (selectionMode === 'group' && selectedGroupId) {
+      const group = accountGroups.find(g => g.id === selectedGroupId);
+      if (group) {
+        displayText = `${group.name} (${currentAccounts.length} account${currentAccounts.length !== 1 ? 's' : ''})`;
+      } else {
+        displayText = `${currentAccounts.length} account${currentAccounts.length !== 1 ? 's' : ''}`;
+      }
+    } else {
+      displayText = `${currentAccounts.length} account${currentAccounts.length !== 1 ? 's' : ''}`;
+    }
+    
+    return displayText;
+  };
   return (
     <Card className="mb-6 animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
       <CardHeader className="pb-4">
@@ -44,16 +86,16 @@ export default function AnswerCardSkeleton({
                  timeframe}
               </div>
               <div className="px-2 py-1 bg-muted/50 text-muted-foreground rounded-md text-xs">
-                {selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''}
+                {getSelectionDisplayText()}
               </div>
-              {selectedAccounts.slice(0, 2).map((account, index) => (
+              {currentAccounts.slice(0, 2).map((account, index) => (
                 <div key={account.id} className="px-2 py-1 bg-muted/30 text-muted-foreground rounded-md text-xs truncate max-w-32">
                   {account.alias || account.name}
                 </div>
               ))}
-              {selectedAccounts.length > 2 && (
+              {currentAccounts.length > 2 && (
                 <div className="px-2 py-1 bg-muted/30 text-muted-foreground rounded-md text-xs">
-                  +{selectedAccounts.length - 2} more
+                  +{currentAccounts.length - 2} more
                 </div>
               )}
             </div>
@@ -62,7 +104,7 @@ export default function AnswerCardSkeleton({
           {/* Action buttons skeleton */}
           <div className="flex gap-1">
             <Skeleton className="h-8 w-8 rounded-md" />
-            <Skeleton className="h-8 w-8 rounded-md" />
+            {/* <Skeleton className="h-8 w-8 rounded-md" /> */}
           </div>
         </div>
 

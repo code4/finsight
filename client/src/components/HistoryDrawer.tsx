@@ -53,7 +53,6 @@ export default function HistoryDrawer({
 
   const handleEntryClick = (entry: HistoryEntry) => {
     onEntryClick?.(entry);
-    console.log('History entry clicked:', entry.question);
     setIsOpen(false);
   };
 

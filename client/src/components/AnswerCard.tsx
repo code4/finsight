@@ -555,8 +555,8 @@ const EditableBadgeSection = memo(function EditableBadgeSection({
     setTempTimeframe(timeframe);
   }, [account, timeframe]);
 
-  const handleAccountSelect = (newAccount: string) => {
-    setTempAccount(newAccount);
+  const handleAccountSelect = (newAccount: any) => {
+    setTempAccount(typeof newAccount === 'object' ? newAccount.id : newAccount);
   };
 
   const handleSaveAccount = () => {
@@ -1360,13 +1360,11 @@ const AnswerCard = memo(function AnswerCard({
   
   const handleRefresh = () => {
     onRefresh?.();
-    console.log('Answer refreshed');
   };
 
-  const handleExport = () => {
-    onExport?.();
-    console.log('Answer exported');
-  };
+  // const handleExport = () => {
+  //   onExport?.();
+  // };
 
   return (
     <Card className="mb-6 animate-in fade-in-50 slide-in-from-bottom-4 duration-500 hover-elevate card-smooth stable-layout group">
@@ -1395,37 +1393,58 @@ const AnswerCard = memo(function AnswerCard({
                 </div>
               )}
             </div>
+            {/* Static badges showing historical account/timeframe info */}
             <div className="flex items-center gap-2 flex-wrap">
-              <EditableBadgeSection
-                account={account || accounts?.[0] || "Growth Portfolio"}
-                timeframe={timeframe}
-                availableAccounts={availableAccounts || [
-                  { id: "ACC001", accountNumber: "DU0123456", name: "Johnson Family Trust", alias: "Johnson Family", type: "Trust", balance: 2450000, color: "bg-chart-1" },
-                  { id: "ACC002", accountNumber: "DU0234567", name: "Smith Retirement IRA", alias: "Smith Retirement", type: "IRA", balance: 1850000, color: "bg-chart-2" },
-                  { id: "ACC003", accountNumber: "DU0345678", name: "Wilson Tech Holdings", alias: "Wilson Tech", type: "Individual", balance: 980000, color: "bg-chart-4" }
-                ]}
-                availableTimeframes={availableTimeframes || [
-                  { value: 'mtd', short: 'MTD', label: 'Month to Date' },
-                  { value: 'ytd', short: 'YTD', label: 'Year to Date' },
-                  { value: 'prev_month', short: 'PM', label: 'Previous Month' },
-                  { value: 'prev_quarter', short: 'PQ', label: 'Previous Quarter' },
-                  { value: 'prev_year', short: 'PY', label: 'Previous Year' },
-                  { value: '1m', short: '1M', label: 'One Month' },
-                  { value: '1y', short: '1Y', label: 'One Year' },
-                ]}
-                onAccountChange={(newAccount) => console.log('Account changed:', newAccount)}
-                onTimeframeChange={onTimeframeChange}
-                onPlaceholderEdit={() => console.log('Placeholder editing started')}
-                onSubmitChanges={() => console.log('Submit changes clicked')}
-                hasChanges={hasModifiedPlaceholders}
-                isBlurred={false}
-              />
+              <div className="px-2 py-1 bg-muted/30 text-muted-foreground rounded-md text-xs font-normal flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {timeframe === 'mtd' ? 'Month to Date' : 
+                 timeframe === 'ytd' ? 'Year to Date' :
+                 timeframe === 'prev_month' ? 'Previous Month' :
+                 timeframe === 'prev_quarter' ? 'Previous Quarter' :
+                 timeframe === 'prev_year' ? 'Previous Year' :
+                 timeframe === '1m' ? 'One Month' :
+                 timeframe === '1y' ? 'One Year' :
+                 timeframe}
+              </div>
+              {accounts && accounts.length > 0 && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-2 py-1 bg-muted/50 hover:bg-muted/70 text-muted-foreground rounded-md text-xs transition-colors cursor-pointer flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      {accounts.length} account{accounts.length !== 1 ? 's' : ''}
+                      <ChevronDown className="h-3 w-3 opacity-60" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0" align="start">
+                    <div className="p-3 border-b">
+                      <h4 className="font-medium text-sm">Analyzed Accounts</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        This analysis was performed on the following {accounts.length} account{accounts.length !== 1 ? 's' : ''}:
+                      </p>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                      <div className="p-3 space-y-2">
+                        {accounts.map((accountName, index) => (
+                          <div key={index} className="flex items-center gap-2 py-1">
+                            <div className="w-2 h-2 rounded-full bg-muted-foreground/30"></div>
+                            <span className="text-sm text-foreground font-medium truncate">
+                              {accountName}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Badge variant="outline" className="text-xs gap-1 transition-all duration-200 hover:scale-105">
-                    <Calendar className="h-3 w-3" />
-                    As of {asOfDate}
-                  </Badge>
+                  <div>
+                    <Badge variant="outline" className="text-xs gap-1 transition-all duration-200 hover:scale-105">
+                      <Calendar className="h-3 w-3" />
+                      As of {asOfDate}
+                    </Badge>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Data as of this date</p>
@@ -1451,7 +1470,7 @@ const AnswerCard = memo(function AnswerCard({
                 <p>Refresh this analysis</p>
               </TooltipContent>
             </Tooltip>
-            
+{/*             
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button 
@@ -1468,7 +1487,7 @@ const AnswerCard = memo(function AnswerCard({
               <TooltipContent>
                 <p>Export analysis as PDF</p>
               </TooltipContent>
-            </Tooltip>
+            </Tooltip> */}
           </div>
         </div>
       </CardHeader>
@@ -1484,7 +1503,7 @@ const AnswerCard = memo(function AnswerCard({
             error={originalError || message || "An unexpected error occurred"}
             errorType={errorType}
             onRetry={onRefresh}
-            onReportIssue={() => console.log("Report issue clicked")}
+            onReportIssue={() => {}}
           />
         ) : (isUnmatched || content?.isUnmatched) ? (
           /* Smart Fallback content for unmatched questions */
@@ -1522,7 +1541,7 @@ const AnswerCard = memo(function AnswerCard({
                 <Button 
                   variant="outline" 
                   className="gap-2 hover-elevate transition-all duration-200"
-                  onClick={() => console.log(`Action: ${content.actionText}`)}
+                  onClick={() => {}}
                 >
                   <ExternalLink className="h-4 w-4" />
                   {content.actionText}

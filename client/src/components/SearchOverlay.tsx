@@ -328,6 +328,46 @@ const getCategoryInfo = (categoryName: string) => {
   return categories.find(c => c.name === categoryName);
 };
 
+// Curated popular questions that showcase different UI components and answer types
+const popularQuestions: Question[] = [
+  // Performance chart with metrics
+  { 
+    text: "Compare YTD performance vs {benchmark} over {timeperiod}", 
+    categories: ["Comparison", "Performance Analysis"], 
+    tags: ["performance", "benchmark", "chart"] 
+  },
+  // Holdings table with pie chart
+  { 
+    text: "Show me the top 10 holdings by weight", 
+    categories: ["Holdings Analysis"], 
+    tags: ["positions", "weight", "table"] 
+  },
+  // Risk dashboard with multiple metrics
+  { 
+    text: "Show risk metrics dashboard", 
+    categories: ["Risk Assessment"], 
+    tags: ["metrics", "dashboard", "kpis"] 
+  },
+  // Allocation breakdown with pie chart
+  { 
+    text: "How is the portfolio allocated by asset class?", 
+    categories: ["Allocation Analysis"], 
+    tags: ["asset-class", "allocation", "breakdown"] 
+  },
+  // Activity timeline with transactions
+  { 
+    text: "Show me recent portfolio activity summary", 
+    categories: ["Activity & Trading"], 
+    tags: ["summary", "recent", "timeline"] 
+  },
+  // Income analysis with trend chart
+  { 
+    text: "Show dividend income for {timeperiod}", 
+    categories: ["Income & Dividends"], 
+    tags: ["dividends", "income", "trends"] 
+  }
+];
+
 // Helper functions for placeholder detection and management
 const extractPlaceholders = (text: string): string[] => {
   const matches = text.match(/\{(\w+)\}/g);
@@ -585,7 +625,6 @@ const renderInteractiveQuestion = (
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation(); // ALWAYS stop propagation for placeholder button clicks
-            console.log('🎯 Placeholder button clicked:', placeholderId);
             onPlaceholderClick?.(placeholderId);
           }}
           onMouseDown={(e) => {
@@ -754,7 +793,6 @@ const SearchOverlay = memo(function SearchOverlay({
     setSelectedCategory(categoryName);
     setMode('category');
     onCategorySelect?.(categoryName);
-    console.log('Category selected:', categoryName);
   };
 
   const handleQuestionClick = (questionText: string) => {
@@ -784,7 +822,6 @@ const SearchOverlay = memo(function SearchOverlay({
     }
     
     onQuestionSelect?.(questionText);
-    console.log('Question selected:', questionText);
     onClose?.();
   };
 
@@ -1093,25 +1130,20 @@ const SearchOverlay = memo(function SearchOverlay({
                       value={question.text}
                       className="px-4 py-3 text-sm hover:bg-accent/50 cursor-pointer transition-all duration-200 rounded-md mx-2 my-0.5 border-l-2 border-transparent hover:border-primary/30"
                       onSelect={() => {
-                        console.log('🎯 Category view question selected:', question.text);
                         
                         // Clear any open placeholder dropdowns first
                         if (editingPlaceholder) {
-                          console.log('🔄 Clearing placeholder dropdown before question submission');
                           setEditingPlaceholder(null);
                         }
                         
                         if (hasPlaceholders(question.text)) {
                           // Use the proper readiness check that considers defaults
                           if (isQuestionReadyToSubmit(question)) {
-                            console.log('🚀 Question is ready - submitting with all placeholders resolved');
                             handleInlineQuestionSubmit(question);
                           } else {
-                            console.log('🔧 Question not ready - going to config mode');
                             handleQuestionClick(question.text);
                           }
                         } else {
-                          console.log('🔤 Submitting plain question (no placeholders)');
                           handleQuestionClick(question.text);
                         }
                       }}
@@ -1315,7 +1347,7 @@ const SearchOverlay = memo(function SearchOverlay({
                     <span>Popular Questions</span>
                   </div>
                 }>
-                  {allQuestions.slice(0, 6).map((question, index) => {
+                  {popularQuestions.map((question, index) => {
                     const categoryInfo = getCategoryInfo(question.categories[0]);
                     return (
                       <CommandItem

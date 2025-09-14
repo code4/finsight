@@ -556,7 +556,7 @@ function FinSightDashboard() {
       {/* Overlay backdrop - click to close */}
       {isSearchFocused && (
         <div 
-          className="fixed inset-0 bg-black/20 z-[60]"
+          className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-[60] transition-all duration-300"
           onClick={handleCloseSearch}
           data-testid="search-overlay-backdrop"
         />

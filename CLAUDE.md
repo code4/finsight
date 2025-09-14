@@ -12,7 +12,7 @@ This document contains development notes, architectural decisions, and technical
 - **UI Framework**: Tailwind CSS with custom design system inspired by financial platforms
 - **Component Library**: Shadcn/ui components with Radix UI primitives for accessibility
 - **State Management**: React Query (TanStack Query) for server state management
-- **Styling**: Dark-mode-first design with Bloomberg Terminal aesthetics
+- **Styling**: Dark-mode-first design with professional financial terminal aesthetics
 
 ### Design System Specifications
 - **Color Palette**: Professional financial colors with dark navy backgrounds, institutional blue accents, and financial red/green for gains/losses
@@ -182,7 +182,7 @@ Based on recent commits, the application has been evolving with:
 - Preserve layout stability with fixed-width containers
 - Follow the existing TypeScript patterns and component structure
 - Use the established mock data structure for consistency
-- Maintain the Bloomberg Terminal aesthetic and professional design
+- Maintain the professional financial terminal aesthetic and design
 - Ensure all new components integrate with the existing state management patterns
 - SearchOverlay uses advanced UX patterns: typing animations, focus management, z-index layering
 - Loading states should provide real account/timeframe context for better user experience
