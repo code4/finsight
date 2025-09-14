@@ -173,6 +173,9 @@ Based on recent commits, the application has been evolving with:
 - Fixed input focus management and overlay backdrop positioning
 - Improved mobile experience with touch-optimized interactions
 - Enhanced loading state visibility and skeleton positioning
+- Implemented responsive typing animation system with screen-size-specific question sets
+- Fixed multi-line overflow issues in typing animations on smaller screens
+- Added dynamic question template system with dropdown selectors for professional question building
 
 ## Development Notes for Claude
 - Always maintain the mutually exclusive account selection business logic
@@ -185,4 +188,7 @@ Based on recent commits, the application has been evolving with:
 - Loading states should provide real account/timeframe context for better user experience
 - Overlay backdrop must cover entire viewport including header for proper modal behavior
 - Mobile experience should be touch-optimized with appropriate tap targets and animations
+- Typing animations use responsive question sets (mobile: <640px, tablet: <768px, desktop: >=768px)
+- Question templates provide professional dropdown configuration before submitting questions
+- Always consider text length and screen size when implementing typing animations to prevent overflow
 - **NEVER** add "Generated with Claude Code" or similar attribution messages to commit messages

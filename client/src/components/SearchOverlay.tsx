@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft, ChevronRight, Search } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TrendingUp, PieChart, Shield, Activity, BarChart3, Target, Grid3X3, ArrowLeft, ChevronRight, Search, ChevronDown } from "lucide-react";
 import { useTypingAnimation } from "@/hooks/useTypingAnimation";
 
 interface SearchOverlayProps {
@@ -18,7 +19,21 @@ interface SearchOverlayProps {
 
 interface Question {
   text: string;
-  category: string;
+  categories: string[]; // Multiple categories support
+  tags?: string[]; // Optional tags for better organization
+}
+
+interface PlaceholderConfig {
+  [key: string]: {
+    label: string;
+    type: 'select' | 'text';
+    options?: Array<{
+      value: string;
+      label: string;
+      description?: string;
+    }>;
+    defaultValue?: string;
+  };
 }
 
 const categories = [
@@ -30,63 +45,424 @@ const categories = [
   { name: "Allocation", icon: BarChart3, color: "bg-chart-2" }
 ];
 
-// All questions with their categories
+// Global placeholder configurations
+const placeholderConfigs: PlaceholderConfig = {
+  benchmark: {
+    label: "Benchmark",
+    type: "select",
+    options: [
+      { value: "spxtr", label: "S&P 500 TR Index", description: "Most common benchmark" },
+      { value: "qqq", label: "Invesco QQQ Trust", description: "Tech-focused" },
+      { value: "rlg", label: "Russell 1000 Growth", description: "Large cap growth" },
+      { value: "rut", label: "Russell 2000", description: "Small cap" },
+      { value: "bil", label: "Bloomberg T-Bill ETF", description: "Cash proxy" },
+      { value: "vwo", label: "Vanguard Emerging Markets", description: "Emerging markets" }
+    ],
+    defaultValue: "spxtr"
+  },
+  timeperiod: {
+    label: "Time Period",
+    type: "select",
+    options: [
+      { value: "ytd", label: "Year to Date", description: "Since January 1st" },
+      { value: "1m", label: "Last Month", description: "Past 30 days" },
+      { value: "3m", label: "Last Quarter", description: "Past 3 months" },
+      { value: "6m", label: "Last 6 Months", description: "Past 6 months" },
+      { value: "1y", label: "Last Year", description: "Past 12 months" },
+      { value: "3y", label: "Last 3 Years", description: "Past 36 months" }
+    ],
+    defaultValue: "ytd"
+  },
+  sector: {
+    label: "Sector",
+    type: "select",
+    options: [
+      { value: "technology", label: "Technology", description: "Software, hardware, semiconductors" },
+      { value: "healthcare", label: "Healthcare", description: "Pharmaceuticals, biotech, devices" },
+      { value: "financials", label: "Financials", description: "Banks, insurance, real estate" },
+      { value: "consumer", label: "Consumer Discretionary", description: "Retail, automotive, entertainment" },
+      { value: "industrials", label: "Industrials", description: "Manufacturing, aerospace, defense" },
+      { value: "energy", label: "Energy", description: "Oil, gas, renewable energy" }
+    ],
+    defaultValue: "technology"
+  },
+  account: {
+    label: "Account Type",
+    type: "select",
+    options: [
+      { value: "all", label: "All Accounts", description: "Include all portfolio accounts" },
+      { value: "taxable", label: "Taxable Accounts", description: "Only taxable investment accounts" },
+      { value: "retirement", label: "Retirement Accounts", description: "401k, IRA, and other retirement accounts" },
+      { value: "trust", label: "Trust Accounts", description: "Trust and estate accounts" }
+    ],
+    defaultValue: "all"
+  }
+};
+
+// All questions with multiple categories and placeholders support
 const allQuestions: Question[] = [
-  // Comparison questions
-  { text: "What's the YTD performance vs S&P 500?", category: "Comparison" },
-  { text: "Compare risk-adjusted returns to benchmark", category: "Comparison" },
-  { text: "How does performance compare to sector peers?", category: "Comparison" },
-  { text: "Portfolio vs benchmark sector allocation", category: "Comparison" },
-  { text: "Compare Sharpe ratio to industry average", category: "Comparison" },
-  { text: "Performance vs similar risk profiles", category: "Comparison" },
+  // Multi-category questions with placeholders
+  { 
+    text: "Compare YTD performance vs {benchmark} over {timeperiod}", 
+    categories: ["Comparison", "Attribution"], 
+    tags: ["performance", "benchmark"] 
+  },
+  { 
+    text: "Show longest outperformance streak vs {benchmark}", 
+    categories: ["Comparison"], 
+    tags: ["performance", "streak"] 
+  },
+  { 
+    text: "How does performance compare to sector peers?", 
+    categories: ["Comparison", "Attribution"], 
+    tags: ["sector", "peers"] 
+  },
+  { 
+    text: "Portfolio vs {benchmark} {sector} allocation", 
+    categories: ["Comparison", "Allocation"], 
+    tags: ["sector", "allocation"] 
+  },
+  { 
+    text: "Compare Sharpe ratio to industry average", 
+    categories: ["Comparison", "Risk"], 
+    tags: ["sharpe", "risk"] 
+  },
+  { 
+    text: "Performance vs similar risk profiles over {timeperiod}", 
+    categories: ["Comparison", "Risk"], 
+    tags: ["performance", "risk"] 
+  },
   
   // Holdings questions
-  { text: "Show me the top 10 holdings by weight", category: "Holdings" },
-  { text: "What are the largest position changes?", category: "Holdings" },
-  { text: "Holdings concentration analysis", category: "Holdings" },
-  { text: "Show positions by market cap", category: "Holdings" },
-  { text: "Recent additions and reductions", category: "Holdings" },
-  { text: "Holdings overlap across accounts", category: "Holdings" },
+  { 
+    text: "Show me the top 10 holdings by weight", 
+    categories: ["Holdings"], 
+    tags: ["positions", "weight"] 
+  },
+  { 
+    text: "What are the largest position changes over {timeperiod}?", 
+    categories: ["Holdings", "Activity"], 
+    tags: ["positions", "changes"] 
+  },
+  { 
+    text: "Holdings concentration analysis for {account}", 
+    categories: ["Holdings", "Risk"], 
+    tags: ["concentration", "risk"] 
+  },
+  { 
+    text: "Show positions by market cap", 
+    categories: ["Holdings"], 
+    tags: ["positions", "market-cap"] 
+  },
+  { 
+    text: "Recent additions and reductions", 
+    categories: ["Holdings", "Activity"], 
+    tags: ["changes", "trades"] 
+  },
+  { 
+    text: "Holdings overlap across accounts", 
+    categories: ["Holdings", "Allocation"], 
+    tags: ["overlap", "accounts"] 
+  },
   
   // Risk questions
-  { text: "What's the portfolio's beta and volatility?", category: "Risk" },
-  { text: "Show risk metrics dashboard", category: "Risk" },
-  { text: "Downside risk and max drawdown", category: "Risk" },
-  { text: "Risk contribution by holding", category: "Risk" },
-  { text: "Portfolio correlation analysis", category: "Risk" },
-  { text: "Stress test against scenarios", category: "Risk" },
+  { 
+    text: "What's the portfolio's beta and volatility vs {benchmark}?", 
+    categories: ["Risk", "Comparison"], 
+    tags: ["beta", "volatility"] 
+  },
+  { 
+    text: "Show risk metrics dashboard", 
+    categories: ["Risk"], 
+    tags: ["metrics", "dashboard"] 
+  },
+  { 
+    text: "Downside risk and max drawdown over {timeperiod}", 
+    categories: ["Risk"], 
+    tags: ["downside", "drawdown"] 
+  },
+  { 
+    text: "Risk contribution by holding", 
+    categories: ["Risk", "Holdings"], 
+    tags: ["risk", "contribution"] 
+  },
+  { 
+    text: "Portfolio correlation analysis", 
+    categories: ["Risk"], 
+    tags: ["correlation", "analysis"] 
+  },
+  { 
+    text: "Stress test against scenarios", 
+    categories: ["Risk"], 
+    tags: ["stress", "scenarios"] 
+  },
   
   // Attribution questions
-  { text: "What's driving current performance attribution?", category: "Attribution" },
-  { text: "Sector vs security selection impact", category: "Attribution" },
-  { text: "Attribution breakdown by time period", category: "Attribution" },
-  { text: "Top contributing and detracting positions", category: "Attribution" },
-  { text: "Factor-based attribution analysis", category: "Attribution" },
-  { text: "Geographic attribution breakdown", category: "Attribution" },
+  { 
+    text: "What's driving current performance attribution?", 
+    categories: ["Attribution"], 
+    tags: ["performance", "drivers"] 
+  },
+  { 
+    text: "How is my {sector} allocation performing vs {benchmark} over {timeperiod}?", 
+    categories: ["Attribution", "Allocation", "Comparison"], 
+    tags: ["sector", "performance"] 
+  },
+  { 
+    text: "Attribution breakdown by {timeperiod}", 
+    categories: ["Attribution"], 
+    tags: ["breakdown", "analysis"] 
+  },
+  { 
+    text: "Top contributing and detracting positions", 
+    categories: ["Attribution", "Holdings"], 
+    tags: ["performance", "positions"] 
+  },
+  { 
+    text: "Factor-based attribution analysis", 
+    categories: ["Attribution", "Risk"], 
+    tags: ["factors", "analysis"] 
+  },
+  { 
+    text: "Geographic attribution breakdown", 
+    categories: ["Attribution", "Allocation"], 
+    tags: ["geography", "breakdown"] 
+  },
   
   // Activity questions
-  { text: "What were the largest trades last month?", category: "Activity" },
-  { text: "Show me recent portfolio activity summary", category: "Activity" },
-  { text: "Cash flow and dividend activity", category: "Activity" },
-  { text: "Recent rebalancing actions", category: "Activity" },
-  { text: "Trading volume by account", category: "Activity" },
-  { text: "Fee and expense breakdown", category: "Activity" },
+  { 
+    text: "What were the largest trades over {timeperiod}?", 
+    categories: ["Activity"], 
+    tags: ["trades", "large"] 
+  },
+  { 
+    text: "Show me recent portfolio activity summary", 
+    categories: ["Activity"], 
+    tags: ["summary", "recent"] 
+  },
+  { 
+    text: "Cash flow and dividend activity for {account}", 
+    categories: ["Activity", "Holdings"], 
+    tags: ["cash-flow", "dividends"] 
+  },
+  { 
+    text: "Recent rebalancing actions", 
+    categories: ["Activity", "Allocation"], 
+    tags: ["rebalancing", "actions"] 
+  },
+  { 
+    text: "Trading volume by {account} over {timeperiod}", 
+    categories: ["Activity"], 
+    tags: ["volume", "trading"] 
+  },
+  { 
+    text: "Fee and expense breakdown", 
+    categories: ["Activity"], 
+    tags: ["fees", "expenses"] 
+  },
   
   // Allocation questions
-  { text: "Show sector allocation breakdown", category: "Allocation" },
-  { text: "How is the portfolio allocated by asset class?", category: "Allocation" },
-  { text: "Geographic allocation analysis", category: "Allocation" },
-  { text: "Style allocation (growth vs value)", category: "Allocation" },
-  { text: "Target vs actual allocation drift", category: "Allocation" },
-  { text: "Rebalancing recommendations", category: "Allocation" },
-  
-  // Additional mixed questions for better variety
-  { text: "How did tech sector allocation perform?", category: "Attribution" },
+  { 
+    text: "Show {sector} allocation breakdown", 
+    categories: ["Allocation"], 
+    tags: ["sector", "breakdown"] 
+  },
+  { 
+    text: "How is the portfolio allocated by asset class?", 
+    categories: ["Allocation"], 
+    tags: ["asset-class", "allocation"] 
+  },
+  { 
+    text: "Geographic allocation analysis", 
+    categories: ["Allocation"], 
+    tags: ["geography", "allocation"] 
+  },
+  { 
+    text: "Style allocation (growth vs value)", 
+    categories: ["Allocation"], 
+    tags: ["style", "growth", "value"] 
+  },
+  { 
+    text: "Target vs actual allocation drift", 
+    categories: ["Allocation", "Risk"], 
+    tags: ["drift", "target"] 
+  },
+  { 
+    text: "Rebalancing recommendations for {account}", 
+    categories: ["Allocation", "Activity"], 
+    tags: ["rebalancing", "recommendations"] 
+  },
 ];
 
 // Helper function to get category info
 const getCategoryInfo = (categoryName: string) => {
   return categories.find(c => c.name === categoryName);
+};
+
+// Helper functions for placeholder detection and management
+const extractPlaceholders = (text: string): string[] => {
+  const matches = text.match(/\{(\w+)\}/g);
+  return matches ? matches.map(match => match.slice(1, -1)) : [];
+};
+
+const hasPlaceholders = (text: string): boolean => {
+  return /\{(\w+)\}/.test(text);
+};
+
+const replacePlaceholders = (text: string, values: Record<string, string>): string => {
+  return text.replace(/\{(\w+)\}/g, (match, key) => {
+    const value = values[key];
+    if (value && placeholderConfigs[key]) {
+      const option = placeholderConfigs[key].options?.find(opt => opt.value === value);
+      return option?.label || value;
+    }
+    return match;
+  });
+};
+
+const getDisplayText = (question: Question): string => {
+  if (!hasPlaceholders(question.text)) {
+    return question.text;
+  }
+  
+  // Replace placeholders with default values for display
+  const defaultValues: Record<string, string> = {};
+  const placeholders = extractPlaceholders(question.text);
+  
+  placeholders.forEach(placeholder => {
+    const config = placeholderConfigs[placeholder];
+    if (config?.defaultValue) {
+      defaultValues[placeholder] = config.defaultValue;
+    }
+  });
+  
+  return replacePlaceholders(question.text, defaultValues);
+};
+
+// Inline placeholder dropdown component with improved styling
+const InlinePlaceholderDropdown = ({ 
+  placeholderId, 
+  currentValue, 
+  onValueChange, 
+  onClose 
+}: { 
+  placeholderId: string; 
+  currentValue: string; 
+  onValueChange: (value: string) => void; 
+  onClose: () => void; 
+}) => {
+  const config = placeholderConfigs[placeholderId];
+  if (!config?.options) return null;
+
+  return (
+    <div className="absolute top-full left-0 z-50 mt-2 w-72 bg-background border border-border/50 rounded-xl shadow-xl ring-1 ring-primary/10 overflow-hidden backdrop-blur-sm">
+      <div className="p-3">
+        <div className="text-xs font-medium text-muted-foreground mb-2 px-1">
+          Select {config.label}
+        </div>
+        <div className="space-y-1 max-h-48 overflow-y-auto">
+          {config.options.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => {
+                onValueChange(option.value);
+                onClose();
+              }}
+              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 hover:scale-[1.02] ${
+                currentValue === option.value 
+                  ? 'bg-primary/20 text-primary border border-primary/30 shadow-sm' 
+                  : 'hover:bg-accent/80 border border-transparent'
+              }`}
+            >
+              <div className="font-medium">{option.label}</div>
+              {option.description && (
+                <div className="text-xs text-muted-foreground/80 mt-0.5 leading-relaxed">{option.description}</div>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// New function to render interactive question text with subtle link-style placeholders
+const renderInteractiveQuestion = (
+  question: Question, 
+  values: Record<string, string> = {},
+  onPlaceholderClick?: (placeholderId: string) => void,
+  editingPlaceholder?: { questionId: string; placeholderId: string } | null,
+  onPlaceholderChange?: (placeholderId: string, value: string) => void,
+  onSubmit?: () => void,
+  showSubmitButton?: boolean
+) => {
+  if (!hasPlaceholders(question.text)) {
+    return <span>{question.text}</span>;
+  }
+
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  const placeholderRegex = /\{(\w+)\}/g;
+  let match;
+
+  while ((match = placeholderRegex.exec(question.text)) !== null) {
+    const [fullMatch, placeholderId] = match;
+    const startIndex = match.index;
+    
+    // Add text before placeholder
+    if (startIndex > lastIndex) {
+      parts.push(<span key={`text-${lastIndex}`}>{question.text.slice(lastIndex, startIndex)}</span>);
+    }
+    
+    // Add interactive placeholder with subtle link-style
+    const config = placeholderConfigs[placeholderId];
+    const currentValue = values[placeholderId] || config?.defaultValue || '';
+    const displayValue = config?.options?.find(opt => opt.value === currentValue)?.label || currentValue || placeholderId;
+    const isEditing = editingPlaceholder?.questionId === question.text && editingPlaceholder?.placeholderId === placeholderId;
+    
+    parts.push(
+      <span key={`${placeholderId}-${startIndex}`} className="relative inline-block mx-0.5">
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onPlaceholderClick?.(placeholderId);
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          className={`inline-flex items-center gap-0.5 text-primary hover:text-primary/80 underline decoration-dotted underline-offset-2 hover:decoration-solid transition-all duration-150 ${
+            isEditing ? 'text-primary font-medium bg-primary/5 px-1 rounded' : 'font-normal'
+          }`}
+          title={`Click to change ${config?.label || placeholderId}`}
+        >
+          {displayValue}
+          <ChevronDown className={`h-3 w-3 ml-0.5 opacity-60 transition-all duration-150 ${
+            isEditing ? 'rotate-180 opacity-100' : 'group-hover:opacity-100'
+          }`} />
+        </button>
+        
+        {isEditing && (
+          <InlinePlaceholderDropdown
+            placeholderId={placeholderId}
+            currentValue={currentValue}
+            onValueChange={(value) => onPlaceholderChange?.(placeholderId, value)}
+            onClose={() => onPlaceholderClick?.('')} // Close by clearing editing state
+          />
+        )}
+      </span>
+    );
+    
+    lastIndex = startIndex + fullMatch.length;
+  }
+  
+  // Add remaining text
+  if (lastIndex < question.text.length) {
+    parts.push(<span key={`text-${lastIndex}`}>{question.text.slice(lastIndex)}</span>);
+  }
+  
+  return <span className="inline-flex items-baseline flex-wrap gap-0 group">{parts}</span>;
 };
 
 const recentQueries = [
@@ -103,24 +479,53 @@ const SearchOverlay = memo(function SearchOverlay({
   onQuestionSelect,
   onClose
 }: SearchOverlayProps) {
-  const [mode, setMode] = useState<'overview' | 'category'>('overview');
+  const [mode, setMode] = useState<'overview' | 'category' | 'configure'>('overview');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [placeholderValues, setPlaceholderValues] = useState<Record<string, string>>({});
+  const [inlinePlaceholderValues, setInlinePlaceholderValues] = useState<Record<string, Record<string, string>>>({});
+  const [editingPlaceholder, setEditingPlaceholder] = useState<{ questionId: string; placeholderId: string } | null>(null);
+  const [recentlyModifiedQuestion, setRecentlyModifiedQuestion] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Typing animation for placeholder
+  // Typing animation for placeholder with responsive questions
   const placeholderQuestions = [
-    "What's the YTD performance vs S&P 500?",
-    "Show me the top 10 holdings by weight",
-    "What's the portfolio's beta and volatility?", 
-    "How is the portfolio allocated by sector?",
-    "What are the biggest risk exposures?",
-    "Which positions had the best performance?",
-    "What's driving current performance attribution?",
-    "Show me recent portfolio activity summary"
+    "What's my biggest risk exposure?",
+    "Should I rebalance my portfolio?",
+    "Which stocks are underperforming?",
+    "What's my YTD performance vs S&P 500?",
+    "How should I reduce concentration risk?",
+    "What sectors should I consider selling?",
+    "Am I too heavily invested in tech?",
+    "What's driving my recent losses?"
+  ];
+
+  const tabletPlaceholderQuestions = [
+    "Biggest risk exposure?",
+    "Should I rebalance?",
+    "Which stocks underperform?",
+    "YTD performance vs S&P 500?",
+    "Reduce concentration risk?",
+    "Sectors to sell?",
+    "Too heavy in tech?",
+    "Recent losses cause?"
+  ];
+
+  const mobilePlaceholderQuestions = [
+    "Biggest risk?",
+    "Rebalance?",
+    "Underperformers?",
+    "YTD vs S&P?",
+    "Reduce risk?",
+    "Sell sectors?",
+    "Too much tech?",
+    "Loss cause?"
   ];
 
   const { displayedText: displayedPlaceholder } = useTypingAnimation({
     questions: placeholderQuestions,
+    tabletQuestions: tabletPlaceholderQuestions,
+    mobileQuestions: mobilePlaceholderQuestions,
     isActive: isOpen && !searchValue,
     typingSpeed: 50,
     erasingSpeed: 30,
@@ -133,6 +538,10 @@ const SearchOverlay = memo(function SearchOverlay({
     if (isOpen) {
       setMode('overview');
       setSelectedCategory(null);
+      setSelectedQuestion(null);
+      setPlaceholderValues({});
+      setEditingPlaceholder(null);
+      setRecentlyModifiedQuestion(null);
       
       // Scroll to top of overlay content
       setTimeout(() => {
@@ -158,20 +567,25 @@ const SearchOverlay = memo(function SearchOverlay({
   const filteredQuestions = useMemo(() => {
     if (!searchValue || searchValue.trim() === "") {
       return mode === 'category' && selectedCategory
-        ? allQuestions.filter(q => q.category === selectedCategory)
+        ? allQuestions.filter(q => q.categories.includes(selectedCategory))
         : allQuestions.slice(0, 5); // Show fewer when no search
     }
 
     const searchTerm = searchValue.toLowerCase().trim();
     const questions = mode === 'category' && selectedCategory
-      ? allQuestions.filter(q => q.category === selectedCategory)
+      ? allQuestions.filter(q => q.categories.includes(selectedCategory))
       : allQuestions;
       
     return questions
-      .filter(question => 
-        question.text.toLowerCase().includes(searchTerm) ||
-        question.category.toLowerCase().includes(searchTerm)
-      )
+      .filter(question => {
+        const displayText = getDisplayText(question).toLowerCase();
+        const categoriesText = question.categories.join(' ').toLowerCase();
+        const tagsText = question.tags?.join(' ').toLowerCase() || '';
+        
+        return displayText.includes(searchTerm) ||
+               categoriesText.includes(searchTerm) ||
+               tagsText.includes(searchTerm);
+      })
       .slice(0, 8); // More results when searching
   }, [searchValue, mode, selectedCategory]);
 
@@ -182,19 +596,112 @@ const SearchOverlay = memo(function SearchOverlay({
     console.log('Category selected:', categoryName);
   };
 
-  const handleQuestionClick = (question: string) => {
-    onQuestionSelect?.(question);
-    console.log('Question selected:', question);
+  const handleQuestionClick = (questionText: string) => {
+    // Check if this question has placeholders
+    const questionObj = allQuestions.find(q => getDisplayText(q) === questionText);
+    
+    if (questionObj && hasPlaceholders(questionObj.text)) {
+      setSelectedQuestion(questionObj);
+      setMode('configure');
+      
+      // Initialize placeholder values with defaults
+      const placeholders = extractPlaceholders(questionObj.text);
+      const initialValues: Record<string, string> = {};
+      
+      placeholders.forEach(placeholder => {
+        const config = placeholderConfigs[placeholder];
+        if (config?.defaultValue) {
+          initialValues[placeholder] = config.defaultValue;
+        }
+      });
+      
+      setPlaceholderValues(initialValues);
+      return;
+    }
+    
+    onQuestionSelect?.(questionText);
+    console.log('Question selected:', questionText);
     onClose?.();
   };
 
   const handleBackToOverview = () => {
     setMode('overview');
     setSelectedCategory(null);
+    setSelectedQuestion(null);
+    setPlaceholderValues({});
+    setEditingPlaceholder(null);
+    setRecentlyModifiedQuestion(null);
+  };
+
+  const handleInlinePlaceholderClick = (question: Question, placeholderId: string) => {
+    const questionId = question.text; // Use question text as unique ID
+    setEditingPlaceholder({ questionId, placeholderId });
+    // Immediately mark as recently modified to prevent any auto-submission
+    setRecentlyModifiedQuestion(questionId);
+  };
+
+  const handleInlinePlaceholderChange = (questionId: string, placeholderId: string, value: string) => {
+    setInlinePlaceholderValues(prev => ({
+      ...prev,
+      [questionId]: {
+        ...prev[questionId],
+        [placeholderId]: value
+      }
+    }));
+    // Close the editing dropdown
+    setEditingPlaceholder(null);
+    // Mark this question as recently modified to prevent auto-submission
+    setRecentlyModifiedQuestion(questionId);
+    // Clear the flag after a longer delay to be safe
+    setTimeout(() => {
+      setRecentlyModifiedQuestion(null);
+    }, 300);
+  };
+
+  const getInlineValues = (question: Question): Record<string, string> => {
+    return inlinePlaceholderValues[question.text] || {};
+  };
+
+  const handleInlineQuestionSubmit = (question: Question) => {
+    const values = getInlineValues(question);
+    const finalQuestion = replacePlaceholders(question.text, values);
+    onQuestionSelect?.(finalQuestion);
+    onClose?.();
+  };
+
+  const hasMultiplePlaceholders = (question: Question): boolean => {
+    return extractPlaceholders(question.text).length > 1;
+  };
+
+  const isQuestionReadyToSubmit = (question: Question): boolean => {
+    const placeholders = extractPlaceholders(question.text);
+    const values = getInlineValues(question);
+    return placeholders.every(placeholder => {
+      const value = values[placeholder];
+      const config = placeholderConfigs[placeholder];
+      return value || config?.defaultValue;
+    });
+  };
+
+  const handlePlaceholderValueChange = (placeholderId: string, value: string) => {
+    setPlaceholderValues(prev => ({
+      ...prev,
+      [placeholderId]: value
+    }));
+  };
+
+  const handleConfigureSubmit = () => {
+    if (!selectedQuestion) return;
+    
+    // Replace placeholders with selected values
+    const finalQuestion = replacePlaceholders(selectedQuestion.text, placeholderValues);
+    
+    onQuestionSelect?.(finalQuestion);
+    onClose?.();
   };
 
   const currentQuestions = mode === 'category' && selectedCategory
-    ? allQuestions.filter(q => q.category === selectedCategory)
+    ? allQuestions.filter(q => q.categories.includes(selectedCategory))
     : allQuestions;
 
   return (
@@ -259,12 +766,119 @@ const SearchOverlay = memo(function SearchOverlay({
               )}
             </div>
             <div className="px-4 pb-3 pt-2 text-xs text-muted-foreground/80 flex items-center justify-between">
-              <span>Questions about your selected accounts</span>
-              <span className="hidden sm:inline text-muted-foreground/60">↑↓ navigate • Enter to select • Esc to close</span>
+              <span>{searchValue ? "Ask anything or select from suggestions" : "Browse questions or ask anything about your portfolio"}</span>
+              <span className="hidden sm:inline text-muted-foreground/60">↑↓ navigate • Enter to ask • Esc to close</span>
             </div>
           </div>
           
-          {mode === 'category' ? (
+          {mode === 'configure' ? (
+            /* Question Configuration View */
+            <>
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleBackToOverview}
+                  className="h-8 px-3 rounded-full hover:bg-background/80 transition-all duration-200 hover:scale-105"
+                >
+                  <ArrowLeft className="h-3 w-3 mr-1.5" />
+                  Back
+                </Button>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 px-2 py-1 bg-background rounded-full border border-border/50">
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                    <Target className="h-4 w-4" />
+                    <span className="text-sm font-medium">Configure Question</span>
+                  </div>
+                </div>
+              </div>
+
+              {selectedQuestion && (
+                <div className="px-4 py-4 space-y-6">
+                  {/* Question Preview */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-foreground">Question Preview</h3>
+                    <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
+                      <p className="text-sm text-foreground leading-relaxed">
+                        {replacePlaceholders(selectedQuestion.text, placeholderValues)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Category Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    {selectedQuestion.categories.map((category, index) => {
+                      const categoryInfo = getCategoryInfo(category);
+                      return (
+                        <div key={index} className="flex items-center gap-1.5 px-2 py-1 bg-background rounded-full border border-border/50">
+                          {categoryInfo && <div className={`w-2 h-2 rounded-full ${categoryInfo.color}`} />}
+                          <span className="text-xs text-muted-foreground">{category}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Configuration */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-medium text-foreground">Configure Parameters</h3>
+                    {extractPlaceholders(selectedQuestion.text).map((placeholderId) => {
+                      const config = placeholderConfigs[placeholderId];
+                      if (!config) return null;
+
+                      return (
+                        <div key={placeholderId} className="space-y-2">
+                          <label className="text-sm font-medium text-muted-foreground">
+                            {config.label}
+                          </label>
+                          {config.type === 'select' && config.options ? (
+                            <Select
+                              value={placeholderValues[placeholderId] || config.defaultValue || ''}
+                              onValueChange={(value) => handlePlaceholderValueChange(placeholderId, value)}
+                            >
+                              <SelectTrigger className="w-full h-11 bg-background border-border/50 hover:border-primary/50 focus:border-primary transition-all duration-200">
+                                <SelectValue placeholder={`Select ${config.label.toLowerCase()}`} />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-60">
+                                {config.options.map((option) => (
+                                  <SelectItem key={option.value} value={option.value} className="cursor-pointer">
+                                    <div className="space-y-1">
+                                      <div className="font-medium">{option.label}</div>
+                                      {option.description && (
+                                        <div className="text-xs text-muted-foreground">{option.description}</div>
+                                      )}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <input
+                              type="text"
+                              value={placeholderValues[placeholderId] || config.defaultValue || ''}
+                              onChange={(e) => handlePlaceholderValueChange(placeholderId, e.target.value)}
+                              className="w-full h-11 px-3 bg-background border border-border/50 rounded-lg hover:border-primary/50 focus:border-primary focus:outline-none transition-all duration-200"
+                              placeholder={`Enter ${config.label.toLowerCase()}`}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <Button
+                      onClick={handleConfigureSubmit}
+                      className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                      disabled={extractPlaceholders(selectedQuestion.text).some(p => !placeholderValues[p] && !placeholderConfigs[p]?.defaultValue)}
+                    >
+                      Ask Question
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : mode === 'category' ? (
             /* Category View */
             <>
               <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50">
@@ -299,12 +913,43 @@ const SearchOverlay = memo(function SearchOverlay({
                     <CommandItem
                       key={index}
                       value={question.text}
-                      onSelect={() => handleQuestionClick(question.text)}
+                      onSelect={() => {
+                        // Don't auto-submit if this question was just modified or is being edited
+                        if (recentlyModifiedQuestion === question.text || 
+                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                          return;
+                        }
+                        
+                        if (hasPlaceholders(question.text)) {
+                          const values = getInlineValues(question);
+                          // Auto-submit if any placeholders have been configured, otherwise go to config mode
+                          if (Object.keys(values).length > 0 || !hasMultiplePlaceholders(question)) {
+                            handleInlineQuestionSubmit(question);
+                          } else {
+                            handleQuestionClick(question.text);
+                          }
+                        } else {
+                          handleQuestionClick(question.text);
+                        }
+                      }}
                       className="px-4 py-3 text-sm hover:bg-accent/50 cursor-pointer transition-all duration-200 rounded-md mx-2 my-0.5 border-l-2 border-transparent hover:border-primary/30"
                     >
                       <div className="flex items-center gap-2 w-full">
-                        <span className="flex-1">{question.text}</span>
-                        <ChevronRight className="h-3 w-3 text-muted-foreground/60 group-hover:text-primary transition-colors" />
+                        <span className="flex-1">
+                          {renderInteractiveQuestion(
+                            question,
+                            getInlineValues(question),
+                            (placeholderId) => handleInlinePlaceholderClick(question, placeholderId),
+                            editingPlaceholder,
+                            (placeholderId, value) => handleInlinePlaceholderChange(question.text, placeholderId, value)
+                          )}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          {hasPlaceholders(question.text) && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:bg-primary/60 transition-colors" title="Interactive question - click placeholders to customize" />
+                          )}
+                          <ChevronRight className="h-3 w-3 text-muted-foreground/60 group-hover:text-primary transition-colors" />
+                        </div>
                       </div>
                     </CommandItem>
                   ))}
@@ -332,30 +977,108 @@ const SearchOverlay = memo(function SearchOverlay({
                         <CommandItem
                           key={index}
                           value={question.text}
-                          onSelect={() => handleQuestionClick(question.text)}
+                          onSelect={() => {
+                        // Don't auto-submit if this question was just modified or is being edited
+                        if (recentlyModifiedQuestion === question.text || 
+                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                          return;
+                        }
+                        
+                        if (hasPlaceholders(question.text)) {
+                          const values = getInlineValues(question);
+                          // Auto-submit if any placeholders have been configured, otherwise go to config mode
+                          if (Object.keys(values).length > 0 || !hasMultiplePlaceholders(question)) {
+                            handleInlineQuestionSubmit(question);
+                          } else {
+                            handleQuestionClick(question.text);
+                          }
+                        } else {
+                          handleQuestionClick(question.text);
+                        }
+                      }}
                           className="px-4 py-3 hover:bg-accent/50 cursor-pointer transition-all duration-200 rounded-md mx-2 my-0.5 group border-l-2 border-transparent hover:border-primary/30"
                         >
                           <div className="flex items-center gap-3 w-full">
-                            <span className="text-sm flex-1 group-hover:text-foreground transition-colors">{question.text}</span>
-                            {categoryInfo && (
-                              <Badge 
-                                variant="outline" 
-                                className="text-xs px-2 py-1 h-5 gap-1.5 shrink-0 border-border/50 hover:border-primary/30 transition-colors"
-                              >
-                                <div className={`w-1.5 h-1.5 rounded-full ${categoryInfo.color}`} />
-                                {question.category}
-                              </Badge>
-                            )}
-                            <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
+                            <span className="text-sm flex-1 group-hover:text-foreground transition-colors">
+                              {renderInteractiveQuestion(
+                                question,
+                                getInlineValues(question),
+                                (placeholderId) => handleInlinePlaceholderClick(question, placeholderId),
+                                editingPlaceholder,
+                                (placeholderId, value) => handleInlinePlaceholderChange(question.text, placeholderId, value),
+                                () => handleInlineQuestionSubmit(question),
+                                hasMultiplePlaceholders(question)
+                              )}
+                            </span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              {question.categories.slice(0, 2).map((categoryName, idx) => {
+                                const categoryInfo = getCategoryInfo(categoryName);
+                                return categoryInfo ? (
+                                  <Badge 
+                                    key={idx}
+                                    variant="outline" 
+                                    className="text-xs px-2 py-1 h-5 gap-1.5 border-border/50 hover:border-primary/30 transition-colors"
+                                  >
+                                    <div className={`w-1.5 h-1.5 rounded-full ${categoryInfo.color}`} />
+                                    {categoryName}
+                                  </Badge>
+                                ) : null;
+                              })}
+                              {question.categories.length > 2 && (
+                                <Badge variant="outline" className="text-xs px-2 py-1 h-5 border-border/50">
+                                  +{question.categories.length - 2}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {hasPlaceholders(question.text) && (
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:bg-primary/60 transition-colors" title="Interactive question - click placeholders to customize" />
+                              )}
+                              <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
+                            </div>
                           </div>
                         </CommandItem>
                       );
                     })
                   ) : (
-                    <CommandEmpty className="py-8 text-center">
-                      <div className="space-y-2">
-                        <p className="text-sm text-muted-foreground">No portfolio questions match</p>
-                        <p className="text-xs text-muted-foreground/60">"{searchValue}"</p>
+                    <CommandEmpty className="py-0">
+                      <div className="p-6 text-center space-y-4 border-t border-border/30">
+                        <div className="space-y-2">
+                          <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-3">
+                            <Search className="h-6 w-6 text-primary" />
+                          </div>
+                          <h4 className="text-sm font-medium text-foreground">Ask Your Question</h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Don't see what you're looking for? Ask me anything about your portfolio and I'll provide detailed analysis.
+                          </p>
+                        </div>
+                        
+                        <Button 
+                          onClick={() => onQuestionSelect?.(searchValue.trim())}
+                          className="w-full h-9 text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200"
+                          disabled={!searchValue.trim()}
+                        >
+                          Ask: "{searchValue}"
+                        </Button>
+
+                        <div className="space-y-2">
+                          <p className="text-xs text-muted-foreground font-medium">Try asking:</p>
+                          <div className="grid grid-cols-1 gap-2">
+                            {[
+                              "What's my biggest risk exposure?",
+                              "How should I rebalance my portfolio?",
+                              "Which holdings are underperforming?"
+                            ].map((example, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => onQuestionSelect?.(example)}
+                                className="text-xs text-left p-2 rounded-md bg-muted/30 hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all duration-200 border border-transparent hover:border-border/50"
+                              >
+                                "{example}"
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </CommandEmpty>
                   )}
@@ -376,23 +1099,71 @@ const SearchOverlay = memo(function SearchOverlay({
                       <CommandItem
                         key={index}
                         value={question.text}
-                        onSelect={() => handleQuestionClick(question.text)}
+                        onSelect={() => {
+                        // Don't auto-submit if this question was just modified or is being edited
+                        if (recentlyModifiedQuestion === question.text || 
+                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                          return;
+                        }
+                        
+                        if (hasPlaceholders(question.text)) {
+                          const values = getInlineValues(question);
+                          // Auto-submit if any placeholders have been configured, otherwise go to config mode
+                          if (Object.keys(values).length > 0 || !hasMultiplePlaceholders(question)) {
+                            handleInlineQuestionSubmit(question);
+                          } else {
+                            handleQuestionClick(question.text);
+                          }
+                        } else {
+                          handleQuestionClick(question.text);
+                        }
+                      }}
                         className="px-4 py-3 hover:bg-accent/50 cursor-pointer transition-all duration-200 rounded-md mx-2 my-0.5 group border-l-2 border-transparent hover:border-primary/30"
                       >
                         <div className="flex items-center gap-3 w-full">
-                          <span className="text-sm flex-1 group-hover:text-foreground transition-colors">{question.text}</span>
-                          <Badge 
-                            variant="outline" 
-                            className="text-xs px-2 py-1 h-5 gap-1.5 shrink-0 cursor-pointer hover:bg-primary/10 hover:border-primary/50 transition-all duration-200"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCategoryClick(question.category);
-                            }}
-                          >
-                            <div className={`w-1.5 h-1.5 rounded-full ${categoryInfo?.color}`} />
-                            {question.category}
-                          </Badge>
-                          <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
+                          <span className="text-sm flex-1 group-hover:text-foreground transition-colors">
+                            {renderInteractiveQuestion(
+                              question,
+                              getInlineValues(question),
+                              (placeholderId) => handleInlinePlaceholderClick(question, placeholderId),
+                              editingPlaceholder,
+                              (placeholderId, value) => handleInlinePlaceholderChange(question.text, placeholderId, value),
+                              () => handleInlineQuestionSubmit(question),
+                              hasMultiplePlaceholders(question)
+                            )}
+                          </span>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {question.categories.slice(0, 1).map((categoryName, idx) => {
+                              const categoryInfo = getCategoryInfo(categoryName);
+                              return categoryInfo ? (
+                                <Badge 
+                                  key={idx}
+                                  variant="outline" 
+                                  className="text-xs px-2 py-1 h-5 gap-1.5 cursor-pointer hover:bg-primary/10 hover:border-primary/50 transition-all duration-200"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCategoryClick(categoryName);
+                                  }}
+                                >
+                                  <div className={`w-1.5 h-1.5 rounded-full ${categoryInfo.color}`} />
+                                  {categoryName}
+                                </Badge>
+                              ) : null;
+                            })}
+                            {question.categories.length > 1 && (
+                              <Badge variant="outline" className="text-xs px-1.5 py-1 h-5 border-border/50">
+                                +{question.categories.length - 1}
+                              </Badge>
+                            )}
+                          </div>
+                          {hasPlaceholders(question.text) ? (
+                            <div className="flex items-center gap-1">
+                              <Target className="h-3 w-3 text-primary/60" />
+                              <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
+                            </div>
+                          ) : (
+                            <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
+                          )}
                         </div>
                       </CommandItem>
                     );
@@ -501,7 +1272,9 @@ const SearchOverlay = memo(function SearchOverlay({
                 )}
               </div>
               <div className="px-1 pb-3">
-                <span className="text-xs text-muted-foreground/80">Questions about your selected accounts</span>
+                <span className="text-xs text-muted-foreground/80">
+                  {searchValue ? "Ask anything or tap suggestions" : "Browse questions or ask anything about your portfolio"}
+                </span>
               </div>
             </div>
             <CommandList className="flex-1 px-2" data-search-overlay-mobile>
@@ -513,27 +1286,98 @@ const SearchOverlay = memo(function SearchOverlay({
                     <span>Results ({filteredQuestions.length})</span>
                   </div>
                 }>
-                  {filteredQuestions.map((question, index) => {
-                    const categoryInfo = getCategoryInfo(question.category);
-                    return (
-                      <CommandItem
-                        key={index}
-                        value={question.text}
-                        onSelect={() => handleQuestionClick(question.text)}
-                        className="px-4 py-4 rounded-lg mx-2 my-1 border border-border/30 hover:bg-accent/50 transition-all duration-200 active:scale-95"
-                      >
-                        <div className="flex flex-col gap-2 w-full">
-                          <span className="text-sm font-medium">{question.text}</span>
-                          {categoryInfo && (
-                            <div className="flex items-center gap-1.5">
-                              <div className={`w-2 h-2 rounded-full ${categoryInfo.color}`} />
-                              <span className="text-xs text-muted-foreground">{question.category}</span>
-                            </div>
-                          )}
+                  {filteredQuestions.length > 0 ? (
+                    filteredQuestions.map((question, index) => {
+                      const categoryInfo = getCategoryInfo(question.category);
+                      return (
+                        <CommandItem
+                          key={index}
+                          value={question.text}
+                          onSelect={() => {
+                        // Don't auto-submit if this question was just modified or is being edited
+                        if (recentlyModifiedQuestion === question.text || 
+                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                          return;
+                        }
+                        
+                        if (hasPlaceholders(question.text)) {
+                          const values = getInlineValues(question);
+                          // Auto-submit if any placeholders have been configured, otherwise go to config mode
+                          if (Object.keys(values).length > 0 || !hasMultiplePlaceholders(question)) {
+                            handleInlineQuestionSubmit(question);
+                          } else {
+                            handleQuestionClick(question.text);
+                          }
+                        } else {
+                          handleQuestionClick(question.text);
+                        }
+                      }}
+                          className="px-4 py-4 rounded-lg mx-2 my-1 border border-border/30 hover:bg-accent/50 transition-all duration-200 active:scale-95"
+                        >
+                          <div className="flex flex-col gap-2 w-full">
+                            <span className="text-sm font-medium">
+                              {renderInteractiveQuestion(
+                                question,
+                                getInlineValues(question),
+                                (placeholderId) => handleInlinePlaceholderClick(question, placeholderId),
+                                editingPlaceholder,
+                                (placeholderId, value) => handleInlinePlaceholderChange(question.text, placeholderId, value),
+                                () => handleInlineQuestionSubmit(question),
+                                hasMultiplePlaceholders(question)
+                              )}
+                            </span>
+                            {categoryInfo && (
+                              <div className="flex items-center gap-1.5">
+                                <div className={`w-2 h-2 rounded-full ${categoryInfo.color}`} />
+                                <span className="text-xs text-muted-foreground">{question.category}</span>
+                              </div>
+                            )}
+                          </div>
+                        </CommandItem>
+                      );
+                    })
+                  ) : (
+                    <CommandEmpty className="py-0">
+                      <div className="px-4 py-8 text-center space-y-4">
+                        <div className="space-y-3">
+                          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                            <Search className="h-8 w-8 text-primary" />
+                          </div>
+                          <h4 className="text-base font-medium text-foreground">Ask Your Question</h4>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            Don't see what you're looking for? Ask me anything about your portfolio.
+                          </p>
                         </div>
-                      </CommandItem>
-                    );
-                  })}
+                        
+                        <Button 
+                          onClick={() => onQuestionSelect?.(searchValue.trim())}
+                          className="w-full h-12 text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200"
+                          disabled={!searchValue.trim()}
+                        >
+                          Ask: "{searchValue}"
+                        </Button>
+
+                        <div className="space-y-3">
+                          <p className="text-sm text-muted-foreground font-medium">Quick examples:</p>
+                          <div className="grid grid-cols-1 gap-2">
+                            {[
+                              "What's my biggest risk?",
+                              "Should I rebalance?",
+                              "Which stocks are down?"
+                            ].map((example, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => onQuestionSelect?.(example)}
+                                className="text-sm text-left p-3 rounded-lg bg-muted/30 hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all duration-200 border border-transparent hover:border-border/50 active:scale-95"
+                              >
+                                "{example}"
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CommandEmpty>
+                  )}
                 </CommandGroup>
               )}
               
@@ -551,11 +1395,39 @@ const SearchOverlay = memo(function SearchOverlay({
                         <CommandItem
                           key={index}
                           value={question.text}
-                          onSelect={() => handleQuestionClick(question.text)}
+                          onSelect={() => {
+                        // Don't auto-submit if this question was just modified or is being edited
+                        if (recentlyModifiedQuestion === question.text || 
+                            (editingPlaceholder && editingPlaceholder.questionId === question.text)) {
+                          return;
+                        }
+                        
+                        if (hasPlaceholders(question.text)) {
+                          const values = getInlineValues(question);
+                          // Auto-submit if any placeholders have been configured, otherwise go to config mode
+                          if (Object.keys(values).length > 0 || !hasMultiplePlaceholders(question)) {
+                            handleInlineQuestionSubmit(question);
+                          } else {
+                            handleQuestionClick(question.text);
+                          }
+                        } else {
+                          handleQuestionClick(question.text);
+                        }
+                      }}
                           className="px-4 py-4 rounded-lg mx-2 my-1 border border-border/30 hover:bg-accent/50 transition-all duration-200 active:scale-95"
                         >
                           <div className="flex flex-col gap-2 w-full">
-                            <span className="text-sm font-medium">{question.text}</span>
+                            <span className="text-sm font-medium">
+                              {renderInteractiveQuestion(
+                                question,
+                                getInlineValues(question),
+                                (placeholderId) => handleInlinePlaceholderClick(question, placeholderId),
+                                editingPlaceholder,
+                                (placeholderId, value) => handleInlinePlaceholderChange(question.text, placeholderId, value),
+                                () => handleInlineQuestionSubmit(question),
+                                hasMultiplePlaceholders(question)
+                              )}
+                            </span>
                             {categoryInfo && (
                               <div className="flex items-center gap-1.5">
                                 <div className={`w-2 h-2 rounded-full ${categoryInfo.color}`} />

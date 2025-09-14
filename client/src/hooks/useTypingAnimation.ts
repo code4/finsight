@@ -6,6 +6,8 @@ interface UseTypingAnimationProps {
   typingSpeed?: number;
   erasingSpeed?: number;
   pauseDuration?: number;
+  mobileQuestions?: string[];
+  tabletQuestions?: string[];
 }
 
 export function useTypingAnimation({
@@ -13,19 +15,56 @@ export function useTypingAnimation({
   isActive,
   typingSpeed = 75,
   erasingSpeed = 30,
-  pauseDuration = 2000
+  pauseDuration = 2000,
+  mobileQuestions,
+  tabletQuestions
 }: UseTypingAnimationProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
+  const [screenWidth, setScreenWidth] = useState(() => 
+    typeof window !== 'undefined' ? window.innerWidth : 1024
+  );
+
+  // Resize listener
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Get responsive questions based on screen size
+  const getResponsiveQuestions = () => {
+    if (screenWidth < 640 && mobileQuestions) {
+      return mobileQuestions;
+    } else if (screenWidth < 768 && tabletQuestions) {
+      return tabletQuestions;
+    }
+    return questions;
+  };
+
+  // Reset animation when screen size changes question set
+  useEffect(() => {
+    if (isActive) {
+      setDisplayedText("");
+      setIsTyping(true);
+      setCurrentIndex(0);
+    }
+  }, [screenWidth, isActive]);
 
   useEffect(() => {
-    if (!isActive || questions.length === 0) {
+    const activeQuestions = getResponsiveQuestions();
+    if (!isActive || activeQuestions.length === 0) {
       setDisplayedText("");
       return;
     }
 
-    const currentQuestion = questions[currentIndex];
+    const currentQuestion = activeQuestions[currentIndex % activeQuestions.length];
     let timeoutId: NodeJS.Timeout;
 
     if (isTyping) {
@@ -48,13 +87,14 @@ export function useTypingAnimation({
         }, erasingSpeed);
       } else {
         // Move to next question
-        setCurrentIndex((prev) => (prev + 1) % questions.length);
+        const activeQuestions = getResponsiveQuestions();
+        setCurrentIndex((prev) => (prev + 1) % activeQuestions.length);
         setIsTyping(true);
       }
     }
 
     return () => clearTimeout(timeoutId);
-  }, [displayedText, isTyping, currentIndex, isActive, questions, typingSpeed, erasingSpeed, pauseDuration]);
+  }, [displayedText, isTyping, currentIndex, isActive, questions, mobileQuestions, tabletQuestions, typingSpeed, erasingSpeed, pauseDuration]);
 
   // Reset when becoming active
   useEffect(() => {

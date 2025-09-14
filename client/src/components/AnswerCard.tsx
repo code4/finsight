@@ -7,6 +7,21 @@ import { Calendar, RefreshCw, Download, User, TrendingUp, MessageCircle, Externa
 import FinancialChart from "@/components/FinancialChart";
 import FollowUpChips from "@/components/FollowUpChips";
 
+// Utility function to clean up placeholder text for display
+const cleanQuestionText = (question: string): string => {
+  // Replace common placeholder patterns with user-friendly defaults
+  return question
+    .replace(/\{benchmark\}/gi, "S&P 500")
+    .replace(/\{timeperiod\}/gi, "YTD")
+    .replace(/\{sector\}/gi, "Technology")
+    .replace(/\{account\}/gi, "All Accounts")
+    // Clean up any remaining placeholders by removing braces
+    .replace(/\{(\w+)\}/g, (match, placeholder) => {
+      // Convert camelCase to Title Case
+      return placeholder.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    });
+};
+
 interface KPI {
   label: string;
   value: string;
@@ -274,7 +289,7 @@ const AnswerCard = memo(function AnswerCard({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors duration-200" data-testid="text-question">
-              {question}
+              {cleanQuestionText(question)}
             </h3>
             <div className="flex items-center gap-2 flex-wrap">
               {accounts.map((account, index) => (
