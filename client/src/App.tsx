@@ -111,6 +111,8 @@ function FinSightDashboard() {
     isUnmatched: boolean;
     isReview?: boolean;
     isError?: boolean;
+    errorType?: 'network' | 'server' | 'timeout' | 'unknown';
+    originalError?: string;
     message?: string;
     matchedAnswer?: {
       id: string;
@@ -756,6 +758,10 @@ function FinSightDashboard() {
                       onExport={() => {}}
                       onQuestionSubmit={handleSearchSubmit}
                       isRefreshing={refreshingAnswerId === answer.id}
+                      isError={answer.isError}
+                      errorType={answer.errorType}
+                      originalError={answer.originalError}
+                      message={answer.message}
                     />
                   )}
                 </div>
