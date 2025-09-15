@@ -195,6 +195,7 @@ interface AnswerCardProps {
   timeframe: string;
   isUnmatched?: boolean;
   isError?: boolean;
+  isRefreshing?: boolean;
   errorType?: 'network' | 'server' | 'timeout' | 'unknown';
   originalError?: string;
   message?: string;
@@ -1292,6 +1293,7 @@ const AnswerCard = memo(function AnswerCard({
   timeframe = "Year to date",
   isUnmatched = false,
   isError = false,
+  isRefreshing = false,
   errorType,
   originalError,
   message,
@@ -1458,12 +1460,13 @@ const AnswerCard = memo(function AnswerCard({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-8 w-8 hover-elevate button-smooth hover:rotate-180"
+                  className={`h-8 w-8 hover-elevate button-smooth ${isRefreshing ? 'animate-spin' : 'hover:rotate-180'}`}
                   onClick={handleRefresh}
+                  disabled={isRefreshing}
                   data-testid="button-refresh"
                   aria-label="Refresh this analysis"
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>

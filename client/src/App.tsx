@@ -131,6 +131,7 @@ function FinSightDashboard() {
   }>>([]);
   const [newAnswerId, setNewAnswerId] = useState<string | null>(null);
   const [isGeneratingAnswer, setIsGeneratingAnswer] = useState(false);
+  const [refreshingAnswerId, setRefreshingAnswerId] = useState<string | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingStage, setLoadingStage] = useState<string>("");
   const [estimatedTime, setEstimatedTime] = useState<number>(0);
@@ -478,6 +479,71 @@ function FinSightDashboard() {
     handleSearchSubmit(question);
   };
 
+  // Handler to refresh a specific answer with new timestamp and slightly varied data
+  const handleRefreshAnswer = useCallback(async (answerId: string) => {
+    // Set refreshing state to show loading
+    setRefreshingAnswerId(answerId);
+
+    // Add loading delay to show skeleton
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    setAnswers(prev => prev.map(answer => {
+      if (answer.id !== answerId) {
+        return answer; // Only update the specific answer being refreshed
+      }
+
+      // Update the timestamp with full date and time including seconds for the specific answer
+      const now = new Date();
+      const updatedAnswer = {
+        ...answer,
+        asOfDate: now.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        })
+      };
+
+      // If the answer has content with KPIs, slightly randomize them to simulate fresh data
+      if (answer.content?.kpis) {
+        const updatedKPIs = answer.content.kpis.map(kpi => {
+          // Add small random variation to make refresh feel real
+          const variation = (Math.random() - 0.5) * 0.2; // ±0.1% variation
+          const baseValue = parseFloat(kpi.value.replace(/[^\d.-]/g, ''));
+          
+          if (!isNaN(baseValue)) {
+            const newValue = baseValue + variation;
+            const suffix = kpi.value.includes('%') ? '%' : '';
+            const prefix = kpi.value.includes('+') ? '+' : '';
+            
+            return {
+              ...kpi,
+              value: `${prefix}${newValue.toFixed(1)}${suffix}`
+            };
+          }
+          return kpi;
+        });
+
+        updatedAnswer.content = {
+          ...answer.content,
+          kpis: updatedKPIs
+        };
+      }
+
+      return updatedAnswer;
+    }));
+
+    // Clear refreshing state
+    setRefreshingAnswerId(null);
+
+    // Briefly highlight the refreshed answer
+    setNewAnswerId(answerId);
+    setTimeout(() => setNewAnswerId(null), 1500);
+  }, []);
+
   // Close search overlay handler
   const handleCloseSearch = useCallback(() => {
     setIsSearchFocused(false);
@@ -668,19 +734,30 @@ function FinSightDashboard() {
                     answer.id === newAnswerId ? "ring-2 ring-primary/30 shadow-lg rounded-lg" : ""
                   }`}
                 >
-                  <AnswerCard
-                    question={answer.question}
-                    asOfDate={answer.asOfDate}
-                    accounts={answer.accounts}
-                    timeframe={answer.timeframe}
-                    isUnmatched={answer.isUnmatched || answer.isReview || answer.isError}
-                    content={answer.content}
-                    answerId={answer.matchedAnswer?.id}
-                    onFollowUpClick={handleFollowUpClick}
-                    onRefresh={() => {}}
-                    onExport={() => {}}
-                    onQuestionSubmit={handleSearchSubmit}
-                  />
+                  {refreshingAnswerId === answer.id ? (
+                    <AnswerCardSkeleton
+                      loadingStage="Refreshing analysis..."
+                      loadingProgress={0.5}
+                      estimatedTime={1000}
+                      allAccounts={mockAllAccounts}
+                      accountGroups={mockAccountGroups}
+                    />
+                  ) : (
+                    <AnswerCard
+                      question={answer.question}
+                      asOfDate={answer.asOfDate}
+                      accounts={answer.accounts}
+                      timeframe={answer.timeframe}
+                      isUnmatched={answer.isUnmatched || answer.isReview || answer.isError}
+                      content={answer.content}
+                      answerId={answer.matchedAnswer?.id}
+                      onFollowUpClick={handleFollowUpClick}
+                      onRefresh={() => handleRefreshAnswer(answer.id)}
+                      onExport={() => {}}
+                      onQuestionSubmit={handleSearchSubmit}
+                      isRefreshing={refreshingAnswerId === answer.id}
+                    />
+                  )}
                 </div>
               ))}
             </div>
