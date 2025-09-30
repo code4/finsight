@@ -17,6 +17,10 @@
       "dest": "server/mock-api.mjs"
     },
     {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
