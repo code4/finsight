@@ -184,24 +184,36 @@ export default async function handler(req, res) {
       if (match) {
         const response = {
           id: questionId,
-          question,
-          answer: match.answer,
+          status: "matched",
+          answer: {
+            id: match.answer.id,
+            title: match.answer.title,
+            content: match.answer.content,
+            category: match.answer.category,
+            answerType: match.answer.answerType,
+            data: match.answer.data
+          },
           confidence: match.confidence,
-          timestamp: new Date().toISOString(),
-          match: true
+          message: `Found ${match.confidence} confidence match`
         };
         return res.status(200).json(response);
       } else {
         const response = {
           id: questionId,
-          question,
+          status: "no_match",
           answer: {
+            id: `fallback-${questionId}`,
+            title: "Question Added to Queue",
             content: `We've added your question "${question}" to our development queue. Our team will review it for inclusion in future platform updates.`,
-            fallbackType: "portfolio"
+            category: "Fallback",
+            answerType: "portfolio",
+            data: {
+              fallbackType: "portfolio",
+              isUnmatched: true
+            }
           },
           confidence: "low",
-          timestamp: new Date().toISOString(),
-          match: false
+          message: "No match found, added to review queue"
         };
         return res.status(200).json(response);
       }
