@@ -10,7 +10,7 @@ const mockAnswers = [
     keywords: ["performance", "return", "ytd", "s&p", "outperform"],
     phrases: ["YTD performance", "portfolio return", "vs S&P 500"],
     category: "Performance Analysis",
-    answerType: "portfolio",
+    answerType: "performance",
     data: {
       chart: {
         type: "line",
@@ -24,7 +24,11 @@ const mockAnswers = [
           { period: "Jul", value: 11.8 },
           { period: "Aug", value: 12.4 }
         ]
-      }
+      },
+      ytdReturn: 12.4,
+      benchmarkReturn: 10.3,
+      excess: 2.1,
+      volatility: 14.2
     }
   },
   {
@@ -39,8 +43,15 @@ const mockAnswers = [
       metrics: {
         beta: 0.85,
         volatility: 14.2,
-        sharpeRatio: 1.23
-      }
+        sharpeRatio: 1.23,
+        maxDrawdown: -8.5,
+        var95: -3.2,
+        tracking: 2.1
+      },
+      riskProfile: "Moderate",
+      grade: "B+",
+      benchmarkBeta: 1.0,
+      benchmarkVol: 16.8
     }
   },
   {
@@ -52,10 +63,62 @@ const mockAnswers = [
     category: "Holdings Analysis",
     answerType: "holdings",
     data: {
-      holdings: [
-        { symbol: "AAPL", name: "Apple Inc.", percentage: 8.2 },
-        { symbol: "MSFT", name: "Microsoft Corp.", percentage: 6.1 },
-        { symbol: "GOOGL", name: "Alphabet Inc.", percentage: 4.8 }
+      topHoldings: [
+        { symbol: "AAPL", name: "Apple Inc.", percentage: 8.2, return: 14.5, ytdReturn: 12.3 },
+        { symbol: "MSFT", name: "Microsoft Corp.", percentage: 6.1, return: 18.2, ytdReturn: 15.7 },
+        { symbol: "GOOGL", name: "Alphabet Inc.", percentage: 4.8, return: 22.1, ytdReturn: 18.9 },
+        { symbol: "AMZN", name: "Amazon.com Inc.", percentage: 4.2, return: 16.7, ytdReturn: 13.4 },
+        { symbol: "TSLA", name: "Tesla Inc.", percentage: 3.9, return: 28.3, ytdReturn: 24.1 },
+        { symbol: "NVDA", name: "NVIDIA Corp.", percentage: 3.7, return: 45.6, ytdReturn: 38.2 },
+        { symbol: "META", name: "Meta Platforms Inc.", percentage: 3.2, return: 19.8, ytdReturn: 16.5 },
+        { symbol: "BRK.B", name: "Berkshire Hathaway Inc.", percentage: 2.8, return: 8.4, ytdReturn: 7.1 },
+        { symbol: "JNJ", name: "Johnson & Johnson", percentage: 2.5, return: 5.2, ytdReturn: 4.8 },
+        { symbol: "V", name: "Visa Inc.", percentage: 2.3, return: 12.7, ytdReturn: 10.9 }
+      ],
+      totalWeight: 42.5,
+      avgPE: 24.8,
+      avgReturn: 19.2,
+      ytdReturn: 16.4
+    }
+  },
+  {
+    id: "4",
+    title: "Sector Allocation Analysis",
+    content: "Your portfolio shows strong diversification across sectors with Technology (28%) and Healthcare (18%) as top allocations.",
+    keywords: ["allocation", "sector", "diversification", "technology", "healthcare"],
+    phrases: ["sector allocation", "asset allocation"],
+    category: "Allocation Analysis",
+    answerType: "allocation",
+    data: {
+      sectors: [
+        { name: "Technology", portfolio: 28.5, benchmark: 25.2, excess: 3.3, return: 18.7 },
+        { name: "Healthcare", portfolio: 18.2, benchmark: 16.8, excess: 1.4, return: 12.4 },
+        { name: "Financials", portfolio: 15.1, benchmark: 18.3, excess: -3.2, return: 8.9 },
+        { name: "Consumer Discretionary", portfolio: 12.4, benchmark: 11.7, excess: 0.7, return: 15.2 },
+        { name: "Communication Services", portfolio: 8.8, benchmark: 9.1, excess: -0.3, return: 14.6 },
+        { name: "Industrials", portfolio: 7.9, benchmark: 8.2, excess: -0.3, return: 11.3 }
+      ]
+    }
+  },
+  {
+    id: "5",
+    title: "Dividend Income Analysis",
+    content: "Your portfolio generates a 2.8% dividend yield with consistent quarterly payments totaling $14,250 annually.",
+    keywords: ["dividend", "yield", "income", "quarterly", "payments"],
+    phrases: ["dividend yield", "dividend income"],
+    category: "Income Analysis",
+    answerType: "dividend",
+    data: {
+      currentYield: 2.8,
+      annualIncome: 14250,
+      quarterlyIncome: 3562.5,
+      yieldGrowth: 6.2,
+      payoutRatio: 45.3,
+      dividendGrowthRate: 8.1,
+      topDividendStocks: [
+        { symbol: "JNJ", yield: 2.9, income: 1247 },
+        { symbol: "PG", yield: 2.6, income: 1089 },
+        { symbol: "KO", yield: 3.1, income: 892 }
       ]
     }
   }
