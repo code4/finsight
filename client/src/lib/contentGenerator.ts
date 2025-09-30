@@ -1,20 +1,32 @@
 // Content generator that creates varied UI presentations based on answer data
+export interface KPI {
+  label: string;
+  value: string;
+  change: string;
+  isPositive: boolean;
+}
+
+export interface Metric {
+  label: string;
+  value: string;
+  subtext?: string;
+}
+
+export interface ChartDataPoint {
+  [key: string]: string | number;
+}
+
+export interface TableDataRow {
+  [key: string]: string | number | boolean;
+}
+
 export interface GeneratedContent {
   paragraph?: string;
-  kpis?: Array<{
-    label: string;
-    value: string;
-    change: string;
-    isPositive: boolean;
-  }>;
-  chartData?: any[];
-  tableData?: any[];
+  kpis?: KPI[];
+  chartData?: ChartDataPoint[];
+  tableData?: TableDataRow[];
   highlights?: string[];
-  metrics?: Array<{
-    label: string;
-    value: string;
-    subtext?: string;
-  }>;
+  metrics?: Metric[];
 }
 
 export class ContentGenerator {
@@ -94,7 +106,10 @@ export class ContentGenerator {
   }
 
   private static generateHoldingsContent(data: any): GeneratedContent {
-    const topHoldings = data.topHoldings.slice(0, 6);
+    // Defensive programming: ensure topHoldings exists and is an array
+    const topHoldings = Array.isArray(data?.topHoldings)
+      ? data.topHoldings.slice(0, 6)
+      : [];
     
     return {
       kpis: [
@@ -187,7 +202,10 @@ export class ContentGenerator {
   }
 
   private static generateAllocationContent(data: any): GeneratedContent {
-    const topSectors = data.sectors.slice(0, 6);
+    // Defensive programming: ensure sectors exists and is an array
+    const topSectors = Array.isArray(data?.sectors)
+      ? data.sectors.slice(0, 6)
+      : [];
     
     return {
       kpis: [

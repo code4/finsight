@@ -18,7 +18,7 @@ import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
 import { useTypingAnimation } from "@/hooks/useTypingAnimation";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { apiService } from "@/lib/api";
-import { ContentGenerator } from "@/lib/contentGenerator";
+import { ContentGenerator, type GeneratedContent } from "@/lib/contentGenerator";
 import { questionCatalog, type Category, type Question } from '@/lib/questionCatalog';
 import EmptyStateLanding from './components/EmptyStateLanding';
 
@@ -122,14 +122,7 @@ function FinSightDashboard() {
     };
     confidence?: "high" | "medium" | "low";
     backendResponse?: any;
-    content?: {
-      paragraph?: string;
-      kpis?: any[];
-      chartData?: any[];
-      tableData?: any[];
-      highlights?: string[];
-      metrics?: any[];
-    };
+    content?: GeneratedContent;
   }>>([]);
   const [newAnswerId, setNewAnswerId] = useState<string | null>(null);
   const [isGeneratingAnswer, setIsGeneratingAnswer] = useState(false);
