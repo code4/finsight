@@ -78,7 +78,8 @@ const mockAnswers = [
       totalWeight: 42.5,
       avgPE: 24.8,
       avgReturn: 19.2,
-      ytdReturn: 16.4
+      ytdReturn: 16.4,
+      contribution: 3.2
     }
   },
   {
@@ -97,7 +98,8 @@ const mockAnswers = [
         { name: "Consumer Discretionary", portfolio: 12.4, benchmark: 11.7, excess: 0.7, return: 15.2 },
         { name: "Communication Services", portfolio: 8.8, benchmark: 9.1, excess: -0.3, return: 14.6 },
         { name: "Industrials", portfolio: 7.9, benchmark: 8.2, excess: -0.3, return: 11.3 }
-      ]
+      ],
+      excessReturn: 2.1
     }
   },
   {
